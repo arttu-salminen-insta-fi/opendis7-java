@@ -166,7 +166,8 @@ public class MarshalEnumsTest
       marshalOne(EEAttributeStateIndicator.values()[0]);
       marshalOne(ElectromagneticEmissionBeamFunction.values()[0]);
       marshalOne(ElectromagneticEmissionStateUpdateIndicator.values()[0]);
-      marshalOne(EmitterName.values()[0]);
+      // EmitterName is an enum but is used via interface because enum is split into multiple enum classes
+      marshalOne((Enum) EmitterName.values()[0]);
       marshalOne(EmitterSystemFunction.values()[0]);
       marshalOne(EntityAssociationAssociationStatus.values()[0]);
       marshalOne(EntityAssociationAssociationType.values()[0]);
