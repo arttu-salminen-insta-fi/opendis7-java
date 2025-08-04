@@ -17,7 +17,7 @@ import edu.nps.moves.dis7.enumerations.*;
  * First part of a simulation management (SIMAN) PDU and SIMAN-Reliability (SIMAN-R) PDU. Sectionn 6.2.81
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public abstract class SimulationManagementFamilyPdu extends PduBase implements Serializable
+public abstract class SimulationManagementFamilyPdu extends PduBase implements Serializable, Marshaller
 {
 
    /** The name of this PDU family type */

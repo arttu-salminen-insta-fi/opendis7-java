@@ -17,7 +17,7 @@ import edu.nps.moves.dis7.enumerations.*;
  * Section 5.3.3. Common superclass for EntityState, Collision, collision-elastic, and entity state update PDUs.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public abstract class EntityInformationInteractionFamilyPdu extends PduBase implements Serializable
+public abstract class EntityInformationInteractionFamilyPdu extends PduBase implements Serializable, Marshaller
 {
 
    /** The name of this PDU family type */

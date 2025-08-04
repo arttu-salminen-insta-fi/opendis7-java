@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.9.2.2 The Aggregate State PDU shall be used to communicate the state and other pertinent information about an aggregated unit.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class AggregateStatePdu extends EntityManagementFamilyPdu implements Serializable
+public class AggregateStatePdu extends EntityManagementFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

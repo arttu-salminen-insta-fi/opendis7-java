@@ -17,7 +17,7 @@ import edu.nps.moves.dis7.enumerations.*;
  * Information related to the status of a beam. This is contained in the beam status field of the electromagnitec emission PDU. The first bit determines whether the beam is active (0) or deactivated (1). Section 6.2.12.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class BeamStatus extends Object implements Serializable
+public class BeamStatus extends Object implements Serializable, Marshaller
 {
    /** First bit zero means beam is active, first bit = 1 means deactivated. The rest is padding. 318 */
    protected BeamStatusBeamState beamState = BeamStatusBeamState.values()[0];
@@ -33,6 +33,7 @@ public class BeamStatus extends Object implements Serializable
    * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
    * @return serialized size in bytes
    */
+@Override
 public synchronized int getMarshalledSize()
 {
    int marshalSize = 0; 
@@ -65,6 +66,7 @@ public BeamStatusBeamState getBeamState()
  * @see java.io.DataOutputStream
  * @param dos the OutputStream
  */
+@Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     try 
@@ -85,6 +87,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
  * @param dis the InputStream
  * @return marshalled serialized size in bytes
  */
+@Override
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
@@ -108,6 +111,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
  * @param byteBuffer The ByteBuffer at the position to begin writing
  * @throws Exception ByteBuffer-generated exception
  */
+@Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    beamState.marshal(byteBuffer);
@@ -122,6 +126,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
  * @return marshalled serialized size in bytes
  * @throws Exception ByteBuffer-generated exception
  */
+@Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
     try

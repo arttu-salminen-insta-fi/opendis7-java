@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.2.6. Information about individual attributes for a particular entity, other object, or event may be communicated using an Attribute PDU. The Attribute PDU shall not be used to exchange data available in any other PDU except where explicitly mentioned in the PDU issuance instructions within this standard. See 5.3.6.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class AttributePdu extends EntityInformationInteractionFamilyPdu implements Serializable
+public class AttributePdu extends EntityInformationInteractionFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

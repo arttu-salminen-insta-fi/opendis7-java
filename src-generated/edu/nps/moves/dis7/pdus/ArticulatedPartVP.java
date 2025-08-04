@@ -17,7 +17,7 @@ import edu.nps.moves.dis7.enumerations.*;
  *  articulated parts for movable parts and a combination of moveable/attached parts of an entity. Section 6.2.94.2
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class ArticulatedPartVP extends Object implements Serializable
+public class ArticulatedPartVP extends Object implements Serializable, Marshaller
 {
    /** The identification of the Variable Parameter record. Enumeration from EBV uid 56 */
    protected VariableParameterRecordType recordType = VariableParameterRecordType.ARTICULATED_PART;
@@ -48,6 +48,7 @@ public class ArticulatedPartVP extends Object implements Serializable
    * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
    * @return serialized size in bytes
    */
+@Override
 public synchronized int getMarshalledSize()
 {
    int marshalSize = 0; 
@@ -174,6 +175,7 @@ public int getPadding()
  * @see java.io.DataOutputStream
  * @param dos the OutputStream
  */
+@Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     try 
@@ -199,6 +201,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
  * @param dis the InputStream
  * @return marshalled serialized size in bytes
  */
+@Override
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
@@ -232,6 +235,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
  * @param byteBuffer The ByteBuffer at the position to begin writing
  * @throws Exception ByteBuffer-generated exception
  */
+@Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    recordType.marshal(byteBuffer);
@@ -251,6 +255,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
  * @return marshalled serialized size in bytes
  * @throws Exception ByteBuffer-generated exception
  */
+@Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
     try

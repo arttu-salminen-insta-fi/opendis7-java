@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.9.5 Used to request hierarchical linkage of separately hosted simulation entities
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class IsPartOfPdu extends EntityManagementFamilyPdu implements Serializable
+public class IsPartOfPdu extends EntityManagementFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.5.7 Used to acknowledge the receipt of supplies by the receiving entity.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class ResupplyReceivedPdu extends LogisticsFamilyPdu implements Serializable
+public class ResupplyReceivedPdu extends LogisticsFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

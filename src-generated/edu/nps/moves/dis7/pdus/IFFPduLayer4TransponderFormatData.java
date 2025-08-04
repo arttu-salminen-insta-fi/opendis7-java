@@ -17,7 +17,7 @@ import edu.nps.moves.dis7.enumerations.*;
  * 7.6.5.5.3 Layer 4 Mode S transponder format
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class IFFPduLayer4TransponderFormatData extends AbstractIFFPduLayerData implements Serializable
+public class IFFPduLayer4TransponderFormatData extends AbstractIFFPduLayerData implements Serializable, Marshaller
 {
    /** Layer header */
    protected LayerHeader  layerHeader = new LayerHeader(); 
@@ -51,6 +51,7 @@ public class IFFPduLayer4TransponderFormatData extends AbstractIFFPduLayerData i
    * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
    * @return serialized size in bytes
    */
+@Override
 public synchronized int getMarshalledSize()
 {
    int marshalSize = 0; 
@@ -213,6 +214,7 @@ public List<IFFDataSpecification> getIFFFundamentalParameterDataRecord()
  * @see java.io.DataOutputStream
  * @param dos the OutputStream
  */
+@Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
@@ -246,6 +248,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
  * @param dis the InputStream
  * @return marshalled serialized size in bytes
  */
+@Override
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
@@ -286,6 +289,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
  * @param byteBuffer The ByteBuffer at the position to begin writing
  * @throws Exception ByteBuffer-generated exception
  */
+@Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    super.marshal(byteBuffer);
@@ -313,6 +317,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
  * @return marshalled serialized size in bytes
  * @throws Exception ByteBuffer-generated exception
  */
+@Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
     super.unmarshal(byteBuffer);

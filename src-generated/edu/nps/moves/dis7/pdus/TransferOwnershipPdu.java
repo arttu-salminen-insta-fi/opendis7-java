@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  *  Information initiating the dyanic allocation and control of simulation entities between two simulation applications.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class TransferOwnershipPdu extends EntityManagementFamilyPdu implements Serializable
+public class TransferOwnershipPdu extends EntityManagementFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

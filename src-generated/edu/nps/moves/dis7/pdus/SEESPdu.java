@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.6.6 Certain supplemental information on an entity’s physical state and emissions. See 5.7.7
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class SEESPdu extends DistributedEmissionsRegenerationFamilyPdu implements Serializable
+public class SEESPdu extends DistributedEmissionsRegenerationFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

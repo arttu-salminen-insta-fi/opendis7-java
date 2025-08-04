@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.6.5.1 Information about military and civilian interrogators, transponders, and specific other electronic systems. See 5.7.6
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class IFFPdu extends DistributedEmissionsRegenerationFamilyPdu implements Serializable
+public class IFFPdu extends DistributedEmissionsRegenerationFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

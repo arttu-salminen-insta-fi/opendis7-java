@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.5.8 Used to communicate the canceling of a resupply service provided through logistics support.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class ResupplyCancelPdu extends LogisticsFamilyPdu implements Serializable
+public class ResupplyCancelPdu extends LogisticsFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

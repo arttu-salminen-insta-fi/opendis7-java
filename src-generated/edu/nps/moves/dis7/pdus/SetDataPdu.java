@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * Section 7.5.10. Initializing or changing internal state information shall be communicated using a Set Data PDU. See 5.6.5.10
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class SetDataPdu extends SimulationManagementFamilyPdu implements Serializable
+public class SetDataPdu extends SimulationManagementFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

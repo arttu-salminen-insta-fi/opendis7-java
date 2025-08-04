@@ -17,7 +17,7 @@ import edu.nps.moves.dis7.enumerations.*;
  * Abstract superclass for logistics PDUs. Section 7.4
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public abstract class LogisticsFamilyPdu extends PduBase implements Serializable
+public abstract class LogisticsFamilyPdu extends PduBase implements Serializable, Marshaller
 {
 
    /** The name of this PDU family type */

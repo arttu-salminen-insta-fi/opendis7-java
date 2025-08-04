@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.10.5 Contains information about the requesting entity and the PDU(s) that were not received in response to a query. NACK = Negative Acknowledgment.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class MinefieldResponseNACKPdu extends MinefieldFamilyPdu implements Serializable
+public class MinefieldResponseNACKPdu extends MinefieldFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

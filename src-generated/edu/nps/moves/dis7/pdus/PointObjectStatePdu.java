@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.10.4 Used to communicate detailed information about the addition/modification of a synthetic environment object that is geometrically anchored to the terrain with a single point.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class PointObjectStatePdu extends SyntheticEnvironmentFamilyPdu implements Serializable
+public class PointObjectStatePdu extends SyntheticEnvironmentFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

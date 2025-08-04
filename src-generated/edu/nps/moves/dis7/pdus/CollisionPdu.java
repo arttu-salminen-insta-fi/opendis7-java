@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.2.3 Collisions between entities shall be communicated by issuing a Collision PDU. See 5.3.3.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class CollisionPdu extends EntityInformationInteractionFamilyPdu implements Serializable
+public class CollisionPdu extends EntityInformationInteractionFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

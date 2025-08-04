@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.12.4.15 Used to set or change certain parameter values. These parameter values are contained within a record format as compared to the datum format used in the Set Data-R PDU.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class SetRecordRPdu extends SimulationManagementWithReliabilityFamilyPdu implements Serializable
+public class SetRecordRPdu extends SimulationManagementWithReliabilityFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

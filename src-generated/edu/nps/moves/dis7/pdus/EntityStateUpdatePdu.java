@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.2.5. Nonstatic information about a particular entity may be communicated by issuing an Entity State Update PDU. 5.3.5.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class EntityStateUpdatePdu extends EntityInformationInteractionFamilyPdu implements Serializable
+public class EntityStateUpdatePdu extends EntityInformationInteractionFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

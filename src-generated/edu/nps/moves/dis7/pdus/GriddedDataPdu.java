@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.10.3 Used to communicate information about global, spatially varying environmental effects.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class GriddedDataPdu extends SyntheticEnvironmentFamilyPdu implements Serializable
+public class GriddedDataPdu extends SyntheticEnvironmentFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

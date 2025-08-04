@@ -687,7 +687,8 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  */
 public synchronized java.nio.ByteBuffer marshal() throws Exception
 {
-    java.nio.ByteBuffer byteBuffer = java.nio.ByteBuffer.allocate(1500);
+    byte[] data = new byte[getMarshalledSize()];
+    java.nio.ByteBuffer byteBuffer = java.nio.ByteBuffer.wrap(data);
     marshal(byteBuffer);
     return byteBuffer.rewind();
 }

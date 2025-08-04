@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.12.4.11 Serves the same function as the Data PDU but with the addition of reliability service levels and is used in response to a Data Query-R PDU, a Data-R PDU, or a Set Data-R PDU.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class DataRPdu extends SimulationManagementWithReliabilityFamilyPdu implements Serializable
+public class DataRPdu extends SimulationManagementWithReliabilityFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

@@ -17,7 +17,7 @@ import edu.nps.moves.dis7.enumerations.*;
  * Simulation Management with Reliability PDUs with reliability service levels in a DIS exercise are an alternative to the Simulation Management PDUs, and may or may not be required for participation in an DIS exercise,
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public abstract class SimulationManagementWithReliabilityFamilyPdu extends PduBase implements Serializable
+public abstract class SimulationManagementWithReliabilityFamilyPdu extends PduBase implements Serializable, Marshaller
 {
 
    /** The name of this PDU family type */

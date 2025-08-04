@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.8.5 Communicates the state of a particular radio receiver. Its primary application is in communicating state information to radio network monitors, data loggers, and similar applications for use in debugging, supervision, and after-action review.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class ReceiverPdu extends RadioCommunicationsFamilyPdu implements Serializable
+public class ReceiverPdu extends RadioCommunicationsFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

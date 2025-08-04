@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.5.6 Acknowledges the receipt of a Start/Resume PDU, Stop/Freeze PDU, Create Entity PDU, or Remove Entity PDU. See 5.6.5.6.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class AcknowledgePdu extends SimulationManagementFamilyPdu implements Serializable
+public class AcknowledgePdu extends SimulationManagementFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

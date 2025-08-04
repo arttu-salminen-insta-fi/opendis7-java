@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.5.10 Used by the repairing entity to communicate the repair that has been performed for the entity that requested repair service.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class RepairCompletePdu extends LogisticsFamilyPdu implements Serializable
+public class RepairCompletePdu extends LogisticsFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

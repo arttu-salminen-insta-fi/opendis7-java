@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  *  7.2.2. Represents the position and state of one entity in the world. See 5.3.2.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class EntityStatePdu extends EntityInformationInteractionFamilyPdu implements Serializable
+public class EntityStatePdu extends EntityInformationInteractionFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.10.3 Contains information about the requesting entity and the region and mine types of interest to the requesting entity.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class MinefieldQueryPdu extends MinefieldFamilyPdu implements Serializable
+public class MinefieldQueryPdu extends MinefieldFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

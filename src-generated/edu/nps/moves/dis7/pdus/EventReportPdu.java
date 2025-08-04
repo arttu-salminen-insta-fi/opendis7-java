@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.5.12 A managed entity shall report the occurrence of a significant event to the simulation manager (SM) using an Event Report PDU. See 5.6.5.12.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class EventReportPdu extends SimulationManagementFamilyPdu implements Serializable
+public class EventReportPdu extends SimulationManagementFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

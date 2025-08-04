@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.2.4 Information about elastic collisions in a DIS exercise shall be communicated using a Collision-Elastic PDU. See 5.3.4.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class CollisionElasticPdu extends EntityInformationInteractionFamilyPdu implements Serializable
+public class CollisionElasticPdu extends EntityInformationInteractionFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

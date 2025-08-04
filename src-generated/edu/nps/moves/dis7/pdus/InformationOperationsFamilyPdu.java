@@ -17,7 +17,7 @@ import edu.nps.moves.dis7.enumerations.*;
  * Information operations (IO) are the integrated employment of electronic warfare (EW), computer network operations (CNO), psychological operations (PSYOP), military deception (MILDEC), and operations security (OPSEC), along with specific supporting capabilities, to influence, disrupt, corrupt, or otherwise affect enemy information and decision making while protecting friendly information operations.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public abstract class InformationOperationsFamilyPdu extends PduBase implements Serializable
+public abstract class InformationOperationsFamilyPdu extends PduBase implements Serializable, Marshaller
 {
 
    /** The name of this PDU family type */

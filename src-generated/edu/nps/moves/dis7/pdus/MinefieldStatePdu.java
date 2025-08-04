@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.10.2 Communicate information about the minefield, including the location, perimeter, and types of mines contained within it.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class MinefieldStatePdu extends MinefieldFamilyPdu implements Serializable
+public class MinefieldStatePdu extends MinefieldFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

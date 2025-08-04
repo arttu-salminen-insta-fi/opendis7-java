@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.6.2 Communicate active electromagnetic emissions, including radar and radar-related electronic warfare (e.g., jamming). Exceptions include IFF interrogations and replies, navigation aids, voice, beacon and data radio communications, directed energy weapons, and laser ranging and designation systems, which are handled by other PDUs. Section 5.3.7.1.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class ElectromagneticEmissionPdu extends DistributedEmissionsRegenerationFamilyPdu implements Serializable
+public class ElectromagneticEmissionPdu extends DistributedEmissionsRegenerationFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

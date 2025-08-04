@@ -17,7 +17,7 @@ import edu.nps.moves.dis7.enumerations.*;
  * Does not inherit from PduBase.  See section 9.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public abstract class LiveEntityFamilyPdu extends Pdu implements Serializable
+public abstract class LiveEntityFamilyPdu extends Pdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU family type */

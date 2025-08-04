@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * Section 7.5.2. The creation of a new entity shall be communicated using a Create Entity PDU. See 5.6.5.2.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class CreateEntityPdu extends SimulationManagementFamilyPdu implements Serializable
+public class CreateEntityPdu extends SimulationManagementFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

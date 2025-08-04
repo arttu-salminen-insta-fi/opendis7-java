@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.9.3.1 The IsGroupOf PDU shall communicate information about the individual states of a group of entities, including state information that is necessary for the receiving simulation applications to represent the issuing group of entities in the simulation applications’ own simulation.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class IsGroupOfPdu extends EntityManagementFamilyPdu implements Serializable
+public class IsGroupOfPdu extends EntityManagementFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

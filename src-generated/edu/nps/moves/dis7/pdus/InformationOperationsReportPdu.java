@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.13.4.1 Used to communicate the effects of an IO attack on one or more target entities.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class InformationOperationsReportPdu extends InformationOperationsFamilyPdu implements Serializable
+public class InformationOperationsReportPdu extends InformationOperationsFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

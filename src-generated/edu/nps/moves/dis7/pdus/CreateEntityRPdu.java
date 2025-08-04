@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.12.4.2 Serves the same function as the Create Entity PDU but with the addition of reliability service levels.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class CreateEntityRPdu extends SimulationManagementWithReliabilityFamilyPdu implements Serializable
+public class CreateEntityRPdu extends SimulationManagementWithReliabilityFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

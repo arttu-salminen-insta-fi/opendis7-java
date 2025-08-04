@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.12.4.3 Contains the same information as found in the Remove Entity PDU with the addition of the level of reliability service to be used for the removal action being requested.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class RemoveEntityRPdu extends SimulationManagementWithReliabilityFamilyPdu implements Serializable
+public class RemoveEntityRPdu extends SimulationManagementWithReliabilityFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

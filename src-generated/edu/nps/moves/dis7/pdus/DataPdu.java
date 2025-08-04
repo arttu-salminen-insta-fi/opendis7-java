@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.5.11 Information issued in response to a Data Query PDU or Set Data PDU. Section 5.6.5.11
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class DataPdu extends SimulationManagementFamilyPdu implements Serializable
+public class DataPdu extends SimulationManagementFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

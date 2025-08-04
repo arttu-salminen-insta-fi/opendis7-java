@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.5.11 used by the receiving entity to acknowledge the receipt of a Repair Complete PDU
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class RepairResponsePdu extends LogisticsFamilyPdu implements Serializable
+public class RepairResponsePdu extends LogisticsFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

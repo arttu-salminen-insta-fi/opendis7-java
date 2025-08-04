@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.12.4.6 Serves the same function as the Acknowledge PDU but is used to acknowledge the receipt of a Create Entity-R PDU, a Remove Entity-R PDU, a Start/Resume-R PDU, or a Stop/Freeze-R PDU.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class AcknowledgeRPdu extends SimulationManagementWithReliabilityFamilyPdu implements Serializable
+public class AcknowledgeRPdu extends SimulationManagementWithReliabilityFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

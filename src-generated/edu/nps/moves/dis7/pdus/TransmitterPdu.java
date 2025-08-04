@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.8.3 Communicates the state of a particular radio transmitter or simple intercom.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class TransmitterPdu extends RadioCommunicationsFamilyPdu implements Serializable
+public class TransmitterPdu extends RadioCommunicationsFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

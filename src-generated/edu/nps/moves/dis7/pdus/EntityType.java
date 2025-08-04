@@ -17,7 +17,7 @@ import edu.nps.moves.dis7.enumerations.*;
  * Identifies the type of Entity
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class EntityType extends Object implements Serializable
+public class EntityType extends Object implements Marshaller, Serializable
 {
    /** Kind of entity uid 7 */
    protected EntityKind entityKind = EntityKind.values()[0];
@@ -243,6 +243,14 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     {
         entityKind = EntityKind.unmarshalEnum(dis);
         uPosition += entityKind.getMarshalledSize();
+        
+        // Fix to enable the use of different domain enumerations
+        if (entityKind == EntityKind.MUNITION) {
+            domain = Domain.inst(MunitionDomain.OTHER);
+        }
+        else if(entityKind == EntityKind.SUPPLY) {
+            domain = Domain.inst(SupplyDomain.NOT_USED);
+        }
         uPosition += domain.unmarshal(dis);
         country = Country.unmarshalEnum(dis);
         uPosition += country.getMarshalledSize();
@@ -296,8 +304,17 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     {
         // attribute entityKind marked as not serialized
         entityKind = EntityKind.unmarshalEnum(byteBuffer);
+        
+        // Fix to enable the use of different domain enumerations
+        if (entityKind == EntityKind.MUNITION) {
+            domain = Domain.inst(MunitionDomain.OTHER);
+        }
+        else if(entityKind == EntityKind.SUPPLY) {
+            domain = Domain.inst(SupplyDomain.NOT_USED);
+        }
         // attribute domain marked as not serialized
         domain.unmarshal(byteBuffer);
+        
         // attribute country marked as not serialized
         country = Country.unmarshalEnum(byteBuffer);
         // attribute category marked as not serialized
@@ -374,12 +391,12 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  @Override
  public int hashCode()
  {
-	 return Objects.hash(this.entityKind,
-	                     this.domain,
-	                     this.country,
-	                     this.category,
-	                     this.subCategory,
-	                     this.specific,
-	                     this.extra);
+     return Objects.hash(this.entityKind,
+                         this.domain,
+                         this.country,
+                         this.category,
+                         this.subCategory,
+                         this.specific,
+                         this.extra);
  }
 } // end of EntityType

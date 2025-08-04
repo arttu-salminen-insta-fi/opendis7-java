@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 9.4.6 Communicate information associated with the impact or detonation of a munition.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class LEDetonationPdu extends LiveEntityFamilyPdu implements Serializable
+public class LEDetonationPdu extends LiveEntityFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

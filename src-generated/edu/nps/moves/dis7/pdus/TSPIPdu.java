@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 9.4.2 The Time Space Position Information (TSPI) PDU shall communicate information about the LE’s state vector.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class TSPIPdu extends LiveEntityFamilyPdu implements Serializable
+public class TSPIPdu extends LiveEntityFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

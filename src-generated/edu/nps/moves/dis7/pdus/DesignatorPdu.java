@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.6.3 Handles designating operations. See 5.3.7.2.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class DesignatorPdu extends DistributedEmissionsRegenerationFamilyPdu implements Serializable
+public class DesignatorPdu extends DistributedEmissionsRegenerationFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

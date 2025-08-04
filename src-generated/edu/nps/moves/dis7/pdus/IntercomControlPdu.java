@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.8.7 Communicates the state of a particular intercom device, request an action of another intercom device, or respond to an action request.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class IntercomControlPdu extends RadioCommunicationsFamilyPdu implements Serializable
+public class IntercomControlPdu extends RadioCommunicationsFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 7.3.3 Used to communicate the detonation or impact of munitions, as well as non-munition explosions, the burst or initial bloom of chaff, and the ignition of a flare.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class DetonationPdu extends WarfareFamilyPdu implements Serializable
+public class DetonationPdu extends WarfareFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

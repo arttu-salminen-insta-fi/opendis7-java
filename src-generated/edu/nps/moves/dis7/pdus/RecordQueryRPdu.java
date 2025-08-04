@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.12.4.14 Used to communicate a request for data in record format.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class RecordQueryRPdu extends SimulationManagementWithReliabilityFamilyPdu implements Serializable
+public class RecordQueryRPdu extends SimulationManagementWithReliabilityFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */

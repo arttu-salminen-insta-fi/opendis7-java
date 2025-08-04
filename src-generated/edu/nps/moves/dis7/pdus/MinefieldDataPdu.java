@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  * 5.10.4 Information about the location and status of a collection of mines in a minefield is conveyed through the Minefield Data PDU on an individual mine basis.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class MinefieldDataPdu extends MinefieldFamilyPdu implements Serializable
+public class MinefieldDataPdu extends MinefieldFamilyPdu implements Serializable, Marshaller
 {
 
    /** The name of this PDU type */
