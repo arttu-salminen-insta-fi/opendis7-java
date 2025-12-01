@@ -6,12 +6,12 @@
 package edu.nps.moves.dis7.examples;
 
 import edu.nps.moves.dis7.pdus.EntityStatePdu;
+import edu.nps.moves.dis7.pdus.EntityType;
 import edu.nps.moves.dis7.pdus.Pdu;
 import edu.nps.moves.dis7.utilities.PduFactory;
 import edu.nps.moves.dis7.enumerations.DisPduType;
 import edu.nps.moves.dis7.utilities.DisThreadedNetworkInterface;
 import java.io.IOException;
-import edu.nps.moves.dis7.entities.usa.platform.surface.*;
 
 /**
  * <p>The Entity Type record, described in section 6.2.30 of IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation—Application Protocols, is
@@ -108,7 +108,7 @@ public class EntityStateEntityIdExampleUse
     espdu = (EntityStatePdu)pduFactory.createPdu(DisPduType.ENTITY_STATE);
     /* set desired entity state fields here */
 
-    AD44Shenandoah entityType2 = new AD44Shenandoah(); // edu.nps.moves.dis7.entities.usa.platform.surface
+    EntityType entityType2 = new EntityType();
     
     espdu.setEntityType(entityType2);
     System.out.println("Sending " + espdu.getClass().getSimpleName());

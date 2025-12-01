@@ -7,11 +7,7 @@ package edu.nps.moves.dis7.test;
 import edu.nps.moves.dis7.enumerations.AppearanceCamouflageType;
 import edu.nps.moves.dis7.enumerations.ForceID;
 import edu.nps.moves.dis7.enumerations.LandPlatformAppearance;
-import edu.nps.moves.dis7.pdus.EntityStatePdu;
-import edu.nps.moves.dis7.pdus.EulerAngles;
-import edu.nps.moves.dis7.pdus.Pdu;
-import edu.nps.moves.dis7.pdus.Vector3Double;
-import edu.nps.moves.dis7.pdus.Vector3Float;
+import edu.nps.moves.dis7.pdus.*;
 import edu.nps.moves.dis7.utilities.DisThreadedNetworkInterface;
 import edu.nps.moves.dis7.utilities.PduFactory;
 import org.junit.jupiter.api.*;
@@ -76,7 +72,7 @@ public class BitFieldRoundTripTest
     EntityStatePdu espdu = factory.makeEntityStatePdu();
     
     espdu.setForceId(ForceID.FRIENDLY_9);
-    espdu.setEntityType(new edu.nps.moves.dis7.entities.usa.platform.land.MK4814logisticsplatformtruck());
+    espdu.setEntityType(new EntityType());
     Vector3Float lv = new Vector3Float();
     lv.setX(5.0f);
     espdu.setEntityLinearVelocity(lv);

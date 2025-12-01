@@ -55,11 +55,11 @@ public class FixedAndVariableDatumRoundTripTest {
         fixedDatum3.setFixedDatumID(FIXED_DATUM_3_VAR_RECORD_TYPE);
 
         variableDatum1.setVariableDatumValue(variableDatum1Value);
-        variableDatum1.setVariableDatumLengthInBytes(variableDatum1Value.length);
+        variableDatum1.setVariableDatumLength(variableDatum1Value.length * 8);
         variableDatum1.setVariableDatumID(VARIABLE_DATUM_1_TYPE);
 
         variableDatum2.setVariableDatumValue(variableDatum2Value);
-        variableDatum2.setVariableDatumLengthInBytes(variableDatum2Value.length);
+        variableDatum2.setVariableDatumLength(variableDatum2Value.length * 8);
         variableDatum2.setVariableDatumID(VARIABLE_DATUM_2_TYPE);
     }
     

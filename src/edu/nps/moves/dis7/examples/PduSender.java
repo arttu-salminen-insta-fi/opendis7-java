@@ -151,7 +151,7 @@ public class PduSender
     entityType.setSpecific((byte)3);            // M1A2 Abrams
      */
     // Using entitytype jar
-    espdu.setEntityType(new edu.nps.moves.dis7.entities.usa.platform.land.M1A2());
+    espdu.setEntityType(new EntityType());
 
     Set<InetAddress> broadcastAddresses = getBroadcastAddresses();
     

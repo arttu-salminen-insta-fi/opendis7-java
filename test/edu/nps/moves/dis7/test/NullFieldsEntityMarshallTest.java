@@ -4,7 +4,6 @@
  */
 package edu.nps.moves.dis7.test;
 
-import edu.nps.moves.dis7.entities.usa.platform.land.LAV105;
 import edu.nps.moves.dis7.pdus.EntityType;
 import java.nio.ByteBuffer;
 import org.junit.jupiter.api.*;
@@ -24,7 +23,7 @@ public class NullFieldsEntityMarshallTest
     {
         // initialization code here
     }
-    LAV105 lav105;
+    EntityType entityType = new EntityType();
 
     /** preparation **/
     @BeforeAll
@@ -42,14 +41,14 @@ public class NullFieldsEntityMarshallTest
     @BeforeEach
     public void setUp()
     {
-        lav105 = new LAV105();
+        entityType = new EntityType();
     }
     
     /** Housekeeping after each test */
     @AfterEach
     public void tearDown()
     {
-        lav105 = null;
+        entityType = null;
     }
 
     /** Perform test of interest */
@@ -60,7 +59,7 @@ public class NullFieldsEntityMarshallTest
         ByteBuffer byteBuffer = ByteBuffer.allocate(100);
         try {
             //dumpET(lav105);
-            lav105.marshal(byteBuffer);
+            entityType.marshal(byteBuffer);
             //dumpBb(bb);
         }
         catch(Exception e) {
