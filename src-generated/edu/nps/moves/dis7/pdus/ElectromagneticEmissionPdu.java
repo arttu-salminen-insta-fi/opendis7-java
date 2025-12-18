@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -33,11 +35,13 @@ public class ElectromagneticEmissionPdu extends DistributedEmissionsRegeneration
    /** This field shall be used to indicate if the data in the PDU represents a state update or just data that has changed since issuance of the last Electromagnetic Emission PDU [relative to the identified entity and emission system(s)]. uid 77 */
    protected ElectromagneticEmissionStateUpdateIndicator stateUpdateIndicator = ElectromagneticEmissionStateUpdateIndicator.values()[0];
 
-   /** This field shall specify the number of emission systems being described in the current PDU. */
-   protected byte numberOfSystems;
+   /** This field shall specify the number of emission systems being described in the current PDU. 
+   Value space: uint8 */
+   protected int numberOfSystems;
 
-   /** padding */
-   protected short paddingForEmissionsPdu;
+   /** padding 
+   Value space: uint16 */
+   protected int paddingForEmissionsPdu;
 
    /** Electronic emmissions systems */
    protected List< ElectronicEmitter > systems = new ArrayList<>();
@@ -47,7 +51,7 @@ public class ElectromagneticEmissionPdu extends DistributedEmissionsRegeneration
  public ElectromagneticEmissionPdu()
  {
     setPduType( DisPduType.ELECTROMAGNETIC_EMISSION );
-    setPaddingForEmissionsPdu( (short)0 );
+    setPaddingForEmissionsPdu( (int)0 );
  }
 /** copy method creates a deep copy of current object using preferred marshalling method
  * @return deep copy of PDU */
@@ -190,23 +194,18 @@ public ElectromagneticEmissionStateUpdateIndicator getStateUpdateIndicator()
 }
 
 /** Setter for {@link ElectromagneticEmissionPdu#paddingForEmissionsPdu}
-  * @param pPaddingForEmissionsPdu new value of interest
+  * @param pPaddingForEmissionsPdu new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized ElectromagneticEmissionPdu setPaddingForEmissionsPdu(short pPaddingForEmissionsPdu)
+public synchronized ElectromagneticEmissionPdu setPaddingForEmissionsPdu(int pPaddingForEmissionsPdu)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPaddingForEmissionsPdu >= 0 && pPaddingForEmissionsPdu <= 65535, "Value outside valid value space");
     paddingForEmissionsPdu = pPaddingForEmissionsPdu;
-    return this;
-}
-/** Utility setter for {@link ElectromagneticEmissionPdu#paddingForEmissionsPdu}
-  * @param pPaddingForEmissionsPdu new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ElectromagneticEmissionPdu setPaddingForEmissionsPdu(int pPaddingForEmissionsPdu){
-    paddingForEmissionsPdu = (short) pPaddingForEmissionsPdu;
     return this;
 }
 /** Getter for {@link ElectromagneticEmissionPdu#paddingForEmissionsPdu}
   * @return value of interest */
-public short getPaddingForEmissionsPdu()
+public int getPaddingForEmissionsPdu()
 {
     return paddingForEmissionsPdu; 
 }
@@ -236,13 +235,13 @@ public List<ElectronicEmitter> getSystems()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        emittingEntityID.marshal(dos);
        eventID.marshal(dos);
        stateUpdateIndicator.marshal(dos);
        dos.writeByte(systems.size());
-       dos.writeShort(paddingForEmissionsPdu);
+       dos.writeShort((short) paddingForEmissionsPdu);
 
        for (int idx = 0; idx < systems.size(); idx++)
        {
@@ -250,10 +249,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aElectronicEmitter.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -271,27 +266,23 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += emittingEntityID.unmarshal(dis);
         uPosition += eventID.unmarshal(dis);
         stateUpdateIndicator = ElectromagneticEmissionStateUpdateIndicator.unmarshalEnum(dis);
         uPosition += stateUpdateIndicator.getMarshalledSize();
-        numberOfSystems = (byte)dis.readUnsignedByte();
+        numberOfSystems = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        paddingForEmissionsPdu = (short)dis.readUnsignedShort();
+        paddingForEmissionsPdu = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < numberOfSystems; idx++)
+        for (int idx = 0; idx < ((Number) numberOfSystems).intValue(); idx++)
         {
             ElectronicEmitter anX = new ElectronicEmitter();
             uPosition += anX.unmarshal(dis);
             systems.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -312,7 +303,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    eventID.marshal(byteBuffer);
    stateUpdateIndicator.marshal(byteBuffer);
    byteBuffer.put( (byte)systems.size());
-   byteBuffer.putShort( (short)paddingForEmissionsPdu);
+   byteBuffer.putShort((short) paddingForEmissionsPdu);
 
    for (int idx = 0; idx < systems.size(); idx++)
    {
@@ -336,32 +327,98 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute emittingEntityID marked as not serialized
         emittingEntityID.unmarshal(byteBuffer);
-        // attribute eventID marked as not serialized
         eventID.unmarshal(byteBuffer);
-        // attribute stateUpdateIndicator marked as not serialized
         stateUpdateIndicator = ElectromagneticEmissionStateUpdateIndicator.unmarshalEnum(byteBuffer);
-        // attribute numberOfSystems marked as not serialized
-        numberOfSystems = (byte)(byteBuffer.get() & 0xFF);
-        // attribute paddingForEmissionsPdu marked as not serialized
-        paddingForEmissionsPdu = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute systems marked as not serialized
-        for (int idx = 0; idx < numberOfSystems; idx++)
+        numberOfSystems = Byte.toUnsignedInt(byteBuffer.get());
+        paddingForEmissionsPdu = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) numberOfSystems).intValue(); idx++)
         {
-        ElectronicEmitter anX = new ElectronicEmitter();
-        anX.unmarshal(byteBuffer);
-        systems.add(anX);
+            ElectronicEmitter anX = new ElectronicEmitter();
+            anX.unmarshal(byteBuffer);
+            systems.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = DistributedEmissionsRegenerationFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("emittingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("eventID", EventIdentifier.fromBufferToMap(byteBuffer));
+    map.put("stateUpdateIndicator", ElectromagneticEmissionStateUpdateIndicator.unmarshalEnum(byteBuffer).getValue());
+    map.put("numberOfSystems", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("paddingForEmissionsPdu", Short.toUnsignedInt(byteBuffer.getShort()));
+    List systems = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfSystems")).intValue(); idx++)
+    {
+        systems.add(ElectronicEmitter.fromBufferToMap(byteBuffer));
+    }
+    map.put("systems", systems);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    DistributedEmissionsRegenerationFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("emittingEntityID"), byteBuffer);
+    EventIdentifier.fromMapToBuffer((PduMap) map.get("eventID"), byteBuffer);
+    ElectromagneticEmissionStateUpdateIndicator.getEnumForValue(((Number) map.get("stateUpdateIndicator")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("numberOfSystems")).byteValue());
+    byteBuffer.putShort(((Number) map.get("paddingForEmissionsPdu")).shortValue());
+
+    List systems = (List) map.get("systems");
+    for (int idx = 0; idx < ((Number) map.get("numberOfSystems")).intValue(); idx++)
+    {
+        ElectronicEmitter.fromMapToBuffer((PduMap) systems.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += DistributedEmissionsRegenerationFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("emittingEntityID"));
+    marshalSize += EventIdentifier.getMarshalledSize((PduMap) map.get("eventID"));
+    marshalSize += ElectromagneticEmissionStateUpdateIndicator.getEnumForValue(((Number) map.get("stateUpdateIndicator")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // numberOfSystems
+    marshalSize += 2;  // paddingForEmissionsPdu
+    List systems = (List) map.get("systems");
+    for (int idx = 0; idx < ((Number) map.get("numberOfSystems")).intValue(); idx++)
+        marshalSize += ElectronicEmitter.getMarshalledSize((PduMap) systems.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -400,7 +457,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" emittingEntityID:").append(emittingEntityID); // writeOneToString
     sb.append(" eventID:").append(eventID); // writeOneToString
     sb.append(" stateUpdateIndicator:").append(stateUpdateIndicator); // writeOneToString

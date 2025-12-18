@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * indicate weapons (munitions) previously communicated via the Munition record. Section 6.2.61 
@@ -22,20 +24,25 @@ public class MunitionReload extends Object implements Serializable, Marshaller
    /**  This field shall identify the entity type of the munition. See section 6.2.30. */
    protected EntityType  munitionType = new EntityType(); 
 
-   /** The station or launcher to which the munition is assigned. See Annex I */
-   protected int station;
+   /** The station or launcher to which the munition is assigned. See Annex I 
+   Value space: uint32 */
+   protected UnsignedInteger station = UnsignedInteger.ZERO;
 
-   /** The standard quantity of this munition type normally loaded at this station/launcher if a station/launcher is specified. */
-   protected short standardQuantity;
+   /** The standard quantity of this munition type normally loaded at this station/launcher if a station/launcher is specified. 
+   Value space: uint16 */
+   protected int standardQuantity;
 
-   /** The maximum quantity of this munition type that this station/launcher is capable of holding when a station/launcher is specified  */
-   protected short maximumQuantity;
+   /** The maximum quantity of this munition type that this station/launcher is capable of holding when a station/launcher is specified  
+   Value space: uint16 */
+   protected int maximumQuantity;
 
-   /** numer of seconds of sim time required to reload the std qty */
-   protected int standardQuantityReloadTime;
+   /** numer of seconds of sim time required to reload the std qty 
+   Value space: uint32 */
+   protected UnsignedInteger standardQuantityReloadTime = UnsignedInteger.ZERO;
 
-   /** The number of seconds of sim time required to reload the max possible quantity */
-   protected int maximumQuantityReloadTime;
+   /** The number of seconds of sim time required to reload the max possible quantity 
+   Value space: uint32 */
+   protected UnsignedInteger maximumQuantityReloadTime = UnsignedInteger.ZERO;
 
 
 /** Constructor creates and configures a new instance object */
@@ -82,90 +89,80 @@ public EntityType getMunitionType()
 
 
 /** Setter for {@link MunitionReload#station}
-  * @param pStation new value of interest
+  * @param pStation new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized MunitionReload setStation(int pStation)
+public synchronized MunitionReload setStation(UnsignedInteger pStation)
 {
     station = pStation;
     return this;
 }
 /** Getter for {@link MunitionReload#station}
   * @return value of interest */
-public int getStation()
+public UnsignedInteger getStation()
 {
     return station; 
 }
 
 /** Setter for {@link MunitionReload#standardQuantity}
-  * @param pStandardQuantity new value of interest
+  * @param pStandardQuantity new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized MunitionReload setStandardQuantity(short pStandardQuantity)
+public synchronized MunitionReload setStandardQuantity(int pStandardQuantity)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pStandardQuantity >= 0 && pStandardQuantity <= 65535, "Value outside valid value space");
     standardQuantity = pStandardQuantity;
-    return this;
-}
-/** Utility setter for {@link MunitionReload#standardQuantity}
-  * @param pStandardQuantity new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MunitionReload setStandardQuantity(int pStandardQuantity){
-    standardQuantity = (short) pStandardQuantity;
     return this;
 }
 /** Getter for {@link MunitionReload#standardQuantity}
   * @return value of interest */
-public short getStandardQuantity()
+public int getStandardQuantity()
 {
     return standardQuantity; 
 }
 
 /** Setter for {@link MunitionReload#maximumQuantity}
-  * @param pMaximumQuantity new value of interest
+  * @param pMaximumQuantity new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized MunitionReload setMaximumQuantity(short pMaximumQuantity)
+public synchronized MunitionReload setMaximumQuantity(int pMaximumQuantity)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pMaximumQuantity >= 0 && pMaximumQuantity <= 65535, "Value outside valid value space");
     maximumQuantity = pMaximumQuantity;
-    return this;
-}
-/** Utility setter for {@link MunitionReload#maximumQuantity}
-  * @param pMaximumQuantity new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MunitionReload setMaximumQuantity(int pMaximumQuantity){
-    maximumQuantity = (short) pMaximumQuantity;
     return this;
 }
 /** Getter for {@link MunitionReload#maximumQuantity}
   * @return value of interest */
-public short getMaximumQuantity()
+public int getMaximumQuantity()
 {
     return maximumQuantity; 
 }
 
 /** Setter for {@link MunitionReload#standardQuantityReloadTime}
-  * @param pStandardQuantityReloadTime new value of interest
+  * @param pStandardQuantityReloadTime new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized MunitionReload setStandardQuantityReloadTime(int pStandardQuantityReloadTime)
+public synchronized MunitionReload setStandardQuantityReloadTime(UnsignedInteger pStandardQuantityReloadTime)
 {
     standardQuantityReloadTime = pStandardQuantityReloadTime;
     return this;
 }
 /** Getter for {@link MunitionReload#standardQuantityReloadTime}
   * @return value of interest */
-public int getStandardQuantityReloadTime()
+public UnsignedInteger getStandardQuantityReloadTime()
 {
     return standardQuantityReloadTime; 
 }
 
 /** Setter for {@link MunitionReload#maximumQuantityReloadTime}
-  * @param pMaximumQuantityReloadTime new value of interest
+  * @param pMaximumQuantityReloadTime new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized MunitionReload setMaximumQuantityReloadTime(int pMaximumQuantityReloadTime)
+public synchronized MunitionReload setMaximumQuantityReloadTime(UnsignedInteger pMaximumQuantityReloadTime)
 {
     maximumQuantityReloadTime = pMaximumQuantityReloadTime;
     return this;
 }
 /** Getter for {@link MunitionReload#maximumQuantityReloadTime}
   * @return value of interest */
-public int getMaximumQuantityReloadTime()
+public UnsignedInteger getMaximumQuantityReloadTime()
 {
     return maximumQuantityReloadTime; 
 }
@@ -179,18 +176,14 @@ public int getMaximumQuantityReloadTime()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        munitionType.marshal(dos);
-       dos.writeInt(station);
-       dos.writeShort(standardQuantity);
-       dos.writeShort(maximumQuantity);
-       dos.writeInt(standardQuantityReloadTime);
-       dos.writeInt(maximumQuantityReloadTime);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeInt(station.intValue());
+       dos.writeShort((short) standardQuantity);
+       dos.writeShort((short) maximumQuantity);
+       dos.writeInt(standardQuantityReloadTime.intValue());
+       dos.writeInt(maximumQuantityReloadTime.intValue());
     }
 }
 
@@ -206,23 +199,19 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         uPosition += munitionType.unmarshal(dis);
-        station = dis.readInt();
+        station = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        standardQuantity = (short)dis.readUnsignedShort();
+        standardQuantity = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        maximumQuantity = (short)dis.readUnsignedShort();
+        maximumQuantity = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        standardQuantityReloadTime = dis.readInt();
+        standardQuantityReloadTime = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        maximumQuantityReloadTime = dis.readInt();
+        maximumQuantityReloadTime = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -239,11 +228,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    munitionType.marshal(byteBuffer);
-   byteBuffer.putInt( (int)station);
-   byteBuffer.putShort( (short)standardQuantity);
-   byteBuffer.putShort( (short)maximumQuantity);
-   byteBuffer.putInt( (int)standardQuantityReloadTime);
-   byteBuffer.putInt( (int)maximumQuantityReloadTime);
+   byteBuffer.putInt(station.intValue());
+   byteBuffer.putShort((short) standardQuantity);
+   byteBuffer.putShort((short) maximumQuantity);
+   byteBuffer.putInt(standardQuantityReloadTime.intValue());
+   byteBuffer.putInt(maximumQuantityReloadTime.intValue());
 }
 
 /**
@@ -258,26 +247,76 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute munitionType marked as not serialized
         munitionType.unmarshal(byteBuffer);
-        // attribute station marked as not serialized
-        station = byteBuffer.getInt();
-        // attribute standardQuantity marked as not serialized
-        standardQuantity = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute maximumQuantity marked as not serialized
-        maximumQuantity = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute standardQuantityReloadTime marked as not serialized
-        standardQuantityReloadTime = byteBuffer.getInt();
-        // attribute maximumQuantityReloadTime marked as not serialized
-        maximumQuantityReloadTime = byteBuffer.getInt();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        station = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        standardQuantity = Short.toUnsignedInt(byteBuffer.getShort());
+        maximumQuantity = Short.toUnsignedInt(byteBuffer.getShort());
+        standardQuantityReloadTime = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        maximumQuantityReloadTime = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("munitionType", EntityType.fromBufferToMap(byteBuffer));
+    map.put("station", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("standardQuantity", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("maximumQuantity", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("standardQuantityReloadTime", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("maximumQuantityReloadTime", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityType.fromMapToBuffer((PduMap) map.get("munitionType"), byteBuffer);
+    byteBuffer.putInt(((Number) map.get("station")).intValue());
+    byteBuffer.putShort(((Number) map.get("standardQuantity")).shortValue());
+    byteBuffer.putShort(((Number) map.get("maximumQuantity")).shortValue());
+    byteBuffer.putInt(((Number) map.get("standardQuantityReloadTime")).intValue());
+    byteBuffer.putInt(((Number) map.get("maximumQuantityReloadTime")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("munitionType"));
+    marshalSize += 4;  // station
+    marshalSize += 2;  // standardQuantity
+    marshalSize += 2;  // maximumQuantity
+    marshalSize += 4;  // standardQuantityReloadTime
+    marshalSize += 4;  // maximumQuantityReloadTime
+
+    return marshalSize;
 }
 
  /*

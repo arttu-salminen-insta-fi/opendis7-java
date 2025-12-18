@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -245,7 +247,7 @@ public EntityType getPartEntityType()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        orginatingEntityID.marshal(dos);
        receivingEntityID.marshal(dos);
@@ -253,10 +255,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        partLocation.marshal(dos);
        namedLocationID.marshal(dos);
        partEntityType.marshal(dos);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -274,7 +272,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += orginatingEntityID.unmarshal(dis);
         uPosition += receivingEntityID.unmarshal(dis);
@@ -282,10 +280,6 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += partLocation.unmarshal(dis);
         uPosition += namedLocationID.unmarshal(dis);
         uPosition += partEntityType.unmarshal(dis);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -324,26 +318,78 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute orginatingEntityID marked as not serialized
         orginatingEntityID.unmarshal(byteBuffer);
-        // attribute receivingEntityID marked as not serialized
         receivingEntityID.unmarshal(byteBuffer);
-        // attribute relationship marked as not serialized
         relationship.unmarshal(byteBuffer);
-        // attribute partLocation marked as not serialized
         partLocation.unmarshal(byteBuffer);
-        // attribute namedLocationID marked as not serialized
         namedLocationID.unmarshal(byteBuffer);
-        // attribute partEntityType marked as not serialized
         partEntityType.unmarshal(byteBuffer);
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = EntityManagementFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("orginatingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("receivingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("relationship", Relationship.fromBufferToMap(byteBuffer));
+    map.put("partLocation", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("namedLocationID", NamedLocationIdentification.fromBufferToMap(byteBuffer));
+    map.put("partEntityType", EntityType.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityManagementFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("orginatingEntityID"), byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("receivingEntityID"), byteBuffer);
+    Relationship.fromMapToBuffer((PduMap) map.get("relationship"), byteBuffer);
+    Vector3Float.fromMapToBuffer((PduMap) map.get("partLocation"), byteBuffer);
+    NamedLocationIdentification.fromMapToBuffer((PduMap) map.get("namedLocationID"), byteBuffer);
+    EntityType.fromMapToBuffer((PduMap) map.get("partEntityType"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityManagementFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("orginatingEntityID"));
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("receivingEntityID"));
+    marshalSize += Relationship.getMarshalledSize((PduMap) map.get("relationship"));
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("partLocation"));
+    marshalSize += NamedLocationIdentification.getMarshalledSize((PduMap) map.get("namedLocationID"));
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("partEntityType"));
+
+    return marshalSize;
 }
 
  /*
@@ -383,7 +429,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" orginatingEntityID:").append(orginatingEntityID); // writeOneToString
     sb.append(" receivingEntityID:").append(receivingEntityID); // writeOneToString
     sb.append(" relationship:").append(relationship); // writeOneToString

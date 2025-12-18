@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -33,14 +35,17 @@ public class StartResumeRPdu extends SimulationManagementWithReliabilityFamilyPd
    /** level of reliability service used for this transaction uid 74 */
    protected RequiredReliabilityService requiredReliabilityService = RequiredReliabilityService.values()[0];
 
-   /** pad1 is an undescribed parameter... */
-   protected byte pad1;
+   /** padding1 is an undescribed parameter...
+   Value space: uint8 */
+   protected int padding1;
 
-   /** pad2 is an undescribed parameter... */
-   protected short pad2;
+   /** padding2 is an undescribed parameter...
+   Value space: uint16 */
+   protected int padding2;
 
-   /** Request ID provides a unique identifier */
-   protected int requestID;
+   /** Request ID provides a unique identifier 
+   Value space: uint32 */
+   protected UnsignedInteger requestID = UnsignedInteger.ZERO;
 
 
 /** Constructor creates and configures a new instance object */
@@ -128,8 +133,8 @@ public synchronized int getMarshalledSize()
        marshalSize += simulationTime.getMarshalledSize();
    if (requiredReliabilityService != null)
        marshalSize += requiredReliabilityService.getMarshalledSize();
-   marshalSize += 1;  // pad1
-   marshalSize += 2;  // pad2
+   marshalSize += 1;  // padding1
+   marshalSize += 2;  // padding2
    marshalSize += 4;  // requestID
 
    return marshalSize;
@@ -183,61 +188,51 @@ public RequiredReliabilityService getRequiredReliabilityService()
     return requiredReliabilityService; 
 }
 
-/** Setter for {@link StartResumeRPdu#pad1}
-  * @param pPad1 new value of interest
+/** Setter for {@link StartResumeRPdu#padding1}
+  * @param pPadding1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized StartResumeRPdu setPad1(byte pPad1)
+public synchronized StartResumeRPdu setPadding1(int pPadding1)
 {
-    pad1 = pPad1;
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 255, "Value outside valid value space");
+    padding1 = pPadding1;
     return this;
 }
-/** Utility setter for {@link StartResumeRPdu#pad1}
-  * @param pPad1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized StartResumeRPdu setPad1(int pPad1){
-    pad1 = (byte) pPad1;
-    return this;
-}
-/** Getter for {@link StartResumeRPdu#pad1}
+/** Getter for {@link StartResumeRPdu#padding1}
   * @return value of interest */
-public byte getPad1()
+public int getPadding1()
 {
-    return pad1; 
+    return padding1; 
 }
 
-/** Setter for {@link StartResumeRPdu#pad2}
-  * @param pPad2 new value of interest
+/** Setter for {@link StartResumeRPdu#padding2}
+  * @param pPadding2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized StartResumeRPdu setPad2(short pPad2)
+public synchronized StartResumeRPdu setPadding2(int pPadding2)
 {
-    pad2 = pPad2;
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 65535, "Value outside valid value space");
+    padding2 = pPadding2;
     return this;
 }
-/** Utility setter for {@link StartResumeRPdu#pad2}
-  * @param pPad2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized StartResumeRPdu setPad2(int pPad2){
-    pad2 = (short) pPad2;
-    return this;
-}
-/** Getter for {@link StartResumeRPdu#pad2}
+/** Getter for {@link StartResumeRPdu#padding2}
   * @return value of interest */
-public short getPad2()
+public int getPadding2()
 {
-    return pad2; 
+    return padding2; 
 }
 
 /** Setter for {@link StartResumeRPdu#requestID}
-  * @param pRequestID new value of interest
+  * @param pRequestID new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized StartResumeRPdu setRequestID(int pRequestID)
+public synchronized StartResumeRPdu setRequestID(UnsignedInteger pRequestID)
 {
     requestID = pRequestID;
     return this;
 }
 /** Getter for {@link StartResumeRPdu#requestID}
   * @return value of interest */
-public int getRequestID()
+public UnsignedInteger getRequestID()
 {
     return requestID; 
 }
@@ -252,18 +247,14 @@ public int getRequestID()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        realWorldTime.marshal(dos);
        simulationTime.marshal(dos);
        requiredReliabilityService.marshal(dos);
-       dos.writeByte(pad1);
-       dos.writeShort(pad2);
-       dos.writeInt(requestID);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) padding1);
+       dos.writeShort((short) padding2);
+       dos.writeInt(requestID.intValue());
     }
 }
 
@@ -281,22 +272,18 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += realWorldTime.unmarshal(dis);
         uPosition += simulationTime.unmarshal(dis);
         requiredReliabilityService = RequiredReliabilityService.unmarshalEnum(dis);
         uPosition += requiredReliabilityService.getMarshalledSize();
-        pad1 = (byte)dis.readUnsignedByte();
+        padding1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        pad2 = (short)dis.readUnsignedShort();
+        padding2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        requestID = dis.readInt();
+        requestID = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -316,9 +303,9 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    realWorldTime.marshal(byteBuffer);
    simulationTime.marshal(byteBuffer);
    requiredReliabilityService.marshal(byteBuffer);
-   byteBuffer.put( (byte)pad1);
-   byteBuffer.putShort( (short)pad2);
-   byteBuffer.putInt( (int)requestID);
+   byteBuffer.put((byte) padding1);
+   byteBuffer.putShort((short) padding2);
+   byteBuffer.putInt(requestID.intValue());
 }
 
 /**
@@ -335,26 +322,78 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute realWorldTime marked as not serialized
         realWorldTime.unmarshal(byteBuffer);
-        // attribute simulationTime marked as not serialized
         simulationTime.unmarshal(byteBuffer);
-        // attribute requiredReliabilityService marked as not serialized
         requiredReliabilityService = RequiredReliabilityService.unmarshalEnum(byteBuffer);
-        // attribute pad1 marked as not serialized
-        pad1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute pad2 marked as not serialized
-        pad2 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute requestID marked as not serialized
-        requestID = byteBuffer.getInt();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding1 = Byte.toUnsignedInt(byteBuffer.get());
+        padding2 = Short.toUnsignedInt(byteBuffer.getShort());
+        requestID = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = SimulationManagementWithReliabilityFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("realWorldTime", ClockTime.fromBufferToMap(byteBuffer));
+    map.put("simulationTime", ClockTime.fromBufferToMap(byteBuffer));
+    map.put("requiredReliabilityService", RequiredReliabilityService.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("requestID", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    SimulationManagementWithReliabilityFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    ClockTime.fromMapToBuffer((PduMap) map.get("realWorldTime"), byteBuffer);
+    ClockTime.fromMapToBuffer((PduMap) map.get("simulationTime"), byteBuffer);
+    RequiredReliabilityService.getEnumForValue(((Number) map.get("requiredReliabilityService")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding1")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+    byteBuffer.putInt(((Number) map.get("requestID")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += SimulationManagementWithReliabilityFamilyPdu.getMarshalledSize(map);
+    marshalSize += ClockTime.getMarshalledSize((PduMap) map.get("realWorldTime"));
+    marshalSize += ClockTime.getMarshalledSize((PduMap) map.get("simulationTime"));
+    marshalSize += RequiredReliabilityService.getEnumForValue(((Number) map.get("requiredReliabilityService")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding1
+    marshalSize += 2;  // padding2
+    marshalSize += 4;  // requestID
+
+    return marshalSize;
 }
 
  /*
@@ -383,8 +422,8 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
      if( ! Objects.equals(realWorldTime, rhs.realWorldTime) ) return false;
      if( ! Objects.equals(simulationTime, rhs.simulationTime) ) return false;
      if( ! (requiredReliabilityService == rhs.requiredReliabilityService)) return false;
-     if( ! (pad1 == rhs.pad1)) return false;
-     if( ! (pad2 == rhs.pad2)) return false;
+     if( ! (padding1 == rhs.padding1)) return false;
+     if( ! (padding2 == rhs.padding2)) return false;
      if( ! (requestID == rhs.requestID)) return false;
     return super.equalsImpl(rhs);
  }
@@ -394,12 +433,12 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" realWorldTime:").append(realWorldTime); // writeOneToString
     sb.append(" simulationTime:").append(simulationTime); // writeOneToString
     sb.append(" requiredReliabilityService:").append(requiredReliabilityService); // writeOneToString
-    sb.append(" pad1:").append(pad1); // writeOneToString
-    sb.append(" pad2:").append(pad2); // writeOneToString
+    sb.append(" padding1:").append(padding1); // writeOneToString
+    sb.append(" padding2:").append(padding2); // writeOneToString
     sb.append(" requestID:").append(requestID); // writeOneToString
 
    return sb.toString();
@@ -411,8 +450,8 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	 return Objects.hash(this.realWorldTime,
 	                     this.simulationTime,
 	                     this.requiredReliabilityService,
-	                     this.pad1,
-	                     this.pad2,
+	                     this.padding1,
+	                     this.padding2,
 	                     this.requestID);
  }
 } // end of StartResumeRPdu

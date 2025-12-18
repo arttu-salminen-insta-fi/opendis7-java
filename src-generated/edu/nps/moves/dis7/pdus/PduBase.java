@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * The superclass for all PDUs except LiveEntity. This incorporates the PduHeader record, section 7.2.2
@@ -22,8 +24,9 @@ public abstract class PduBase extends Pdu implements Serializable, Marshaller
    /** PDU Status Record. Described in 6.2.67. This field is not present in earlier DIS versions  */
    protected PduStatus  pduStatus = new PduStatus(); 
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected byte padding = (byte)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint8 */
+   protected int paddingHeader = (int) 0;
 
 
 /** Constructor creates and configures a new instance object */
@@ -44,7 +47,7 @@ public synchronized int getMarshalledSize()
    marshalSize = super.getMarshalledSize();
    if (pduStatus != null)
        marshalSize += pduStatus.getMarshalledSize();
-   marshalSize += 1;  // padding
+   marshalSize += 1;  // paddingHeader
 
    return marshalSize;
 }
@@ -66,26 +69,21 @@ public PduStatus getPduStatus()
 }
 
 
-/** Setter for {@link PduBase#padding}
-  * @param pPadding new value of interest
+/** Setter for {@link PduBase#paddingHeader}
+  * @param pPaddingHeader new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized PduBase setPadding(byte pPadding)
+public synchronized PduBase setPaddingHeader(int pPaddingHeader)
 {
-    padding = pPadding;
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPaddingHeader >= 0 && pPaddingHeader <= 255, "Value outside valid value space");
+    paddingHeader = pPaddingHeader;
     return this;
 }
-/** Utility setter for {@link PduBase#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized PduBase setPadding(int pPadding){
-    padding = (byte) pPadding;
-    return this;
-}
-/** Getter for {@link PduBase#padding}
+/** Getter for {@link PduBase#paddingHeader}
   * @return value of interest */
-public byte getPadding()
+public int getPaddingHeader()
 {
-    return padding; 
+    return paddingHeader; 
 }
 
 /**
@@ -98,14 +96,10 @@ public byte getPadding()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        pduStatus.marshal(dos);
-       dos.writeByte(padding);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) paddingHeader);
     }
 }
 
@@ -123,15 +117,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += pduStatus.unmarshal(dis);
-        padding = (byte)dis.readUnsignedByte();
+        paddingHeader = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -149,7 +139,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    pduStatus.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding);
+   byteBuffer.put((byte) paddingHeader);
 }
 
 /**
@@ -166,18 +156,62 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute pduStatus marked as not serialized
         pduStatus.unmarshal(byteBuffer);
-        // attribute padding marked as not serialized
-        padding = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        paddingHeader = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = Pdu.fromBufferToMap(byteBuffer);
+
+    map.put("pduStatus", PduStatus.fromBufferToMap(byteBuffer));
+    map.put("paddingHeader", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    Pdu.fromMapToBuffer(map, byteBuffer);
+    PduStatus.fromMapToBuffer((PduMap) map.get("pduStatus"), byteBuffer);
+    byteBuffer.put(((Number) map.get("paddingHeader")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += Pdu.getMarshalledSize(map);
+    marshalSize += PduStatus.getMarshalledSize((PduMap) map.get("pduStatus"));
+    marshalSize += 1;  // paddingHeader
+
+    return marshalSize;
 }
 
  /*
@@ -204,7 +238,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
      final PduBase rhs = (PduBase)obj;
 
      if( ! Objects.equals(pduStatus, rhs.pduStatus) ) return false;
-     if( ! (padding == rhs.padding)) return false;
+     if( ! (paddingHeader == rhs.paddingHeader)) return false;
     return super.equalsImpl(rhs);
  }
 
@@ -213,9 +247,9 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" pduStatus:").append(pduStatus); // writeOneToString
-    sb.append(" padding:").append(padding); // writeOneToString
+    sb.append(" paddingHeader:").append(paddingHeader); // writeOneToString
 
    return sb.toString();
  }
@@ -224,6 +258,6 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  public int hashCode()
  {
 	 return Objects.hash(this.pduStatus,
-	                     this.padding);
+	                     this.paddingHeader);
  }
 } // end of PduBase

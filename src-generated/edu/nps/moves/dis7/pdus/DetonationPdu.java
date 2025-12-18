@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -43,7 +45,7 @@ public class DetonationPdu extends WarfareFamilyPdu implements Serializable, Mar
    protected Vector3Double  locationInWorldCoordinates = new Vector3Double(); 
 
    /** Describes the detonation represented, Section 7.3.3  */
-   protected MunitionDescriptor  descriptor = new MunitionDescriptor(); 
+   protected Descriptor  descriptor = new Descriptor(); 
 
    /** Velocity of the ammunition, Section 7.3.3  */
    protected Vector3Float  locationOfEntityCoordinates = new Vector3Float(); 
@@ -51,11 +53,13 @@ public class DetonationPdu extends WarfareFamilyPdu implements Serializable, Mar
    /** result of the detonation, Section 7.3.3  uid 62 */
    protected DetonationResult detonationResult = DetonationResult.values()[0];
 
-   /** How many articulation parameters we have, Section 7.3.3  */
-   protected byte numberOfVariableParameters;
+   /** How many articulation parameters we have, Section 7.3.3  
+   Value space: uint8 */
+   protected int numberOfVariableParameters;
 
-   /** padding */
-   protected short pad;
+   /** padding 
+   Value space: uint16 */
+   protected int padding;
 
    /** specify the parameter values for each Variable Parameter record, Section 7.3.3  */
    protected List< VariableParameter > variableParameters = new ArrayList<>();
@@ -159,7 +163,7 @@ public synchronized int getMarshalledSize()
    if (detonationResult != null)
        marshalSize += detonationResult.getMarshalledSize();
    marshalSize += 1;  // numberOfVariableParameters
-   marshalSize += 2;  // pad
+   marshalSize += 2;  // padding
    if (variableParameters != null)
        for (int idx=0; idx < variableParameters.size(); idx++)
        {
@@ -270,14 +274,14 @@ public Vector3Double getLocationInWorldCoordinates()
 /** Setter for {@link DetonationPdu#descriptor}
   * @param pDescriptor new value of interest
   * @return same object to permit progressive setters */
-public synchronized DetonationPdu setDescriptor(MunitionDescriptor pDescriptor)
+public synchronized DetonationPdu setDescriptor(Descriptor pDescriptor)
 {
     descriptor = pDescriptor;
     return this;
 }
 /** Getter for {@link DetonationPdu#descriptor}
   * @return value of interest */
-public MunitionDescriptor getDescriptor()
+public Descriptor getDescriptor()
 {
     return descriptor;
 }
@@ -314,26 +318,21 @@ public DetonationResult getDetonationResult()
     return detonationResult; 
 }
 
-/** Setter for {@link DetonationPdu#pad}
-  * @param pPad new value of interest
+/** Setter for {@link DetonationPdu#padding}
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized DetonationPdu setPad(short pPad)
+public synchronized DetonationPdu setPadding(int pPadding)
 {
-    pad = pPad;
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
+    padding = pPadding;
     return this;
 }
-/** Utility setter for {@link DetonationPdu#pad}
-  * @param pPad new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DetonationPdu setPad(int pPad){
-    pad = (short) pPad;
-    return this;
-}
-/** Getter for {@link DetonationPdu#pad}
+/** Getter for {@link DetonationPdu#padding}
   * @return value of interest */
-public short getPad()
+public int getPadding()
 {
-    return pad; 
+    return padding; 
 }
 
 /** Setter for {@link DetonationPdu#variableParameters}
@@ -361,7 +360,7 @@ public List<VariableParameter> getVariableParameters()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        sourceEntityID.marshal(dos);
        targetEntityID.marshal(dos);
@@ -373,7 +372,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        locationOfEntityCoordinates.marshal(dos);
        detonationResult.marshal(dos);
        dos.writeByte(variableParameters.size());
-       dos.writeShort(pad);
+       dos.writeShort((short) padding);
 
        for (int idx = 0; idx < variableParameters.size(); idx++)
        {
@@ -381,10 +380,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aVariableParameter.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -402,7 +397,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += sourceEntityID.unmarshal(dis);
         uPosition += targetEntityID.unmarshal(dis);
@@ -414,21 +409,17 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += locationOfEntityCoordinates.unmarshal(dis);
         detonationResult = DetonationResult.unmarshalEnum(dis);
         uPosition += detonationResult.getMarshalledSize();
-        numberOfVariableParameters = (byte)dis.readUnsignedByte();
+        numberOfVariableParameters = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        pad = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < numberOfVariableParameters; idx++)
+        for (int idx = 0; idx < ((Number) numberOfVariableParameters).intValue(); idx++)
         {
             VariableParameter anX = new VariableParameter();
             uPosition += anX.unmarshal(dis);
             variableParameters.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -455,7 +446,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    locationOfEntityCoordinates.marshal(byteBuffer);
    detonationResult.marshal(byteBuffer);
    byteBuffer.put( (byte)variableParameters.size());
-   byteBuffer.putShort( (short)pad);
+   byteBuffer.putShort((short) padding);
 
    for (int idx = 0; idx < variableParameters.size(); idx++)
    {
@@ -479,44 +470,122 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute sourceEntityID marked as not serialized
         sourceEntityID.unmarshal(byteBuffer);
-        // attribute targetEntityID marked as not serialized
         targetEntityID.unmarshal(byteBuffer);
-        // attribute explodingEntityID marked as not serialized
         explodingEntityID.unmarshal(byteBuffer);
-        // attribute eventID marked as not serialized
         eventID.unmarshal(byteBuffer);
-        // attribute velocity marked as not serialized
         velocity.unmarshal(byteBuffer);
-        // attribute locationInWorldCoordinates marked as not serialized
         locationInWorldCoordinates.unmarshal(byteBuffer);
-        // attribute descriptor marked as not serialized
         descriptor.unmarshal(byteBuffer);
-        // attribute locationOfEntityCoordinates marked as not serialized
         locationOfEntityCoordinates.unmarshal(byteBuffer);
-        // attribute detonationResult marked as not serialized
         detonationResult = DetonationResult.unmarshalEnum(byteBuffer);
-        // attribute numberOfVariableParameters marked as not serialized
-        numberOfVariableParameters = (byte)(byteBuffer.get() & 0xFF);
-        // attribute pad marked as not serialized
-        pad = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute variableParameters marked as not serialized
-        for (int idx = 0; idx < numberOfVariableParameters; idx++)
+        numberOfVariableParameters = Byte.toUnsignedInt(byteBuffer.get());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) numberOfVariableParameters).intValue(); idx++)
         {
-        VariableParameter anX = new VariableParameter();
-        anX.unmarshal(byteBuffer);
-        variableParameters.add(anX);
+            VariableParameter anX = new VariableParameter();
+            anX.unmarshal(byteBuffer);
+            variableParameters.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = WarfareFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("sourceEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("targetEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("explodingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("eventID", EventIdentifier.fromBufferToMap(byteBuffer));
+    map.put("velocity", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("locationInWorldCoordinates", Vector3Double.fromBufferToMap(byteBuffer));
+    map.put("descriptor", Descriptor.fromBufferToMap(byteBuffer));
+    map.put("locationOfEntityCoordinates", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("detonationResult", DetonationResult.unmarshalEnum(byteBuffer).getValue());
+    map.put("numberOfVariableParameters", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    List variableParameters = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableParameters")).intValue(); idx++)
+    {
+        variableParameters.add(VariableParameter.fromBufferToMap(byteBuffer));
+    }
+    map.put("variableParameters", variableParameters);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    WarfareFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("sourceEntityID"), byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("targetEntityID"), byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("explodingEntityID"), byteBuffer);
+    EventIdentifier.fromMapToBuffer((PduMap) map.get("eventID"), byteBuffer);
+    Vector3Float.fromMapToBuffer((PduMap) map.get("velocity"), byteBuffer);
+    Vector3Double.fromMapToBuffer((PduMap) map.get("locationInWorldCoordinates"), byteBuffer);
+    Descriptor.fromMapToBuffer((PduMap) map.get("descriptor"), byteBuffer);
+    Vector3Float.fromMapToBuffer((PduMap) map.get("locationOfEntityCoordinates"), byteBuffer);
+    DetonationResult.getEnumForValue(((Number) map.get("detonationResult")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("numberOfVariableParameters")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+
+    List variableParameters = (List) map.get("variableParameters");
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableParameters")).intValue(); idx++)
+    {
+        VariableParameter.fromMapToBuffer((PduMap) variableParameters.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += WarfareFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("sourceEntityID"));
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("targetEntityID"));
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("explodingEntityID"));
+    marshalSize += EventIdentifier.getMarshalledSize((PduMap) map.get("eventID"));
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("velocity"));
+    marshalSize += Vector3Double.getMarshalledSize((PduMap) map.get("locationInWorldCoordinates"));
+    marshalSize += Descriptor.getMarshalledSize((PduMap) map.get("descriptor"));
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("locationOfEntityCoordinates"));
+    marshalSize += DetonationResult.getEnumForValue(((Number) map.get("detonationResult")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // numberOfVariableParameters
+    marshalSize += 2;  // padding
+    List variableParameters = (List) map.get("variableParameters");
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableParameters")).intValue(); idx++)
+        marshalSize += VariableParameter.getMarshalledSize((PduMap) variableParameters.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -551,7 +620,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
      if( ! Objects.equals(descriptor, rhs.descriptor) ) return false;
      if( ! Objects.equals(locationOfEntityCoordinates, rhs.locationOfEntityCoordinates) ) return false;
      if( ! (detonationResult == rhs.detonationResult)) return false;
-     if( ! (pad == rhs.pad)) return false;
+     if( ! (padding == rhs.padding)) return false;
      if( ! Objects.equals(variableParameters, rhs.variableParameters) ) return false;
     return super.equalsImpl(rhs);
  }
@@ -561,7 +630,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" sourceEntityID:").append(sourceEntityID); // writeOneToString
     sb.append(" targetEntityID:").append(targetEntityID); // writeOneToString
     sb.append(" explodingEntityID:").append(explodingEntityID); // writeOneToString
@@ -571,7 +640,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     sb.append(" descriptor:").append(descriptor); // writeOneToString
     sb.append(" locationOfEntityCoordinates:").append(locationOfEntityCoordinates); // writeOneToString
     sb.append(" detonationResult:").append(detonationResult); // writeOneToString
-    sb.append(" pad:").append(pad); // writeOneToString
+    sb.append(" padding:").append(padding); // writeOneToString
     sb.append(" variableParameters: ");
     variableParameters.forEach(r->{ sb2.append(" ").append(r);}); // writeList
     sb.append(sb2.toString().trim());
@@ -594,7 +663,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	                     this.locationOfEntityCoordinates,
 	                     this.detonationResult,
 	                     this.numberOfVariableParameters,
-	                     this.pad,
+	                     this.padding,
 	                     this.variableParameters);
  }
 } // end of DetonationPdu

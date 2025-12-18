@@ -12,22 +12,22 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
- * Burst of chaff or expendible device. Section 6.2.19.4
+ * Burst of chaff or expendible device records specific fields. Section 6.2.19.4
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class ExpendableDescriptor extends Object implements Serializable, Marshaller
+public class ExpendableDescriptorFields extends Object implements Serializable, Marshaller
 {
-   /** Type of the object that exploded */
-   protected EntityType  expendableType = new EntityType(); 
-
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected long padding = (long)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: int64 */
+   protected long padding = (long) 0;
 
 
 /** Constructor creates and configures a new instance object */
- public ExpendableDescriptor()
+ public ExpendableDescriptorFields()
  {
  }
 
@@ -41,46 +41,28 @@ public synchronized int getMarshalledSize()
 {
    int marshalSize = 0; 
 
-   if (expendableType != null)
-       marshalSize += expendableType.getMarshalledSize();
    marshalSize += 8;  // padding
 
    return marshalSize;
 }
 
 
-/** Setter for {@link ExpendableDescriptor#expendableType}
-  * @param pExpendableType new value of interest
+/** Setter for {@link ExpendableDescriptorFields#padding}
+  * @param pPadding new value of interest. Value space int64
   * @return same object to permit progressive setters */
-public synchronized ExpendableDescriptor setExpendableType(EntityType pExpendableType)
-{
-    expendableType = pExpendableType;
-    return this;
-}
-/** Getter for {@link ExpendableDescriptor#expendableType}
-  * @return value of interest */
-public EntityType getExpendableType()
-{
-    return expendableType;
-}
-
-
-/** Setter for {@link ExpendableDescriptor#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ExpendableDescriptor setPadding(long pPadding)
+public synchronized ExpendableDescriptorFields setPadding(long pPadding)
 {
     padding = pPadding;
     return this;
 }
-/** Utility setter for {@link ExpendableDescriptor#padding}
+/** Utility setter for {@link ExpendableDescriptorFields#padding}
   * @param pPadding new value of interest
   * @return same object to permit progressive setters */
-public synchronized ExpendableDescriptor setPadding(int pPadding){
+public synchronized ExpendableDescriptorFields setPadding(int pPadding){
     padding = (long) pPadding;
     return this;
 }
-/** Getter for {@link ExpendableDescriptor#padding}
+/** Getter for {@link ExpendableDescriptorFields#padding}
   * @return value of interest */
 public long getPadding()
 {
@@ -96,14 +78,9 @@ public long getPadding()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       expendableType.marshal(dos);
        dos.writeLong(padding);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -119,15 +96,10 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        uPosition += expendableType.unmarshal(dis);
-        padding = dis.readLong();
-        uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
+        padding = (long) dis.readLong();
+        uPosition += 8;
     }
     return getMarshalledSize();
 }
@@ -143,8 +115,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   expendableType.marshal(byteBuffer);
-   byteBuffer.putLong( (long)padding);
+   byteBuffer.putLong(padding);
 }
 
 /**
@@ -159,18 +130,56 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute expendableType marked as not serialized
-        expendableType.unmarshal(byteBuffer);
-        // attribute padding marked as not serialized
-        padding = byteBuffer.getLong();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding = (long) byteBuffer.getLong();
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("padding", (long) byteBuffer.getLong());
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putLong(((Number) map.get("padding")).longValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 8;  // padding
+
+    return marshalSize;
 }
 
  /*
@@ -199,9 +208,8 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
   */
  public synchronized boolean equalsImpl(Object obj)
  {
-     final ExpendableDescriptor rhs = (ExpendableDescriptor)obj;
+     final ExpendableDescriptorFields rhs = (ExpendableDescriptorFields)obj;
 
-     if( ! Objects.equals(expendableType, rhs.expendableType) ) return false;
      if( ! (padding == rhs.padding)) return false;
     return true;
  }
@@ -212,7 +220,6 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
     sb.append(getClass().getSimpleName());
-    sb.append(" expendableType:").append(expendableType); // writeOneToString
     sb.append(" padding:").append(padding); // writeOneToString
 
    return sb.toString();
@@ -221,7 +228,6 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  @Override
  public int hashCode()
  {
-	 return Objects.hash(this.expendableType,
-	                     this.padding);
+	 return Objects.hash(this.padding);
  }
-} // end of ExpendableDescriptor
+} // end of ExpendableDescriptorFields

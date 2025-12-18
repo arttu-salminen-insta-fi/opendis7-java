@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * The unique designation of an attached or unattached radio in an event or exercise Section 6.2.70
@@ -19,17 +21,21 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class RadioIdentifier extends Object implements Serializable, Marshaller
 {
-   /**  site */
-   protected short siteNumber;
+   /**  site 
+   Value space: uint16 */
+   protected int siteNumber;
 
-   /** application number */
-   protected short applicationNumber;
+   /** application number 
+   Value space: uint16 */
+   protected int applicationNumber;
 
-   /**  reference number */
-   protected short referenceNumber;
+   /**  reference number 
+   Value space: uint16 */
+   protected int referenceNumber;
 
-   /**  Radio number */
-   protected short radioNumber;
+   /**  Radio number 
+   Value space: uint16 */
+   protected int radioNumber;
 
 
 /** Constructor creates and configures a new instance object */
@@ -57,89 +63,69 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link RadioIdentifier#siteNumber}
-  * @param pSiteNumber new value of interest
+  * @param pSiteNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized RadioIdentifier setSiteNumber(short pSiteNumber)
+public synchronized RadioIdentifier setSiteNumber(int pSiteNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pSiteNumber >= 0 && pSiteNumber <= 65535, "Value outside valid value space");
     siteNumber = pSiteNumber;
-    return this;
-}
-/** Utility setter for {@link RadioIdentifier#siteNumber}
-  * @param pSiteNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RadioIdentifier setSiteNumber(int pSiteNumber){
-    siteNumber = (short) pSiteNumber;
     return this;
 }
 /** Getter for {@link RadioIdentifier#siteNumber}
   * @return value of interest */
-public short getSiteNumber()
+public int getSiteNumber()
 {
     return siteNumber; 
 }
 
 /** Setter for {@link RadioIdentifier#applicationNumber}
-  * @param pApplicationNumber new value of interest
+  * @param pApplicationNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized RadioIdentifier setApplicationNumber(short pApplicationNumber)
+public synchronized RadioIdentifier setApplicationNumber(int pApplicationNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pApplicationNumber >= 0 && pApplicationNumber <= 65535, "Value outside valid value space");
     applicationNumber = pApplicationNumber;
-    return this;
-}
-/** Utility setter for {@link RadioIdentifier#applicationNumber}
-  * @param pApplicationNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RadioIdentifier setApplicationNumber(int pApplicationNumber){
-    applicationNumber = (short) pApplicationNumber;
     return this;
 }
 /** Getter for {@link RadioIdentifier#applicationNumber}
   * @return value of interest */
-public short getApplicationNumber()
+public int getApplicationNumber()
 {
     return applicationNumber; 
 }
 
 /** Setter for {@link RadioIdentifier#referenceNumber}
-  * @param pReferenceNumber new value of interest
+  * @param pReferenceNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized RadioIdentifier setReferenceNumber(short pReferenceNumber)
+public synchronized RadioIdentifier setReferenceNumber(int pReferenceNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pReferenceNumber >= 0 && pReferenceNumber <= 65535, "Value outside valid value space");
     referenceNumber = pReferenceNumber;
-    return this;
-}
-/** Utility setter for {@link RadioIdentifier#referenceNumber}
-  * @param pReferenceNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RadioIdentifier setReferenceNumber(int pReferenceNumber){
-    referenceNumber = (short) pReferenceNumber;
     return this;
 }
 /** Getter for {@link RadioIdentifier#referenceNumber}
   * @return value of interest */
-public short getReferenceNumber()
+public int getReferenceNumber()
 {
     return referenceNumber; 
 }
 
 /** Setter for {@link RadioIdentifier#radioNumber}
-  * @param pRadioNumber new value of interest
+  * @param pRadioNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized RadioIdentifier setRadioNumber(short pRadioNumber)
+public synchronized RadioIdentifier setRadioNumber(int pRadioNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pRadioNumber >= 0 && pRadioNumber <= 65535, "Value outside valid value space");
     radioNumber = pRadioNumber;
-    return this;
-}
-/** Utility setter for {@link RadioIdentifier#radioNumber}
-  * @param pRadioNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RadioIdentifier setRadioNumber(int pRadioNumber){
-    radioNumber = (short) pRadioNumber;
     return this;
 }
 /** Getter for {@link RadioIdentifier#radioNumber}
   * @return value of interest */
-public short getRadioNumber()
+public int getRadioNumber()
 {
     return radioNumber; 
 }
@@ -153,16 +139,12 @@ public short getRadioNumber()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(siteNumber);
-       dos.writeShort(applicationNumber);
-       dos.writeShort(referenceNumber);
-       dos.writeShort(radioNumber);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) siteNumber);
+       dos.writeShort((short) applicationNumber);
+       dos.writeShort((short) referenceNumber);
+       dos.writeShort((short) radioNumber);
     }
 }
 
@@ -178,20 +160,16 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        siteNumber = (short)dis.readUnsignedShort();
+        siteNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        applicationNumber = (short)dis.readUnsignedShort();
+        applicationNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        referenceNumber = (short)dis.readUnsignedShort();
+        referenceNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        radioNumber = (short)dis.readUnsignedShort();
+        radioNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -207,10 +185,10 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)siteNumber);
-   byteBuffer.putShort( (short)applicationNumber);
-   byteBuffer.putShort( (short)referenceNumber);
-   byteBuffer.putShort( (short)radioNumber);
+   byteBuffer.putShort((short) siteNumber);
+   byteBuffer.putShort((short) applicationNumber);
+   byteBuffer.putShort((short) referenceNumber);
+   byteBuffer.putShort((short) radioNumber);
 }
 
 /**
@@ -225,22 +203,68 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute siteNumber marked as not serialized
-        siteNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute applicationNumber marked as not serialized
-        applicationNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute referenceNumber marked as not serialized
-        referenceNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute radioNumber marked as not serialized
-        radioNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        siteNumber = Short.toUnsignedInt(byteBuffer.getShort());
+        applicationNumber = Short.toUnsignedInt(byteBuffer.getShort());
+        referenceNumber = Short.toUnsignedInt(byteBuffer.getShort());
+        radioNumber = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("siteNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("applicationNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("referenceNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("radioNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("siteNumber")).shortValue());
+    byteBuffer.putShort(((Number) map.get("applicationNumber")).shortValue());
+    byteBuffer.putShort(((Number) map.get("referenceNumber")).shortValue());
+    byteBuffer.putShort(((Number) map.get("radioNumber")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // siteNumber
+    marshalSize += 2;  // applicationNumber
+    marshalSize += 2;  // referenceNumber
+    marshalSize += 2;  // radioNumber
+
+    return marshalSize;
 }
 
  /*

@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Removable parts that may be attached to an entity.  Section 6.2.93.3
@@ -25,8 +27,9 @@ public class AttachedPartVP extends Object implements Serializable, Marshaller
    /** 0 = attached, 1 = detached. See I.2.3.1 for state transition diagram uid 415 */
    protected AttachedPartDetachedIndicator detachedIndicator = AttachedPartDetachedIndicator.values()[0];
 
-   /** The identification of the articulated part to which this articulation parameter is attached. This field shall be specified by a 16-bit unsigned integer. This field shall contain the value zero if the articulated part is attached directly to the entity. */
-   protected short partAttachedTo = (short)0;
+   /** The identification of the articulated part to which this articulation parameter is attached. This field shall be specified by a 16-bit unsigned integer. This field shall contain the value zero if the articulated part is attached directly to the entity. 
+   Value space: uint16 */
+   protected int partAttachedTo = (int) 0;
 
    /** The location or station to which the part is attached uid 57 */
    protected AttachedParts parameterType = AttachedParts.values()[0];
@@ -95,23 +98,18 @@ public AttachedPartDetachedIndicator getDetachedIndicator()
 }
 
 /** Setter for {@link AttachedPartVP#partAttachedTo}
-  * @param pPartAttachedTo new value of interest
+  * @param pPartAttachedTo new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized AttachedPartVP setPartAttachedTo(short pPartAttachedTo)
+public synchronized AttachedPartVP setPartAttachedTo(int pPartAttachedTo)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPartAttachedTo >= 0 && pPartAttachedTo <= 65535, "Value outside valid value space");
     partAttachedTo = pPartAttachedTo;
-    return this;
-}
-/** Utility setter for {@link AttachedPartVP#partAttachedTo}
-  * @param pPartAttachedTo new value of interest
-  * @return same object to permit progressive setters */
-public synchronized AttachedPartVP setPartAttachedTo(int pPartAttachedTo){
-    partAttachedTo = (short) pPartAttachedTo;
     return this;
 }
 /** Getter for {@link AttachedPartVP#partAttachedTo}
   * @return value of interest */
-public short getPartAttachedTo()
+public int getPartAttachedTo()
 {
     return partAttachedTo; 
 }
@@ -156,17 +154,13 @@ public EntityType getAttachedPartType()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        recordType.marshal(dos);
        detachedIndicator.marshal(dos);
-       dos.writeShort(partAttachedTo);
+       dos.writeShort((short) partAttachedTo);
        parameterType.marshal(dos);
        attachedPartType.marshal(dos);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -182,21 +176,17 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         recordType = VariableParameterRecordType.unmarshalEnum(dis);
         uPosition += recordType.getMarshalledSize();
         detachedIndicator = AttachedPartDetachedIndicator.unmarshalEnum(dis);
         uPosition += detachedIndicator.getMarshalledSize();
-        partAttachedTo = (short)dis.readUnsignedShort();
+        partAttachedTo = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         parameterType = AttachedParts.unmarshalEnum(dis);
         uPosition += parameterType.getMarshalledSize();
         uPosition += attachedPartType.unmarshal(dis);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -214,7 +204,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    recordType.marshal(byteBuffer);
    detachedIndicator.marshal(byteBuffer);
-   byteBuffer.putShort( (short)partAttachedTo);
+   byteBuffer.putShort((short) partAttachedTo);
    parameterType.marshal(byteBuffer);
    attachedPartType.marshal(byteBuffer);
 }
@@ -231,24 +221,72 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute recordType marked as not serialized
         recordType = VariableParameterRecordType.unmarshalEnum(byteBuffer);
-        // attribute detachedIndicator marked as not serialized
         detachedIndicator = AttachedPartDetachedIndicator.unmarshalEnum(byteBuffer);
-        // attribute partAttachedTo marked as not serialized
-        partAttachedTo = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute parameterType marked as not serialized
+        partAttachedTo = Short.toUnsignedInt(byteBuffer.getShort());
         parameterType = AttachedParts.unmarshalEnum(byteBuffer);
-        // attribute attachedPartType marked as not serialized
         attachedPartType.unmarshal(byteBuffer);
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("recordType", VariableParameterRecordType.unmarshalEnum(byteBuffer).getValue());
+    map.put("detachedIndicator", AttachedPartDetachedIndicator.unmarshalEnum(byteBuffer).getValue());
+    map.put("partAttachedTo", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("parameterType", AttachedParts.unmarshalEnum(byteBuffer).getValue());
+    map.put("attachedPartType", EntityType.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    VariableParameterRecordType.getEnumForValue(((Number) map.get("recordType")).intValue()).marshal(byteBuffer);
+    AttachedPartDetachedIndicator.getEnumForValue(((Number) map.get("detachedIndicator")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("partAttachedTo")).shortValue());
+    AttachedParts.getEnumForValue(((Number) map.get("parameterType")).intValue()).marshal(byteBuffer);
+    EntityType.fromMapToBuffer((PduMap) map.get("attachedPartType"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += VariableParameterRecordType.getEnumForValue(((Number) map.get("recordType")).intValue()).getMarshalledSize();
+    marshalSize += AttachedPartDetachedIndicator.getEnumForValue(((Number) map.get("detachedIndicator")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // partAttachedTo
+    marshalSize += AttachedParts.getEnumForValue(((Number) map.get("parameterType")).intValue()).getMarshalledSize();
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("attachedPartType"));
+
+    return marshalSize;
 }
 
  /*

@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Information for one or more acoustic beams that the system has, including: length of the beam data,  beam identification number for each beam, and fundamental parametric data used to define the entity’s active emissions.  This field defines the active  emission  parameter  index,  beam  scan  pattern,  orientation,  and beamwidth, which can vary dynamically during system operation.
@@ -19,14 +21,17 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class UABeam extends Object implements Serializable, Marshaller
 {
-   /** beamDataLength is an undescribed parameter... */
-   protected byte beamDataLength;
+   /** beamDataLength is an undescribed parameter...
+   Value space: uint8 */
+   protected int beamDataLength;
 
-   /** beamNumber is an undescribed parameter... */
-   protected byte beamNumber;
+   /** beamNumber is an undescribed parameter...
+   Value space: uint8 */
+   protected int beamNumber;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding;
 
    /** fundamentalParameterData is an undescribed parameter... */
    protected UAFundamentalParameter  fundamentalParameterData = new UAFundamentalParameter(); 
@@ -58,67 +63,52 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link UABeam#beamDataLength}
-  * @param pBeamDataLength new value of interest
+  * @param pBeamDataLength new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized UABeam setBeamDataLength(byte pBeamDataLength)
+public synchronized UABeam setBeamDataLength(int pBeamDataLength)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pBeamDataLength >= 0 && pBeamDataLength <= 255, "Value outside valid value space");
     beamDataLength = pBeamDataLength;
-    return this;
-}
-/** Utility setter for {@link UABeam#beamDataLength}
-  * @param pBeamDataLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized UABeam setBeamDataLength(int pBeamDataLength){
-    beamDataLength = (byte) pBeamDataLength;
     return this;
 }
 /** Getter for {@link UABeam#beamDataLength}
   * @return value of interest */
-public byte getBeamDataLength()
+public int getBeamDataLength()
 {
     return beamDataLength; 
 }
 
 /** Setter for {@link UABeam#beamNumber}
-  * @param pBeamNumber new value of interest
+  * @param pBeamNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized UABeam setBeamNumber(byte pBeamNumber)
+public synchronized UABeam setBeamNumber(int pBeamNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pBeamNumber >= 0 && pBeamNumber <= 255, "Value outside valid value space");
     beamNumber = pBeamNumber;
-    return this;
-}
-/** Utility setter for {@link UABeam#beamNumber}
-  * @param pBeamNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized UABeam setBeamNumber(int pBeamNumber){
-    beamNumber = (byte) pBeamNumber;
     return this;
 }
 /** Getter for {@link UABeam#beamNumber}
   * @return value of interest */
-public byte getBeamNumber()
+public int getBeamNumber()
 {
     return beamNumber; 
 }
 
 /** Setter for {@link UABeam#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized UABeam setPadding(short pPadding)
+public synchronized UABeam setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link UABeam#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized UABeam setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link UABeam#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -148,16 +138,12 @@ public UAFundamentalParameter getFundamentalParameterData()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeByte(beamDataLength);
-       dos.writeByte(beamNumber);
-       dos.writeShort(padding);
+       dos.writeByte((byte) beamDataLength);
+       dos.writeByte((byte) beamNumber);
+       dos.writeShort((short) padding);
        fundamentalParameterData.marshal(dos);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -173,19 +159,15 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        beamDataLength = (byte)dis.readUnsignedByte();
+        beamDataLength = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        beamNumber = (byte)dis.readUnsignedByte();
+        beamNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += fundamentalParameterData.unmarshal(dis);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -201,9 +183,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.put( (byte)beamDataLength);
-   byteBuffer.put( (byte)beamNumber);
-   byteBuffer.putShort( (short)padding);
+   byteBuffer.put((byte) beamDataLength);
+   byteBuffer.put((byte) beamNumber);
+   byteBuffer.putShort((short) padding);
    fundamentalParameterData.marshal(byteBuffer);
 }
 
@@ -219,22 +201,68 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute beamDataLength marked as not serialized
-        beamDataLength = (byte)(byteBuffer.get() & 0xFF);
-        // attribute beamNumber marked as not serialized
-        beamNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute fundamentalParameterData marked as not serialized
+        beamDataLength = Byte.toUnsignedInt(byteBuffer.get());
+        beamNumber = Byte.toUnsignedInt(byteBuffer.get());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
         fundamentalParameterData.unmarshal(byteBuffer);
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("beamDataLength", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("beamNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("fundamentalParameterData", UAFundamentalParameter.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.put(((Number) map.get("beamDataLength")).byteValue());
+    byteBuffer.put(((Number) map.get("beamNumber")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+    UAFundamentalParameter.fromMapToBuffer((PduMap) map.get("fundamentalParameterData"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 1;  // beamDataLength
+    marshalSize += 1;  // beamNumber
+    marshalSize += 2;  // padding
+    marshalSize += UAFundamentalParameter.getMarshalledSize((PduMap) map.get("fundamentalParameterData"));
+
+    return marshalSize;
 }
 
  /*

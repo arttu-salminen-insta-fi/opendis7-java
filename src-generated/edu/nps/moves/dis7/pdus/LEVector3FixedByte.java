@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * 3 x 8-bit fixed binary
@@ -19,14 +21,17 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class LEVector3FixedByte extends Object implements Serializable, Marshaller
 {
-   /** X value */
-   protected byte x;
+   /** X value 
+   Value space: uint8 */
+   protected int x;
 
-   /** y Value */
-   protected byte y;
+   /** y Value 
+   Value space: uint8 */
+   protected int y;
 
-   /** Z value */
-   protected byte z;
+   /** Z value 
+   Value space: uint8 */
+   protected int z;
 
 
 /** Constructor creates and configures a new instance object */
@@ -53,67 +58,52 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link LEVector3FixedByte#x}
-  * @param pX new value of interest
+  * @param pX new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized LEVector3FixedByte setX(byte pX)
+public synchronized LEVector3FixedByte setX(int pX)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pX >= 0 && pX <= 255, "Value outside valid value space");
     x = pX;
-    return this;
-}
-/** Utility setter for {@link LEVector3FixedByte#x}
-  * @param pX new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LEVector3FixedByte setX(int pX){
-    x = (byte) pX;
     return this;
 }
 /** Getter for {@link LEVector3FixedByte#x}
   * @return value of interest */
-public byte getX()
+public int getX()
 {
     return x; 
 }
 
 /** Setter for {@link LEVector3FixedByte#y}
-  * @param pY new value of interest
+  * @param pY new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized LEVector3FixedByte setY(byte pY)
+public synchronized LEVector3FixedByte setY(int pY)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pY >= 0 && pY <= 255, "Value outside valid value space");
     y = pY;
-    return this;
-}
-/** Utility setter for {@link LEVector3FixedByte#y}
-  * @param pY new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LEVector3FixedByte setY(int pY){
-    y = (byte) pY;
     return this;
 }
 /** Getter for {@link LEVector3FixedByte#y}
   * @return value of interest */
-public byte getY()
+public int getY()
 {
     return y; 
 }
 
 /** Setter for {@link LEVector3FixedByte#z}
-  * @param pZ new value of interest
+  * @param pZ new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized LEVector3FixedByte setZ(byte pZ)
+public synchronized LEVector3FixedByte setZ(int pZ)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pZ >= 0 && pZ <= 255, "Value outside valid value space");
     z = pZ;
-    return this;
-}
-/** Utility setter for {@link LEVector3FixedByte#z}
-  * @param pZ new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LEVector3FixedByte setZ(int pZ){
-    z = (byte) pZ;
     return this;
 }
 /** Getter for {@link LEVector3FixedByte#z}
   * @return value of interest */
-public byte getZ()
+public int getZ()
 {
     return z; 
 }
@@ -127,15 +117,11 @@ public byte getZ()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeByte(x);
-       dos.writeByte(y);
-       dos.writeByte(z);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) x);
+       dos.writeByte((byte) y);
+       dos.writeByte((byte) z);
     }
 }
 
@@ -151,18 +137,14 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        x = (byte)dis.readUnsignedByte();
+        x = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        y = (byte)dis.readUnsignedByte();
+        y = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        z = (byte)dis.readUnsignedByte();
+        z = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -178,9 +160,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.put( (byte)x);
-   byteBuffer.put( (byte)y);
-   byteBuffer.put( (byte)z);
+   byteBuffer.put((byte) x);
+   byteBuffer.put((byte) y);
+   byteBuffer.put((byte) z);
 }
 
 /**
@@ -195,20 +177,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute x marked as not serialized
-        x = (byte)(byteBuffer.get() & 0xFF);
-        // attribute y marked as not serialized
-        y = (byte)(byteBuffer.get() & 0xFF);
-        // attribute z marked as not serialized
-        z = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        x = Byte.toUnsignedInt(byteBuffer.get());
+        y = Byte.toUnsignedInt(byteBuffer.get());
+        z = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("x", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("y", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("z", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.put(((Number) map.get("x")).byteValue());
+    byteBuffer.put(((Number) map.get("y")).byteValue());
+    byteBuffer.put(((Number) map.get("z")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 1;  // x
+    marshalSize += 1;  // y
+    marshalSize += 1;  // z
+
+    return marshalSize;
 }
 
  /*

@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * 16-bit fixed binaries
@@ -19,14 +21,17 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class LiveEntityLinearVelocity extends Object implements Serializable, Marshaller
 {
-   /** xComponent is an undescribed parameter... */
-   protected short xComponent;
+   /** xComponent is an undescribed parameter...
+   Value space: uint16 */
+   protected int xComponent;
 
-   /** yComponent is an undescribed parameter... */
-   protected short yComponent;
+   /** yComponent is an undescribed parameter...
+   Value space: uint16 */
+   protected int yComponent;
 
-   /** zComponent is an undescribed parameter... */
-   protected short zComponent;
+   /** zComponent is an undescribed parameter...
+   Value space: uint16 */
+   protected int zComponent;
 
 
 /** Constructor creates and configures a new instance object */
@@ -53,67 +58,52 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link LiveEntityLinearVelocity#xComponent}
-  * @param pXComponent new value of interest
+  * @param pXComponent new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LiveEntityLinearVelocity setXComponent(short pXComponent)
+public synchronized LiveEntityLinearVelocity setXComponent(int pXComponent)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pXComponent >= 0 && pXComponent <= 65535, "Value outside valid value space");
     xComponent = pXComponent;
-    return this;
-}
-/** Utility setter for {@link LiveEntityLinearVelocity#xComponent}
-  * @param pXComponent new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveEntityLinearVelocity setXComponent(int pXComponent){
-    xComponent = (short) pXComponent;
     return this;
 }
 /** Getter for {@link LiveEntityLinearVelocity#xComponent}
   * @return value of interest */
-public short getXComponent()
+public int getXComponent()
 {
     return xComponent; 
 }
 
 /** Setter for {@link LiveEntityLinearVelocity#yComponent}
-  * @param pYComponent new value of interest
+  * @param pYComponent new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LiveEntityLinearVelocity setYComponent(short pYComponent)
+public synchronized LiveEntityLinearVelocity setYComponent(int pYComponent)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pYComponent >= 0 && pYComponent <= 65535, "Value outside valid value space");
     yComponent = pYComponent;
-    return this;
-}
-/** Utility setter for {@link LiveEntityLinearVelocity#yComponent}
-  * @param pYComponent new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveEntityLinearVelocity setYComponent(int pYComponent){
-    yComponent = (short) pYComponent;
     return this;
 }
 /** Getter for {@link LiveEntityLinearVelocity#yComponent}
   * @return value of interest */
-public short getYComponent()
+public int getYComponent()
 {
     return yComponent; 
 }
 
 /** Setter for {@link LiveEntityLinearVelocity#zComponent}
-  * @param pZComponent new value of interest
+  * @param pZComponent new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LiveEntityLinearVelocity setZComponent(short pZComponent)
+public synchronized LiveEntityLinearVelocity setZComponent(int pZComponent)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pZComponent >= 0 && pZComponent <= 65535, "Value outside valid value space");
     zComponent = pZComponent;
-    return this;
-}
-/** Utility setter for {@link LiveEntityLinearVelocity#zComponent}
-  * @param pZComponent new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveEntityLinearVelocity setZComponent(int pZComponent){
-    zComponent = (short) pZComponent;
     return this;
 }
 /** Getter for {@link LiveEntityLinearVelocity#zComponent}
   * @return value of interest */
-public short getZComponent()
+public int getZComponent()
 {
     return zComponent; 
 }
@@ -127,15 +117,11 @@ public short getZComponent()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(xComponent);
-       dos.writeShort(yComponent);
-       dos.writeShort(zComponent);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) xComponent);
+       dos.writeShort((short) yComponent);
+       dos.writeShort((short) zComponent);
     }
 }
 
@@ -151,18 +137,14 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        xComponent = (short)dis.readUnsignedShort();
+        xComponent = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        yComponent = (short)dis.readUnsignedShort();
+        yComponent = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        zComponent = (short)dis.readUnsignedShort();
+        zComponent = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -178,9 +160,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)xComponent);
-   byteBuffer.putShort( (short)yComponent);
-   byteBuffer.putShort( (short)zComponent);
+   byteBuffer.putShort((short) xComponent);
+   byteBuffer.putShort((short) yComponent);
+   byteBuffer.putShort((short) zComponent);
 }
 
 /**
@@ -195,20 +177,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute xComponent marked as not serialized
-        xComponent = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute yComponent marked as not serialized
-        yComponent = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute zComponent marked as not serialized
-        zComponent = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        xComponent = Short.toUnsignedInt(byteBuffer.getShort());
+        yComponent = Short.toUnsignedInt(byteBuffer.getShort());
+        zComponent = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("xComponent", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("yComponent", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("zComponent", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("xComponent")).shortValue());
+    byteBuffer.putShort(((Number) map.get("yComponent")).shortValue());
+    byteBuffer.putShort(((Number) map.get("zComponent")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // xComponent
+    marshalSize += 2;  // yComponent
+    marshalSize += 2;  // zComponent
+
+    return marshalSize;
 }
 
  /*

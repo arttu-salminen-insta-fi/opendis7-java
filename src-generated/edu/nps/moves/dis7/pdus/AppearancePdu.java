@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -27,8 +29,9 @@ public class AppearancePdu extends LiveEntityFamilyPdu implements Serializable, 
    /** liveEntityId is an undescribed parameter... */
    protected EntityID  liveEntityId = new EntityID(); 
 
-   /** 16-bit bit field */
-   protected short appearanceFlags;
+   /** 16-bit bit field 
+   Value space: uint16 */
+   protected int appearanceFlags;
 
    /**  uid 6 */
    protected ForceID forceId = ForceID.values()[0];
@@ -165,23 +168,18 @@ public EntityID getLiveEntityId()
 
 
 /** Setter for {@link AppearancePdu#appearanceFlags}
-  * @param pAppearanceFlags new value of interest
+  * @param pAppearanceFlags new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized AppearancePdu setAppearanceFlags(short pAppearanceFlags)
+public synchronized AppearancePdu setAppearanceFlags(int pAppearanceFlags)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pAppearanceFlags >= 0 && pAppearanceFlags <= 65535, "Value outside valid value space");
     appearanceFlags = pAppearanceFlags;
-    return this;
-}
-/** Utility setter for {@link AppearancePdu#appearanceFlags}
-  * @param pAppearanceFlags new value of interest
-  * @return same object to permit progressive setters */
-public synchronized AppearancePdu setAppearanceFlags(int pAppearanceFlags){
-    appearanceFlags = (short) pAppearanceFlags;
     return this;
 }
 /** Getter for {@link AppearancePdu#appearanceFlags}
   * @return value of interest */
-public short getAppearanceFlags()
+public int getAppearanceFlags()
 {
     return appearanceFlags; 
 }
@@ -290,20 +288,16 @@ public Appearance getAppearanceFields()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        liveEntityId.marshal(dos);
-       dos.writeShort(appearanceFlags);
+       dos.writeShort((short) appearanceFlags);
        forceId.marshal(dos);
        entityType.marshal(dos);
        alternateEntityType.marshal(dos);
        entityMarking.marshal(dos);
        capabilities.marshal(dos);
        appearanceFields.marshal(dos);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -321,10 +315,10 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += liveEntityId.unmarshal(dis);
-        appearanceFlags = (short)dis.readUnsignedShort();
+        appearanceFlags = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         forceId = ForceID.unmarshalEnum(dis);
         uPosition += forceId.getMarshalledSize();
@@ -333,10 +327,6 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += entityMarking.unmarshal(dis);
         uPosition += capabilities.unmarshal(dis);
         uPosition += appearanceFields.unmarshal(dis);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -354,7 +344,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    liveEntityId.marshal(byteBuffer);
-   byteBuffer.putShort( (short)appearanceFlags);
+   byteBuffer.putShort((short) appearanceFlags);
    forceId.marshal(byteBuffer);
    entityType.marshal(byteBuffer);
    alternateEntityType.marshal(byteBuffer);
@@ -377,30 +367,86 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute liveEntityId marked as not serialized
         liveEntityId.unmarshal(byteBuffer);
-        // attribute appearanceFlags marked as not serialized
-        appearanceFlags = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute forceId marked as not serialized
+        appearanceFlags = Short.toUnsignedInt(byteBuffer.getShort());
         forceId = ForceID.unmarshalEnum(byteBuffer);
-        // attribute entityType marked as not serialized
         entityType.unmarshal(byteBuffer);
-        // attribute alternateEntityType marked as not serialized
         alternateEntityType.unmarshal(byteBuffer);
-        // attribute entityMarking marked as not serialized
         entityMarking.unmarshal(byteBuffer);
-        // attribute capabilities marked as not serialized
         capabilities.unmarshal(byteBuffer);
-        // attribute appearanceFields marked as not serialized
         appearanceFields.unmarshal(byteBuffer);
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = LiveEntityFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("liveEntityId", EntityID.fromBufferToMap(byteBuffer));
+    map.put("appearanceFlags", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("forceId", ForceID.unmarshalEnum(byteBuffer).getValue());
+    map.put("entityType", EntityType.fromBufferToMap(byteBuffer));
+    map.put("alternateEntityType", EntityType.fromBufferToMap(byteBuffer));
+    map.put("entityMarking", EntityMarking.fromBufferToMap(byteBuffer));
+    map.put("capabilities", EntityCapabilities.fromBufferToMap(byteBuffer));
+    map.put("appearanceFields", Appearance.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    LiveEntityFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("liveEntityId"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("appearanceFlags")).shortValue());
+    ForceID.getEnumForValue(((Number) map.get("forceId")).intValue()).marshal(byteBuffer);
+    EntityType.fromMapToBuffer((PduMap) map.get("entityType"), byteBuffer);
+    EntityType.fromMapToBuffer((PduMap) map.get("alternateEntityType"), byteBuffer);
+    EntityMarking.fromMapToBuffer((PduMap) map.get("entityMarking"), byteBuffer);
+    EntityCapabilities.fromMapToBuffer((PduMap) map.get("capabilities"), byteBuffer);
+    Appearance.fromMapToBuffer((PduMap) map.get("appearanceFields"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += LiveEntityFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("liveEntityId"));
+    marshalSize += 2;  // appearanceFlags
+    marshalSize += ForceID.getEnumForValue(((Number) map.get("forceId")).intValue()).getMarshalledSize();
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("entityType"));
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("alternateEntityType"));
+    marshalSize += EntityMarking.getMarshalledSize((PduMap) map.get("entityMarking"));
+    marshalSize += EntityCapabilities.getMarshalledSize((PduMap) map.get("capabilities"));
+    marshalSize += Appearance.getMarshalledSize((PduMap) map.get("appearanceFields"));
+
+    return marshalSize;
 }
 
  /*
@@ -442,7 +488,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" liveEntityId:").append(liveEntityId); // writeOneToString
     sb.append(" appearanceFlags:").append(appearanceFlags); // writeOneToString
     sb.append(" forceId:").append(forceId); // writeOneToString

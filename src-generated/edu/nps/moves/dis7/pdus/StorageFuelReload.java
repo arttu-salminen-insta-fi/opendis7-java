@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * For each type or location of Storage Fuel, this record shall specify the type, location, fuel measure- ment units, reload quantity and maximum quantity for storage fuel either for the whole entity or a specific storage fuel location (tank). Section 6.2.85.
@@ -19,17 +21,21 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class StorageFuelReload extends Object implements Serializable, Marshaller
 {
-   /**  the standard quantity of this fuel type normally loaded at this station/launcher if a station/launcher is specified. If the Station/Launcher field is set to zero, then this is the total quantity of this fuel type that would be present in a standard reload of all appli- cable stations/launchers associated with this entity. */
-   protected int standardQuantity;
+   /**  the standard quantity of this fuel type normally loaded at this station/launcher if a station/launcher is specified. If the Station/Launcher field is set to zero, then this is the total quantity of this fuel type that would be present in a standard reload of all appli- cable stations/launchers associated with this entity. 
+   Value space: uint32 */
+   protected UnsignedInteger standardQuantity = UnsignedInteger.ZERO;
 
-   /** The maximum quantity of this fuel type that this sta- tion/launcher is capable of holding when a station/launcher is specified. This would be the value used when a maximum reload was desired to be set for this station/launcher. If the Station/launcher field is set to zero, then this is the maximum quantity of this fuel type that would be present on this entity at all stations/launchers that can accept this fuel type. */
-   protected int maximumQuantity;
+   /** The maximum quantity of this fuel type that this sta- tion/launcher is capable of holding when a station/launcher is specified. This would be the value used when a maximum reload was desired to be set for this station/launcher. If the Station/launcher field is set to zero, then this is the maximum quantity of this fuel type that would be present on this entity at all stations/launchers that can accept this fuel type. 
+   Value space: uint32 */
+   protected UnsignedInteger maximumQuantity = UnsignedInteger.ZERO;
 
-   /** The seconds normally required to reload the standard quantity of this fuel type at this specific station/launcher. When the Station/Launcher field is set to zero, this shall be the time it takes to perform a standard quantity reload of this fuel type at all applicable stations/launchers for this entity. */
-   protected int standardQuantityReloadTime;
+   /** The seconds normally required to reload the standard quantity of this fuel type at this specific station/launcher. When the Station/Launcher field is set to zero, this shall be the time it takes to perform a standard quantity reload of this fuel type at all applicable stations/launchers for this entity. 
+   Value space: uint32 */
+   protected UnsignedInteger standardQuantityReloadTime = UnsignedInteger.ZERO;
 
-   /** The seconds normally required to reload the maximum possible quantity of this fuel type at this station/launcher. When the Station/Launcher field is set to zero, this shall be the time it takes to perform a maximum quantity load/reload of this fuel type at all applicable stations/launchers for this entity. */
-   protected int maximumQuantityReloadTime;
+   /** The seconds normally required to reload the maximum possible quantity of this fuel type at this station/launcher. When the Station/Launcher field is set to zero, this shall be the time it takes to perform a maximum quantity load/reload of this fuel type at all applicable stations/launchers for this entity. 
+   Value space: uint32 */
+   protected UnsignedInteger maximumQuantityReloadTime = UnsignedInteger.ZERO;
 
    /** The fuel measurement units. Enumeration uid 328 */
    protected FuelMeasurementUnits fuelMeasurementUnits = FuelMeasurementUnits.values()[0];
@@ -40,8 +46,9 @@ public class StorageFuelReload extends Object implements Serializable, Marshalle
    /** Location of fuel as related to entity. See section 14 of EBV document uid 329 */
    protected FuelLocation fuelLocation = FuelLocation.values()[0];
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected byte padding = (byte)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint8 */
+   protected int padding = (int) 0;
 
 
 /** Constructor creates and configures a new instance object */
@@ -76,61 +83,61 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link StorageFuelReload#standardQuantity}
-  * @param pStandardQuantity new value of interest
+  * @param pStandardQuantity new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized StorageFuelReload setStandardQuantity(int pStandardQuantity)
+public synchronized StorageFuelReload setStandardQuantity(UnsignedInteger pStandardQuantity)
 {
     standardQuantity = pStandardQuantity;
     return this;
 }
 /** Getter for {@link StorageFuelReload#standardQuantity}
   * @return value of interest */
-public int getStandardQuantity()
+public UnsignedInteger getStandardQuantity()
 {
     return standardQuantity; 
 }
 
 /** Setter for {@link StorageFuelReload#maximumQuantity}
-  * @param pMaximumQuantity new value of interest
+  * @param pMaximumQuantity new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized StorageFuelReload setMaximumQuantity(int pMaximumQuantity)
+public synchronized StorageFuelReload setMaximumQuantity(UnsignedInteger pMaximumQuantity)
 {
     maximumQuantity = pMaximumQuantity;
     return this;
 }
 /** Getter for {@link StorageFuelReload#maximumQuantity}
   * @return value of interest */
-public int getMaximumQuantity()
+public UnsignedInteger getMaximumQuantity()
 {
     return maximumQuantity; 
 }
 
 /** Setter for {@link StorageFuelReload#standardQuantityReloadTime}
-  * @param pStandardQuantityReloadTime new value of interest
+  * @param pStandardQuantityReloadTime new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized StorageFuelReload setStandardQuantityReloadTime(int pStandardQuantityReloadTime)
+public synchronized StorageFuelReload setStandardQuantityReloadTime(UnsignedInteger pStandardQuantityReloadTime)
 {
     standardQuantityReloadTime = pStandardQuantityReloadTime;
     return this;
 }
 /** Getter for {@link StorageFuelReload#standardQuantityReloadTime}
   * @return value of interest */
-public int getStandardQuantityReloadTime()
+public UnsignedInteger getStandardQuantityReloadTime()
 {
     return standardQuantityReloadTime; 
 }
 
 /** Setter for {@link StorageFuelReload#maximumQuantityReloadTime}
-  * @param pMaximumQuantityReloadTime new value of interest
+  * @param pMaximumQuantityReloadTime new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized StorageFuelReload setMaximumQuantityReloadTime(int pMaximumQuantityReloadTime)
+public synchronized StorageFuelReload setMaximumQuantityReloadTime(UnsignedInteger pMaximumQuantityReloadTime)
 {
     maximumQuantityReloadTime = pMaximumQuantityReloadTime;
     return this;
 }
 /** Getter for {@link StorageFuelReload#maximumQuantityReloadTime}
   * @return value of interest */
-public int getMaximumQuantityReloadTime()
+public UnsignedInteger getMaximumQuantityReloadTime()
 {
     return maximumQuantityReloadTime; 
 }
@@ -181,23 +188,18 @@ public FuelLocation getFuelLocation()
 }
 
 /** Setter for {@link StorageFuelReload#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized StorageFuelReload setPadding(byte pPadding)
+public synchronized StorageFuelReload setPadding(int pPadding)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 255, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link StorageFuelReload#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized StorageFuelReload setPadding(int pPadding){
-    padding = (byte) pPadding;
     return this;
 }
 /** Getter for {@link StorageFuelReload#padding}
   * @return value of interest */
-public byte getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -211,20 +213,16 @@ public byte getPadding()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeInt(standardQuantity);
-       dos.writeInt(maximumQuantity);
-       dos.writeInt(standardQuantityReloadTime);
-       dos.writeInt(maximumQuantityReloadTime);
+       dos.writeInt(standardQuantity.intValue());
+       dos.writeInt(maximumQuantity.intValue());
+       dos.writeInt(standardQuantityReloadTime.intValue());
+       dos.writeInt(maximumQuantityReloadTime.intValue());
        fuelMeasurementUnits.marshal(dos);
        fuelType.marshal(dos);
        fuelLocation.marshal(dos);
-       dos.writeByte(padding);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) padding);
     }
 }
 
@@ -240,15 +238,15 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        standardQuantity = dis.readInt();
+        standardQuantity = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        maximumQuantity = dis.readInt();
+        maximumQuantity = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        standardQuantityReloadTime = dis.readInt();
+        standardQuantityReloadTime = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        maximumQuantityReloadTime = dis.readInt();
+        maximumQuantityReloadTime = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         fuelMeasurementUnits = FuelMeasurementUnits.unmarshalEnum(dis);
         uPosition += fuelMeasurementUnits.getMarshalledSize();
@@ -256,12 +254,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += fuelType.getMarshalledSize();
         fuelLocation = FuelLocation.unmarshalEnum(dis);
         uPosition += fuelLocation.getMarshalledSize();
-        padding = (byte)dis.readUnsignedByte();
+        padding = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -277,14 +271,14 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putInt( (int)standardQuantity);
-   byteBuffer.putInt( (int)maximumQuantity);
-   byteBuffer.putInt( (int)standardQuantityReloadTime);
-   byteBuffer.putInt( (int)maximumQuantityReloadTime);
+   byteBuffer.putInt(standardQuantity.intValue());
+   byteBuffer.putInt(maximumQuantity.intValue());
+   byteBuffer.putInt(standardQuantityReloadTime.intValue());
+   byteBuffer.putInt(maximumQuantityReloadTime.intValue());
    fuelMeasurementUnits.marshal(byteBuffer);
    fuelType.marshal(byteBuffer);
    fuelLocation.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding);
+   byteBuffer.put((byte) padding);
 }
 
 /**
@@ -299,30 +293,84 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute standardQuantity marked as not serialized
-        standardQuantity = byteBuffer.getInt();
-        // attribute maximumQuantity marked as not serialized
-        maximumQuantity = byteBuffer.getInt();
-        // attribute standardQuantityReloadTime marked as not serialized
-        standardQuantityReloadTime = byteBuffer.getInt();
-        // attribute maximumQuantityReloadTime marked as not serialized
-        maximumQuantityReloadTime = byteBuffer.getInt();
-        // attribute fuelMeasurementUnits marked as not serialized
+        standardQuantity = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        maximumQuantity = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        standardQuantityReloadTime = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        maximumQuantityReloadTime = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         fuelMeasurementUnits = FuelMeasurementUnits.unmarshalEnum(byteBuffer);
-        // attribute fuelType marked as not serialized
         fuelType = SupplyFuelType.unmarshalEnum(byteBuffer);
-        // attribute fuelLocation marked as not serialized
         fuelLocation = FuelLocation.unmarshalEnum(byteBuffer);
-        // attribute padding marked as not serialized
-        padding = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("standardQuantity", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("maximumQuantity", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("standardQuantityReloadTime", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("maximumQuantityReloadTime", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("fuelMeasurementUnits", FuelMeasurementUnits.unmarshalEnum(byteBuffer).getValue());
+    map.put("fuelType", SupplyFuelType.unmarshalEnum(byteBuffer).getValue());
+    map.put("fuelLocation", FuelLocation.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putInt(((Number) map.get("standardQuantity")).intValue());
+    byteBuffer.putInt(((Number) map.get("maximumQuantity")).intValue());
+    byteBuffer.putInt(((Number) map.get("standardQuantityReloadTime")).intValue());
+    byteBuffer.putInt(((Number) map.get("maximumQuantityReloadTime")).intValue());
+    FuelMeasurementUnits.getEnumForValue(((Number) map.get("fuelMeasurementUnits")).intValue()).marshal(byteBuffer);
+    SupplyFuelType.getEnumForValue(((Number) map.get("fuelType")).intValue()).marshal(byteBuffer);
+    FuelLocation.getEnumForValue(((Number) map.get("fuelLocation")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // standardQuantity
+    marshalSize += 4;  // maximumQuantity
+    marshalSize += 4;  // standardQuantityReloadTime
+    marshalSize += 4;  // maximumQuantityReloadTime
+    marshalSize += FuelMeasurementUnits.getEnumForValue(((Number) map.get("fuelMeasurementUnits")).intValue()).getMarshalledSize();
+    marshalSize += SupplyFuelType.getEnumForValue(((Number) map.get("fuelType")).intValue()).getMarshalledSize();
+    marshalSize += FuelLocation.getEnumForValue(((Number) map.get("fuelLocation")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding
+
+    return marshalSize;
 }
 
  /*

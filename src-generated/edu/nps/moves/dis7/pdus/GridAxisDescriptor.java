@@ -11,308 +11,434 @@ package edu.nps.moves.dis7.pdus;
 
 import java.util.*;
 import java.io.*;
+
+import com.google.common.base.Preconditions;
 import edu.nps.moves.dis7.enumerations.*;
 
 /**
  * Detailed information about the grid dimensions (axes) and coordinates for environmental state variables
- * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
+ * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a>
  */
 public class GridAxisDescriptor extends Object implements Serializable, Marshaller
 {
-   /** coordinate of the grid origin or initial value */
-   protected double domainInitialXi;
+    /** coordinate of the grid origin or initial value */
+    protected double domainInitialXi;
 
-   /** coordinate of the endpoint or final value */
-   protected double domainFinalXi;
+    /** coordinate of the endpoint or final value */
+    protected double domainFinalXi;
 
-   /** The number of grid points along the Xi domain axis for the enviornmental state data */
-   protected short domainPointsXi;
+    /** The number of grid points along the Xi domain axis for the enviornmental state data */
+    protected int domainPointsXi;
 
-   /** interleaf factor along the domain axis. */
-   protected byte interleafFactor;
+    /** interleaf factor along the domain axis. */
+    protected int interleafFactor;
 
-   /** type of grid axis uid 377 */
-   protected GridAxisDescriptorAxisType axisType = GridAxisDescriptorAxisType.values()[0];
+    /** type of grid axis uid 377 */
+    protected GridAxisDescriptorAxisType axisType = GridAxisDescriptorAxisType.values()[0];
 
+    /** fixedData is an undescribed parameter... */
+    protected GridAxisDescriptorFixed  fixedData = null;
 
-/** Constructor creates and configures a new instance object */
- public GridAxisDescriptor()
- {
- }
-
-  /**
-   * Returns size of this serialized (marshalled) object in bytes
-   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
-   * @return serialized size in bytes
-   */
-@Override
-public synchronized int getMarshalledSize()
-{
-   int marshalSize = 0; 
-
-   marshalSize += 8;  // domainInitialXi
-   marshalSize += 8;  // domainFinalXi
-   marshalSize += 2;  // domainPointsXi
-   marshalSize += 1;  // interleafFactor
-   if (axisType != null)
-       marshalSize += axisType.getMarshalledSize();
-
-   return marshalSize;
-}
+    /** variableData is an undescribed parameter... */
+    protected GridAxisDescriptorVariable  variableData = null;
 
 
-/** Setter for {@link GridAxisDescriptor#domainInitialXi}
-  * @param pDomainInitialXi new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GridAxisDescriptor setDomainInitialXi(double pDomainInitialXi)
-{
-    domainInitialXi = pDomainInitialXi;
-    return this;
-}
-/** Getter for {@link GridAxisDescriptor#domainInitialXi}
-  * @return value of interest */
-public double getDomainInitialXi()
-{
-    return domainInitialXi; 
-}
-
-/** Setter for {@link GridAxisDescriptor#domainFinalXi}
-  * @param pDomainFinalXi new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GridAxisDescriptor setDomainFinalXi(double pDomainFinalXi)
-{
-    domainFinalXi = pDomainFinalXi;
-    return this;
-}
-/** Getter for {@link GridAxisDescriptor#domainFinalXi}
-  * @return value of interest */
-public double getDomainFinalXi()
-{
-    return domainFinalXi; 
-}
-
-/** Setter for {@link GridAxisDescriptor#domainPointsXi}
-  * @param pDomainPointsXi new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GridAxisDescriptor setDomainPointsXi(short pDomainPointsXi)
-{
-    domainPointsXi = pDomainPointsXi;
-    return this;
-}
-/** Utility setter for {@link GridAxisDescriptor#domainPointsXi}
-  * @param pDomainPointsXi new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GridAxisDescriptor setDomainPointsXi(int pDomainPointsXi){
-    domainPointsXi = (short) pDomainPointsXi;
-    return this;
-}
-/** Getter for {@link GridAxisDescriptor#domainPointsXi}
-  * @return value of interest */
-public short getDomainPointsXi()
-{
-    return domainPointsXi; 
-}
-
-/** Setter for {@link GridAxisDescriptor#interleafFactor}
-  * @param pInterleafFactor new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GridAxisDescriptor setInterleafFactor(byte pInterleafFactor)
-{
-    interleafFactor = pInterleafFactor;
-    return this;
-}
-/** Utility setter for {@link GridAxisDescriptor#interleafFactor}
-  * @param pInterleafFactor new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GridAxisDescriptor setInterleafFactor(int pInterleafFactor){
-    interleafFactor = (byte) pInterleafFactor;
-    return this;
-}
-/** Getter for {@link GridAxisDescriptor#interleafFactor}
-  * @return value of interest */
-public byte getInterleafFactor()
-{
-    return interleafFactor; 
-}
-
-/** Setter for {@link GridAxisDescriptor#axisType}
-  * @param pAxisType new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GridAxisDescriptor setAxisType(GridAxisDescriptorAxisType pAxisType)
-{
-    axisType = pAxisType;
-    return this;
-}
-/** Getter for {@link GridAxisDescriptor#axisType}
-  * @return value of interest */
-public GridAxisDescriptorAxisType getAxisType()
-{
-    return axisType; 
-}
-
-/**
- * Serializes an object to a DataOutputStream.
- * @throws java.lang.Exception if something goes wrong
- * @see java.io.DataOutputStream
- * @param dos the OutputStream
- */
-@Override
-public synchronized void marshal(DataOutputStream dos) throws Exception
-{
-    try 
+    /** Constructor creates and configures a new instance object */
+    public GridAxisDescriptor()
     {
-       dos.writeDouble(domainInitialXi);
-       dos.writeDouble(domainFinalXi);
-       dos.writeShort(domainPointsXi);
-       dos.writeByte(interleafFactor);
-       axisType.marshal(dos);
     }
-    catch(Exception e)
+
+    /**
+     * Returns size of this serialized (marshalled) object in bytes
+     * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+     * @return serialized size in bytes
+     */
+    @Override
+    public synchronized int getMarshalledSize()
     {
-      System.err.println(e);
-    }
-}
+        int marshalSize = 0;
 
-/**
- * Deserializes an object from a DataInputStream.
- * @throws java.lang.Exception if something goes wrong
- * @see java.io.DataInputStream
- * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
- * @param dis the InputStream
- * @return marshalled serialized size in bytes
- */
-@Override
-public synchronized int unmarshal(DataInputStream dis) throws Exception
-{
-    int uPosition = 0;
-    try 
+        marshalSize += 8;  // domainInitialXi
+        marshalSize += 8;  // domainFinalXi
+        marshalSize += 2;  // domainPointsXi
+        marshalSize += 1;  // interleafFactor
+        if (axisType != null)
+            marshalSize += axisType.getMarshalledSize();
+        if (fixedData != null)
+            marshalSize += fixedData.getMarshalledSize();
+        if (variableData != null)
+            marshalSize += variableData.getMarshalledSize();
+
+        return marshalSize;
+    }
+
+
+    /** Setter for {@link GridAxisDescriptor#domainInitialXi}
+     * @param pDomainInitialXi new value of interest
+     * @return same object to permit progressive setters */
+    public synchronized GridAxisDescriptor setDomainInitialXi(double pDomainInitialXi)
     {
-        domainInitialXi = dis.readDouble();
-        uPosition += 4;
-        domainFinalXi = dis.readDouble();
-        uPosition += 4;
-        domainPointsXi = (short)dis.readUnsignedShort();
-        uPosition += 2;
-        interleafFactor = (byte)dis.readUnsignedByte();
-        uPosition += 1;
-        axisType = GridAxisDescriptorAxisType.unmarshalEnum(dis);
-        uPosition += axisType.getMarshalledSize();
+        domainInitialXi = pDomainInitialXi;
+        return this;
     }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
-    }
-    return getMarshalledSize();
-}
-
-/**
- * Packs an object into the ByteBuffer.
- * @throws java.nio.BufferOverflowException if byteBuffer is too small
- * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
- * @see java.nio.ByteBuffer
- * @param byteBuffer The ByteBuffer at the position to begin writing
- * @throws Exception ByteBuffer-generated exception
- */
-@Override
-public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
-{
-   byteBuffer.putDouble( (double)domainInitialXi);
-   byteBuffer.putDouble( (double)domainFinalXi);
-   byteBuffer.putShort( (short)domainPointsXi);
-   byteBuffer.put( (byte)interleafFactor);
-   axisType.marshal(byteBuffer);
-}
-
-/**
- * Unpacks a Pdu from the underlying data.
- * @throws java.nio.BufferUnderflowException if byteBuffer is too small
- * @see java.nio.ByteBuffer
- * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
- * @param byteBuffer The ByteBuffer at the position to begin reading
- * @return marshalled serialized size in bytes
- * @throws Exception ByteBuffer-generated exception
- */
-@Override
-public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
-{
-    try
+    /** Getter for {@link GridAxisDescriptor#domainInitialXi}
+     * @return value of interest */
+    public double getDomainInitialXi()
     {
-        // attribute domainInitialXi marked as not serialized
-        domainInitialXi = byteBuffer.getDouble();
-        // attribute domainFinalXi marked as not serialized
-        domainFinalXi = byteBuffer.getDouble();
-        // attribute domainPointsXi marked as not serialized
-        domainPointsXi = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute interleafFactor marked as not serialized
-        interleafFactor = (byte)(byteBuffer.get() & 0xFF);
-        // attribute axisType marked as not serialized
-        axisType = GridAxisDescriptorAxisType.unmarshalEnum(byteBuffer);
+        return domainInitialXi;
     }
-    catch (java.nio.BufferUnderflowException bue)
+
+    /** Setter for {@link GridAxisDescriptor#domainFinalXi}
+     * @param pDomainFinalXi new value of interest
+     * @return same object to permit progressive setters */
+    public synchronized GridAxisDescriptor setDomainFinalXi(double pDomainFinalXi)
     {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        domainFinalXi = pDomainFinalXi;
+        return this;
     }
-    return getMarshalledSize();
-}
+    /** Getter for {@link GridAxisDescriptor#domainFinalXi}
+     * @return value of interest */
+    public double getDomainFinalXi()
+    {
+        return domainFinalXi;
+    }
 
- /*
-  * Override of default equals method.  Calls equalsImpl() for content comparison.
-  */
-@Override
- public synchronized boolean equals(Object obj)
- {
-    if(this == obj)
-      return true;
+    /** Utility setter for {@link GridAxisDescriptor#domainPointsXi}
+     * @param pDomainPointsXi new value of interest. Value space uint16
+     * @return same object to permit progressive setters */
+    public synchronized GridAxisDescriptor setDomainPointsXi(int pDomainPointsXi){
+        // Checking value is in value space uint16
+        Preconditions.checkArgument(pDomainPointsXi >= 0 && pDomainPointsXi <= 65535, "value outside valid value space");
+        domainPointsXi = pDomainPointsXi;
+        return this;
+    }
+    /** Getter for {@link GridAxisDescriptor#domainPointsXi}
+     * @return value of interest */
+    public int getDomainPointsXi()
+    {
+        return domainPointsXi;
+    }
 
-    if(obj == null)
-       return false;
+    /** Utility setter for {@link GridAxisDescriptor#interleafFactor}
+     * @param pInterleafFactor new value of interest. Value space uint8
+     * @return same object to permit progressive setters */
+    public synchronized GridAxisDescriptor setInterleafFactor(int pInterleafFactor){
+        // Checking value is in value space uint8
+        Preconditions.checkArgument(pInterleafFactor >= 0 && pInterleafFactor <= 255, "value outside valid value space");
+        interleafFactor = pInterleafFactor;
+        return this;
+    }
+    /** Getter for {@link GridAxisDescriptor#interleafFactor}
+     * @return value of interest */
+    public int getInterleafFactor()
+    {
+        return interleafFactor;
+    }
 
-    if(!getClass().isAssignableFrom(obj.getClass())) //if(getClass() != obj.getClass())
-        return false;
+    /** Setter for {@link GridAxisDescriptor#axisType}
+     * @param pAxisType new value of interest
+     * @return same object to permit progressive setters */
+    public synchronized GridAxisDescriptor setAxisType(GridAxisDescriptorAxisType pAxisType)
+    {
+        axisType = pAxisType;
+        return this;
+    }
+    /** Getter for {@link GridAxisDescriptor#axisType}
+     * @return value of interest */
+    public GridAxisDescriptorAxisType getAxisType()
+    {
+        return axisType;
+    }
 
-    return equalsImpl(obj);
- }
+    /** Setter for {@link GridAxisDescriptor#fixedData}
+     * @param pFixedData new value of interest
+     * @return same object to permit progressive setters */
+    public synchronized GridAxisDescriptor setFixedData(GridAxisDescriptorFixed pFixedData)
+    {
+        fixedData = pFixedData;
+        variableData = null;
+        return this;
+    }
+    /** Getter for {@link GridAxisDescriptor#fixedData}
+     * @return value of interest */
+    public GridAxisDescriptorFixed getFixedData()
+    {
+        return fixedData;
+    }
 
- /**
-  * Compare all fields that contribute to the state, ignoring
-  * transient and static fields, for <code>this</code> and the supplied object
-  * @param obj the object to compare to
-  * @return true if the objects are equal, false otherwise.
-  */
- public synchronized boolean equalsImpl(Object obj)
- {
-     final GridAxisDescriptor rhs = (GridAxisDescriptor)obj;
 
-     if( ! (domainInitialXi == rhs.domainInitialXi)) return false;
-     if( ! (domainFinalXi == rhs.domainFinalXi)) return false;
-     if( ! (domainPointsXi == rhs.domainPointsXi)) return false;
-     if( ! (interleafFactor == rhs.interleafFactor)) return false;
-     if( ! (axisType == rhs.axisType)) return false;
-    return true;
- }
+    /** Setter for {@link GridAxisDescriptor#variableData}
+     * @param pVariableData new value of interest
+     * @return same object to permit progressive setters */
+    public synchronized GridAxisDescriptor setVariableData(GridAxisDescriptorVariable pVariableData)
+    {
+        variableData = pVariableData;
+        fixedData = null;
+        return this;
+    }
+    /** Getter for {@link GridAxisDescriptor#variableData}
+     * @return value of interest */
+    public GridAxisDescriptorVariable getVariableData()
+    {
+        return variableData;
+    }
 
- @Override
- public synchronized String toString()
- {
-    StringBuilder sb  = new StringBuilder();
-    StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
-    sb.append(" domainInitialXi:").append(domainInitialXi); // writeOneToString
-    sb.append(" domainFinalXi:").append(domainFinalXi); // writeOneToString
-    sb.append(" domainPointsXi:").append(domainPointsXi); // writeOneToString
-    sb.append(" interleafFactor:").append(interleafFactor); // writeOneToString
-    sb.append(" axisType:").append(axisType); // writeOneToString
 
-   return sb.toString();
- }
+    /**
+     * Serializes an object to a DataOutputStream.
+     * @throws java.lang.Exception if something goes wrong
+     * @see java.io.DataOutputStream
+     * @param dos the OutputStream
+     */
+    @Override
+    public synchronized void marshal(DataOutputStream dos) throws Exception
+    {
 
- @Override
- public int hashCode()
- {
-	 return Objects.hash(this.domainInitialXi,
-	                     this.domainFinalXi,
-	                     this.domainPointsXi,
-	                     this.interleafFactor,
-	                     this.axisType);
- }
+        {
+            dos.writeDouble(domainInitialXi);
+            dos.writeDouble(domainFinalXi);
+            dos.writeShort((short) domainPointsXi);
+            dos.writeByte((byte) interleafFactor);
+            axisType.marshal(dos);
+            if (fixedData != null)
+                fixedData.marshal(dos);
+            if (variableData != null)
+                variableData.marshal(dos);
+        }
+    }
+
+    /**
+     * Deserializes an object from a DataInputStream.
+     * @throws java.lang.Exception if something goes wrong
+     * @see java.io.DataInputStream
+     * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+     * @param dis the InputStream
+     * @return marshalled serialized size in bytes
+     */
+    @Override
+    public synchronized int unmarshal(DataInputStream dis) throws Exception
+    {
+        int uPosition = 0;
+
+        {
+            domainInitialXi = dis.readDouble();
+            uPosition += 4;
+            domainFinalXi = dis.readDouble();
+            uPosition += 4;
+            domainPointsXi = Short.toUnsignedInt(dis.readShort());
+            uPosition += 2;
+            interleafFactor = Byte.toUnsignedInt(dis.readByte());
+            uPosition += 1;
+            axisType = GridAxisDescriptorAxisType.unmarshalEnum(dis);
+            uPosition += axisType.getMarshalledSize();
+            switch (axisType) {
+                case REGULAR_AXIS -> {
+                    fixedData = new GridAxisDescriptorFixed();
+                    variableData = null;
+                    uPosition += fixedData.unmarshal(dis);
+                }
+                case IRREGULAR_AXIS -> {
+                    fixedData = null;
+                    variableData = new GridAxisDescriptorVariable();
+                    uPosition += variableData.unmarshal(dis);
+                }
+            }
+        }
+        return getMarshalledSize();
+    }
+
+    /**
+     * Packs an object into the ByteBuffer.
+     * @throws java.nio.BufferOverflowException if byteBuffer is too small
+     * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+     * @see java.nio.ByteBuffer
+     * @param byteBuffer The ByteBuffer at the position to begin writing
+     * @throws Exception ByteBuffer-generated exception
+     */
+    @Override
+    public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
+    {
+        byteBuffer.putDouble( (double)domainInitialXi);
+        byteBuffer.putDouble( (double)domainFinalXi);
+        byteBuffer.putShort( (short)domainPointsXi);
+        byteBuffer.put( (byte)interleafFactor);
+        axisType.marshal(byteBuffer);
+        if (fixedData != null)
+            fixedData.marshal(byteBuffer);
+        if (variableData != null)
+            variableData.marshal(byteBuffer);
+    }
+
+    /**
+     * Unpacks a Pdu from the underlying data.
+     * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+     * @see java.nio.ByteBuffer
+     * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+     * @param byteBuffer The ByteBuffer at the position to begin reading
+     * @return marshalled serialized size in bytes
+     * @throws Exception ByteBuffer-generated exception
+     */
+    @Override
+    public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
+    {
+        {
+            domainInitialXi = byteBuffer.getDouble();
+            domainFinalXi = byteBuffer.getDouble();
+            domainPointsXi = Short.toUnsignedInt(byteBuffer.getShort());
+            interleafFactor = Byte.toUnsignedInt(byteBuffer.get());
+            axisType = GridAxisDescriptorAxisType.unmarshalEnum(byteBuffer);
+            switch (axisType) {
+                case REGULAR_AXIS -> {
+                    fixedData = new GridAxisDescriptorFixed();
+                    variableData = null;
+                    fixedData.unmarshal(byteBuffer);
+                }
+                case IRREGULAR_AXIS -> {
+                    fixedData = null;
+                    variableData = new GridAxisDescriptorVariable();
+                    variableData.unmarshal(byteBuffer);
+                }
+            }
+        }
+        return getMarshalledSize();
+    }
+
+
+    /**
+     * Unpacks a Pdu into a map from the underlying data.
+     * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+     * @see java.nio.ByteBuffer
+     * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+     * @param byteBuffer The ByteBuffer at the position to begin reading
+     * @return marshalled serialized size in bytes
+     * @throws Exception ByteBuffer-generated exception
+     */
+    public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+    {
+        PduMap map;
+        map = new PduMap();
+
+        {
+            map.put("domainInitialXi", byteBuffer.getDouble());
+            map.put("domainFinalXi", byteBuffer.getDouble());
+            map.put("domainPointsXi", Short.toUnsignedInt(byteBuffer.getShort()));
+            map.put("interleafFactor", Byte.toUnsignedInt(byteBuffer.get()));
+            map.put("axisType", GridAxisDescriptorAxisType.unmarshalEnum(byteBuffer));
+            switch ((GridAxisDescriptorAxisType) map.get("axisType")) {
+                case REGULAR_AXIS -> map.put("fixedData", GridAxisDescriptorFixed.fromBufferToMap(byteBuffer));
+                case IRREGULAR_AXIS -> map.put("variableData", GridAxisDescriptorVariable.fromBufferToMap(byteBuffer));
+            }
+        }
+        return map;
+    }
+
+    /**
+     * Packs a Pdu represented in map into the ByteBuffer.
+     * @throws java.nio.BufferOverflowException if byteBuffer is too small
+     * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+     * @see java.nio.ByteBuffer
+     * @param byteBuffer The ByteBuffer at the position to begin writing
+     * @throws Exception ByteBuffer-generated exception
+     */
+    public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+    {
+        byteBuffer.putDouble(((Number) map.get("domainInitialXi")).doubleValue());
+        byteBuffer.putDouble(((Number) map.get("domainFinalXi")).doubleValue());
+        byteBuffer.putShort(((Number) map.get("domainPointsXi")).shortValue());
+        byteBuffer.put(((Number) map.get("interleafFactor")).byteValue());
+        ((GridAxisDescriptorAxisType) map.get("axisType")).marshal(byteBuffer);
+        if (map.containsKey("fixedData"))
+            GridAxisDescriptorFixed.fromMapToBuffer((PduMap) map.get("fixedData"), byteBuffer);
+        if (map.containsKey("variableData"))
+            GridAxisDescriptorVariable.fromMapToBuffer((PduMap) map.get("variableData"), byteBuffer);
+    }
+
+    /**
+     * Returns size of this serialized (marshalled) object in bytes
+     * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+     * @return serialized size in bytes
+     * @throws Exception   */
+    public static int getMarshalledSize(PduMap map) throws Exception
+    {
+        int marshalSize = 0;
+
+        marshalSize += 8;  // domainInitialXi
+        marshalSize += 8;  // domainFinalXi
+        marshalSize += 2;  // domainPointsXi
+        marshalSize += 1;  // interleafFactor
+        marshalSize += ((GridAxisDescriptorAxisType) map.get("axisType")).getMarshalledSize();
+        if (map.containsKey("fixedData"))
+            marshalSize += GridAxisDescriptorFixed.getMarshalledSize((PduMap) map.get("fixedData"));
+        if (map.containsKey("variableData"))
+            marshalSize += GridAxisDescriptorVariable.getMarshalledSize((PduMap) map.get("variableData"));
+
+        return marshalSize;
+    }
+
+    /*
+     * Override of default equals method.  Calls equalsImpl() for content comparison.
+     */
+    @Override
+    public synchronized boolean equals(Object obj)
+    {
+        if(this == obj)
+            return true;
+
+        if(obj == null)
+            return false;
+
+        if(!getClass().isAssignableFrom(obj.getClass())) //if(getClass() != obj.getClass())
+            return false;
+
+        return equalsImpl(obj);
+    }
+
+    /**
+     * Compare all fields that contribute to the state, ignoring
+     * transient and static fields, for <code>this</code> and the supplied object
+     * @param obj the object to compare to
+     * @return true if the objects are equal, false otherwise.
+     */
+    public synchronized boolean equalsImpl(Object obj)
+    {
+        final GridAxisDescriptor rhs = (GridAxisDescriptor)obj;
+
+        if( ! (domainInitialXi == rhs.domainInitialXi)) return false;
+        if( ! (domainFinalXi == rhs.domainFinalXi)) return false;
+        if( ! (domainPointsXi == rhs.domainPointsXi)) return false;
+        if( ! (interleafFactor == rhs.interleafFactor)) return false;
+        if( ! (axisType == rhs.axisType)) return false;
+        if( ! Objects.equals(fixedData, rhs.fixedData) ) return false;
+        if( ! Objects.equals(variableData, rhs.variableData) ) return false;
+        return true;
+    }
+
+    @Override
+    public synchronized String toString()
+    {
+        StringBuilder sb  = new StringBuilder();
+        StringBuilder sb2 = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append(" domainInitialXi:").append(domainInitialXi); // writeOneToString
+        sb.append(" domainFinalXi:").append(domainFinalXi); // writeOneToString
+        sb.append(" domainPointsXi:").append(domainPointsXi); // writeOneToString
+        sb.append(" interleafFactor:").append(interleafFactor); // writeOneToString
+        sb.append(" axisType:").append(axisType); // writeOneToString
+        sb.append(" fixedData:").append(fixedData); // writeOneToString
+        sb.append(" variableData:").append(variableData); // writeOneToString
+
+        return sb.toString();
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(this.domainInitialXi,
+                this.domainFinalXi,
+                this.domainPointsXi,
+                this.interleafFactor,
+                this.axisType,
+                this.fixedData,
+                this.variableData);
+    }
 } // end of GridAxisDescriptor

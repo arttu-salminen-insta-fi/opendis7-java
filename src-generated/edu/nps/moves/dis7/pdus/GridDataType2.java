@@ -12,18 +12,22 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * 6.2.41, table 70
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class GridDataType2 extends GridData implements Serializable, Marshaller
+public class GridDataType2 extends Object implements Serializable, Marshaller
 {
-   /** numberOfValues is an undescribed parameter... */
-   protected short numberOfValues;
+   /** numberOfValues is an undescribed parameter...
+   Value space: uint16 */
+   protected int numberOfValues;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding;
 
    /** dataValues is an undescribed parameter... */
    protected float[]  dataValues = new float[0]; 
@@ -44,7 +48,6 @@ public synchronized int getMarshalledSize()
 {
    int marshalSize = 0; 
 
-   marshalSize = super.getMarshalledSize();
    marshalSize += 2;  // numberOfValues
    marshalSize += 2;  // padding
    if (dataValues != null)
@@ -55,23 +58,18 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link GridDataType2#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized GridDataType2 setPadding(short pPadding)
+public synchronized GridDataType2 setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link GridDataType2#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GridDataType2 setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link GridDataType2#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -100,19 +98,15 @@ public float[] getDataValues()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    super.marshal(dos);
-    try 
+
     {
+       // Count in primitive instances
        dos.writeShort(dataValues.length);
-       dos.writeShort(padding);
+       dos.writeShort((short) padding);
 
        for (int idx = 0; idx < dataValues.length; idx++)
            dos.writeFloat(dataValues[idx]);
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -128,21 +122,16 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    uPosition += super.unmarshal(dis);
 
-    try 
     {
-        numberOfValues = (short)dis.readUnsignedShort();
+        numberOfValues = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < dataValues.length; idx++)
+        dataValues = new float[((Number) numberOfValues).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfValues).intValue(); idx++)
             dataValues[idx] = dis.readFloat();
         uPosition += (dataValues.length * 4);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -158,9 +147,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   super.marshal(byteBuffer);
-   byteBuffer.putShort( (short)dataValues.length);
-   byteBuffer.putShort( (short)padding);
+   // Count in primitive instances
+   byteBuffer.putShort((short) dataValues.length);
+   byteBuffer.putShort((short) padding);
 
    for (int idx = 0; idx < dataValues.length; idx++)
        byteBuffer.putFloat((float)dataValues[idx]);
@@ -179,23 +168,76 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    super.unmarshal(byteBuffer);
-
-    try
     {
-        // attribute numberOfValues marked as not serialized
-        numberOfValues = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute dataValues marked as not serialized
-        for (int idx = 0; idx < dataValues.length; idx++)
+        numberOfValues = Short.toUnsignedInt(byteBuffer.getShort());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
+        dataValues = new float[((Number) numberOfValues).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfValues).intValue(); idx++)
             dataValues[idx] = byteBuffer.getFloat();
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("numberOfValues", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    // Valid primitive list varying length
+    float[] dataValues = new float[((Number) map.get("numberOfValues")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("numberOfValues")).intValue(); idx++)
+        dataValues[idx] = byteBuffer.getFloat();
+    map.put("dataValues", dataValues);
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("numberOfValues")).shortValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+
+    float[] dataValues = (float[]) map.get("dataValues");
+    for (int idx = 0; idx < dataValues.length; idx++)
+        byteBuffer.putFloat(dataValues[idx]);
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // numberOfValues
+    marshalSize += 2;  // padding
+    float[] dataValues = (float[]) map.get("dataValues");
+    for (int idx = 0; idx < dataValues.length; idx++)
+        marshalSize += 4;
+
+    return marshalSize;
 }
 
  /*
@@ -216,7 +258,12 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     return equalsImpl(obj);
  }
 
-@Override
+ /**
+  * Compare all fields that contribute to the state, ignoring
+  * transient and static fields, for <code>this</code> and the supplied object
+  * @param obj the object to compare to
+  * @return true if the objects are equal, false otherwise.
+  */
  public synchronized boolean equalsImpl(Object obj)
  {
      final GridDataType2 rhs = (GridDataType2)obj;
@@ -228,7 +275,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
           if(!(dataValues[idx] == rhs.dataValues[idx])) return false;
      }
 
-    return super.equalsImpl(rhs);
+    return true;
  }
 
  @Override

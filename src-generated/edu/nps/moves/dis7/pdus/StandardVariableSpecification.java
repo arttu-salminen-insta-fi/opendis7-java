@@ -12,15 +12,18 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
- * Does not work, and causes failure in anything it is embedded in. Section 6.2.83
+ * Variable records holder for 0 or more Standard Variable records. Section 6.2.83
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
 public class StandardVariableSpecification extends Object implements Serializable, Marshaller
 {
-   /** Number of static variable records */
-   protected short numberOfStandardVariableRecords;
+   /** Number of static variable records 
+   Value space: uint16 */
+   protected int numberOfStandardVariableRecords;
 
    /** variable length list of standard variables, The class type and length here are WRONG and will cause the incorrect serialization of any class in whihc it is embedded. */
    protected List< StandardVariableRecord > standardVariables = new ArrayList<>();
@@ -53,25 +56,6 @@ public synchronized int getMarshalledSize()
 }
 
 
-/** Utility method to get size of field
- * @return size of field */
-public short getNumberOfStandardVariableRecords()
-{
-    return (short)standardVariables.size(); 
-}
-
-/** Note that setting this value will not change the marshalled value. The list whose length this describes is used for that purpose.
- * The getnumberOfStandardVariableRecords method will also be based on the actual list length rather than this value. 
- * The method is simply here for java bean completeness.
- * @param pNumberOfStandardVariableRecords passed parameter
- * @return this object
- */
-public synchronized StandardVariableSpecification setNumberOfStandardVariableRecords(short pNumberOfStandardVariableRecords)
-{
-    numberOfStandardVariableRecords = pNumberOfStandardVariableRecords;
-    return this;
-}
-
 /** Setter for {@link StandardVariableSpecification#standardVariables}
   * @param pStandardVariables new value of interest
   * @return same object to permit progressive setters */
@@ -96,7 +80,7 @@ public List<StandardVariableRecord> getStandardVariables()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        dos.writeShort(standardVariables.size());
 
@@ -106,10 +90,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aStandardVariableRecord.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -125,21 +105,17 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        numberOfStandardVariableRecords = (short)dis.readUnsignedShort();
+        numberOfStandardVariableRecords = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < numberOfStandardVariableRecords; idx++)
+        for (int idx = 0; idx < ((Number) numberOfStandardVariableRecords).intValue(); idx++)
         {
             StandardVariableRecord anX = new StandardVariableRecord();
             uPosition += anX.unmarshal(dis);
             standardVariables.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -177,24 +153,80 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute numberOfStandardVariableRecords marked as not serialized
-        numberOfStandardVariableRecords = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute standardVariables marked as not serialized
-        for (int idx = 0; idx < numberOfStandardVariableRecords; idx++)
+        numberOfStandardVariableRecords = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) numberOfStandardVariableRecords).intValue(); idx++)
         {
-        StandardVariableRecord anX = new StandardVariableRecord();
-        anX.unmarshal(byteBuffer);
-        standardVariables.add(anX);
+            StandardVariableRecord anX = new StandardVariableRecord();
+            anX.unmarshal(byteBuffer);
+            standardVariables.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("numberOfStandardVariableRecords", Short.toUnsignedInt(byteBuffer.getShort()));
+    List standardVariables = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfStandardVariableRecords")).intValue(); idx++)
+    {
+        standardVariables.add(StandardVariableRecord.fromBufferToMap(byteBuffer));
+    }
+    map.put("standardVariables", standardVariables);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("numberOfStandardVariableRecords")).shortValue());
+
+    List standardVariables = (List) map.get("standardVariables");
+    for (int idx = 0; idx < ((Number) map.get("numberOfStandardVariableRecords")).intValue(); idx++)
+    {
+        StandardVariableRecord.fromMapToBuffer((PduMap) standardVariables.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // numberOfStandardVariableRecords
+    List standardVariables = (List) map.get("standardVariables");
+    for (int idx = 0; idx < ((Number) map.get("numberOfStandardVariableRecords")).intValue(); idx++)
+        marshalSize += StandardVariableRecord.getMarshalledSize((PduMap) standardVariables.get(idx));
+
+    return marshalSize;
 }
 
  /*

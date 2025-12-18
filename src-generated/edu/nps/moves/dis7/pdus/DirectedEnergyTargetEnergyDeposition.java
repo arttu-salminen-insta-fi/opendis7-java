@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * DE energy depostion properties for a target entity. Section 6.2.20.4
@@ -22,10 +24,12 @@ public class DirectedEnergyTargetEnergyDeposition extends Object implements Seri
    /** Unique ID of the target entity. */
    protected EntityID  targetEntityID = new EntityID(); 
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding = (short)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding = (int) 0;
 
-   /** Peak irradiance */
+   /** Peak irradiance 
+   Value space: float32 */
    protected float peakIrradiance;
 
 
@@ -70,29 +74,24 @@ public EntityID getTargetEntityID()
 
 
 /** Setter for {@link DirectedEnergyTargetEnergyDeposition#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyTargetEnergyDeposition setPadding(short pPadding)
+public synchronized DirectedEnergyTargetEnergyDeposition setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link DirectedEnergyTargetEnergyDeposition#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DirectedEnergyTargetEnergyDeposition setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link DirectedEnergyTargetEnergyDeposition#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
 
 /** Setter for {@link DirectedEnergyTargetEnergyDeposition#peakIrradiance}
-  * @param pPeakIrradiance new value of interest
+  * @param pPeakIrradiance new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DirectedEnergyTargetEnergyDeposition setPeakIrradiance(float pPeakIrradiance)
 {
@@ -115,15 +114,11 @@ public float getPeakIrradiance()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        targetEntityID.marshal(dos);
-       dos.writeShort(padding);
+       dos.writeShort((short) padding);
        dos.writeFloat(peakIrradiance);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -139,17 +134,13 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         uPosition += targetEntityID.unmarshal(dis);
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        peakIrradiance = dis.readFloat();
+        peakIrradiance = (float) dis.readFloat();
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -166,8 +157,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    targetEntityID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)padding);
-   byteBuffer.putFloat( (float)peakIrradiance);
+   byteBuffer.putShort((short) padding);
+   byteBuffer.putFloat(peakIrradiance);
 }
 
 /**
@@ -182,20 +173,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute targetEntityID marked as not serialized
         targetEntityID.unmarshal(byteBuffer);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute peakIrradiance marked as not serialized
-        peakIrradiance = byteBuffer.getFloat();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
+        peakIrradiance = (float) byteBuffer.getFloat();
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("targetEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("peakIrradiance", (float) byteBuffer.getFloat());
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityID.fromMapToBuffer((PduMap) map.get("targetEntityID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+    byteBuffer.putFloat(((Number) map.get("peakIrradiance")).floatValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("targetEntityID"));
+    marshalSize += 2;  // padding
+    marshalSize += 4;  // peakIrradiance
+
+    return marshalSize;
 }
 
  /*

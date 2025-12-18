@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Fixed Datum Record. Section 6.2.37
@@ -22,8 +24,9 @@ public class FixedDatum extends Object implements Serializable, Marshaller
    /** ID of the fixed datum, an enumeration uid 66 Variable Record Type values are defined by VariableRecordType enumerations */
    protected VariableRecordType fixedDatumID = VariableRecordType.values()[0];
 
-   /** Value for the fixed datum */
-   protected int fixedDatumValue;
+   /** Value for the fixed datum 
+   Value space: uint32 */
+   protected UnsignedInteger fixedDatumValue = UnsignedInteger.ZERO;
 
 
 /** Constructor creates and configures a new instance object */
@@ -65,16 +68,16 @@ public VariableRecordType getFixedDatumID()
 }
 
 /** Setter for {@link FixedDatum#fixedDatumValue}
-  * @param pFixedDatumValue new value of interest
+  * @param pFixedDatumValue new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized FixedDatum setFixedDatumValue(int pFixedDatumValue)
+public synchronized FixedDatum setFixedDatumValue(UnsignedInteger pFixedDatumValue)
 {
     fixedDatumValue = pFixedDatumValue;
     return this;
 }
 /** Getter for {@link FixedDatum#fixedDatumValue}
   * @return value of interest */
-public int getFixedDatumValue()
+public UnsignedInteger getFixedDatumValue()
 {
     return fixedDatumValue; 
 }
@@ -88,14 +91,10 @@ public int getFixedDatumValue()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        fixedDatumID.marshal(dos);
-       dos.writeInt(fixedDatumValue);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeInt(fixedDatumValue.intValue());
     }
 }
 
@@ -111,16 +110,12 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         fixedDatumID = VariableRecordType.unmarshalEnum(dis);
         uPosition += fixedDatumID.getMarshalledSize();
-        fixedDatumValue = dis.readInt();
+        fixedDatumValue = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -137,7 +132,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    fixedDatumID.marshal(byteBuffer);
-   byteBuffer.putInt( (int)fixedDatumValue);
+   byteBuffer.putInt(fixedDatumValue.intValue());
 }
 
 /**
@@ -152,18 +147,60 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute fixedDatumID marked as not serialized
         fixedDatumID = VariableRecordType.unmarshalEnum(byteBuffer);
-        // attribute fixedDatumValue marked as not serialized
-        fixedDatumValue = byteBuffer.getInt();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        fixedDatumValue = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("fixedDatumID", VariableRecordType.unmarshalEnum(byteBuffer).getValue());
+    map.put("fixedDatumValue", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    VariableRecordType.getEnumForValue(((Number) map.get("fixedDatumID")).intValue()).marshal(byteBuffer);
+    byteBuffer.putInt(((Number) map.get("fixedDatumValue")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += VariableRecordType.getEnumForValue(((Number) map.get("fixedDatumID")).intValue()).getMarshalledSize();
+    marshalSize += 4;  // fixedDatumValue
+
+    return marshalSize;
 }
 
  /*

@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -33,11 +35,13 @@ public class RepairResponsePdu extends LogisticsFamilyPdu implements Serializabl
    /** Result of repair operation uid 64 */
    protected RepairResponseRepairResult repairResult = RepairResponseRepairResult.values()[0];
 
-   /** padding */
-   protected byte padding1 = (byte)0;
+   /** padding 
+   Value space: uint8 */
+   protected int padding1 = (int) 0;
 
-   /** padding */
-   protected short padding2 = (short)0;
+   /** padding 
+   Value space: uint16 */
+   protected int padding2 = (int) 0;
 
 
 /** Constructor creates and configures a new instance object */
@@ -180,45 +184,35 @@ public RepairResponseRepairResult getRepairResult()
 }
 
 /** Setter for {@link RepairResponsePdu#padding1}
-  * @param pPadding1 new value of interest
+  * @param pPadding1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized RepairResponsePdu setPadding1(byte pPadding1)
+public synchronized RepairResponsePdu setPadding1(int pPadding1)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 255, "Value outside valid value space");
     padding1 = pPadding1;
-    return this;
-}
-/** Utility setter for {@link RepairResponsePdu#padding1}
-  * @param pPadding1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RepairResponsePdu setPadding1(int pPadding1){
-    padding1 = (byte) pPadding1;
     return this;
 }
 /** Getter for {@link RepairResponsePdu#padding1}
   * @return value of interest */
-public byte getPadding1()
+public int getPadding1()
 {
     return padding1; 
 }
 
 /** Setter for {@link RepairResponsePdu#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized RepairResponsePdu setPadding2(short pPadding2)
+public synchronized RepairResponsePdu setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 65535, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link RepairResponsePdu#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RepairResponsePdu setPadding2(int pPadding2){
-    padding2 = (short) pPadding2;
     return this;
 }
 /** Getter for {@link RepairResponsePdu#padding2}
   * @return value of interest */
-public short getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
@@ -233,17 +227,13 @@ public short getPadding2()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        receivingEntityID.marshal(dos);
        repairingEntityID.marshal(dos);
        repairResult.marshal(dos);
-       dos.writeByte(padding1);
-       dos.writeShort(padding2);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) padding1);
+       dos.writeShort((short) padding2);
     }
 }
 
@@ -261,20 +251,16 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += receivingEntityID.unmarshal(dis);
         uPosition += repairingEntityID.unmarshal(dis);
         repairResult = RepairResponseRepairResult.unmarshalEnum(dis);
         uPosition += repairResult.getMarshalledSize();
-        padding1 = (byte)dis.readUnsignedByte();
+        padding1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding2 = (short)dis.readUnsignedShort();
+        padding2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -294,8 +280,8 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    receivingEntityID.marshal(byteBuffer);
    repairingEntityID.marshal(byteBuffer);
    repairResult.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding1);
-   byteBuffer.putShort( (short)padding2);
+   byteBuffer.put((byte) padding1);
+   byteBuffer.putShort((short) padding2);
 }
 
 /**
@@ -312,24 +298,74 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute receivingEntityID marked as not serialized
         receivingEntityID.unmarshal(byteBuffer);
-        // attribute repairingEntityID marked as not serialized
         repairingEntityID.unmarshal(byteBuffer);
-        // attribute repairResult marked as not serialized
         repairResult = RepairResponseRepairResult.unmarshalEnum(byteBuffer);
-        // attribute padding1 marked as not serialized
-        padding1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding2 marked as not serialized
-        padding2 = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding1 = Byte.toUnsignedInt(byteBuffer.get());
+        padding2 = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = LogisticsFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("receivingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("repairingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("repairResult", RepairResponseRepairResult.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    LogisticsFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("receivingEntityID"), byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("repairingEntityID"), byteBuffer);
+    RepairResponseRepairResult.getEnumForValue(((Number) map.get("repairResult")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding1")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += LogisticsFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("receivingEntityID"));
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("repairingEntityID"));
+    marshalSize += RepairResponseRepairResult.getEnumForValue(((Number) map.get("repairResult")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding1
+    marshalSize += 2;  // padding2
+
+    return marshalSize;
 }
 
  /*
@@ -368,7 +404,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" receivingEntityID:").append(receivingEntityID); // writeOneToString
     sb.append(" repairingEntityID:").append(repairingEntityID); // writeOneToString
     sb.append(" repairResult:").append(repairResult); // writeOneToString

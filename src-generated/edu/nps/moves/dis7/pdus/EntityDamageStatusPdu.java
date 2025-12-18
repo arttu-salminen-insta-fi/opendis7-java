@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -27,14 +29,17 @@ public class EntityDamageStatusPdu extends WarfareFamilyPdu implements Serializa
    /** Field shall identify the damaged entity (see 6.2.28), Section 7.3.4 */
    protected EntityID  damagedEntityID = new EntityID(); 
 
-   /** padding1 is an undescribed parameter... */
-   protected short padding1 = (short)0;
+   /** padding1 is an undescribed parameter...
+   Value space: uint16 */
+   protected int padding1 = (int) 0;
 
-   /** padding2 is an undescribed parameter... */
-   protected short padding2 = (short)0;
+   /** padding2 is an undescribed parameter...
+   Value space: uint16 */
+   protected int padding2 = (int) 0;
 
-   /** field shall specify the number of Damage Description records, Section 7.3.5 */
-   protected short numberOfDamageDescription = (short)0;
+   /** field shall specify the number of Damage Description records, Section 7.3.5 
+   Value space: uint16 */
+   protected int numberOfDamageDescription = (int) 0;
 
    /** Fields shall contain one or more Damage Description records (see 6.2.17) and may contain other Standard Variable records, Section 7.3.5 */
    protected List< DirectedEnergyDamage > damageDescriptionRecords = new ArrayList<>();
@@ -152,45 +157,35 @@ public EntityID getDamagedEntityID()
 
 
 /** Setter for {@link EntityDamageStatusPdu#padding1}
-  * @param pPadding1 new value of interest
+  * @param pPadding1 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized EntityDamageStatusPdu setPadding1(short pPadding1)
+public synchronized EntityDamageStatusPdu setPadding1(int pPadding1)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 65535, "Value outside valid value space");
     padding1 = pPadding1;
-    return this;
-}
-/** Utility setter for {@link EntityDamageStatusPdu#padding1}
-  * @param pPadding1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityDamageStatusPdu setPadding1(int pPadding1){
-    padding1 = (short) pPadding1;
     return this;
 }
 /** Getter for {@link EntityDamageStatusPdu#padding1}
   * @return value of interest */
-public short getPadding1()
+public int getPadding1()
 {
     return padding1; 
 }
 
 /** Setter for {@link EntityDamageStatusPdu#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized EntityDamageStatusPdu setPadding2(short pPadding2)
+public synchronized EntityDamageStatusPdu setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 65535, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link EntityDamageStatusPdu#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityDamageStatusPdu setPadding2(int pPadding2){
-    padding2 = (short) pPadding2;
     return this;
 }
 /** Getter for {@link EntityDamageStatusPdu#padding2}
   * @return value of interest */
-public short getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
@@ -220,11 +215,11 @@ public List<DirectedEnergyDamage> getDamageDescriptionRecords()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        damagedEntityID.marshal(dos);
-       dos.writeShort(padding1);
-       dos.writeShort(padding2);
+       dos.writeShort((short) padding1);
+       dos.writeShort((short) padding2);
        dos.writeShort(damageDescriptionRecords.size());
 
        for (int idx = 0; idx < damageDescriptionRecords.size(); idx++)
@@ -233,10 +228,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aDirectedEnergyDamage.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -254,26 +245,22 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += damagedEntityID.unmarshal(dis);
-        padding1 = (short)dis.readUnsignedShort();
+        padding1 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        padding2 = (short)dis.readUnsignedShort();
+        padding2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        numberOfDamageDescription = (short)dis.readUnsignedShort();
+        numberOfDamageDescription = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < numberOfDamageDescription; idx++)
+        for (int idx = 0; idx < ((Number) numberOfDamageDescription).intValue(); idx++)
         {
             DirectedEnergyDamage anX = new DirectedEnergyDamage();
             uPosition += anX.unmarshal(dis);
             damageDescriptionRecords.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -291,8 +278,8 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    damagedEntityID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)padding1);
-   byteBuffer.putShort( (short)padding2);
+   byteBuffer.putShort((short) padding1);
+   byteBuffer.putShort((short) padding2);
    byteBuffer.putShort( (short)damageDescriptionRecords.size());
 
    for (int idx = 0; idx < damageDescriptionRecords.size(); idx++)
@@ -317,30 +304,94 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute damagedEntityID marked as not serialized
         damagedEntityID.unmarshal(byteBuffer);
-        // attribute padding1 marked as not serialized
-        padding1 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute padding2 marked as not serialized
-        padding2 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute numberOfDamageDescription marked as not serialized
-        numberOfDamageDescription = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute damageDescriptionRecords marked as not serialized
-        for (int idx = 0; idx < numberOfDamageDescription; idx++)
+        padding1 = Short.toUnsignedInt(byteBuffer.getShort());
+        padding2 = Short.toUnsignedInt(byteBuffer.getShort());
+        numberOfDamageDescription = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) numberOfDamageDescription).intValue(); idx++)
         {
-        DirectedEnergyDamage anX = new DirectedEnergyDamage();
-        anX.unmarshal(byteBuffer);
-        damageDescriptionRecords.add(anX);
+            DirectedEnergyDamage anX = new DirectedEnergyDamage();
+            anX.unmarshal(byteBuffer);
+            damageDescriptionRecords.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = WarfareFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("damagedEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("padding1", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("numberOfDamageDescription", Short.toUnsignedInt(byteBuffer.getShort()));
+    List damageDescriptionRecords = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfDamageDescription")).intValue(); idx++)
+    {
+        damageDescriptionRecords.add(DirectedEnergyDamage.fromBufferToMap(byteBuffer));
+    }
+    map.put("damageDescriptionRecords", damageDescriptionRecords);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    WarfareFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("damagedEntityID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("padding1")).shortValue());
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+    byteBuffer.putShort(((Number) map.get("numberOfDamageDescription")).shortValue());
+
+    List damageDescriptionRecords = (List) map.get("damageDescriptionRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfDamageDescription")).intValue(); idx++)
+    {
+        DirectedEnergyDamage.fromMapToBuffer((PduMap) damageDescriptionRecords.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += WarfareFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("damagedEntityID"));
+    marshalSize += 2;  // padding1
+    marshalSize += 2;  // padding2
+    marshalSize += 2;  // numberOfDamageDescription
+    List damageDescriptionRecords = (List) map.get("damageDescriptionRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfDamageDescription")).intValue(); idx++)
+        marshalSize += DirectedEnergyDamage.getMarshalledSize((PduMap) damageDescriptionRecords.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -378,7 +429,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" damagedEntityID:").append(damagedEntityID); // writeOneToString
     sb.append(" padding1:").append(padding1); // writeOneToString
     sb.append(" padding2:").append(padding2); // writeOneToString

@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Additional operational data for an IFF emitting system and the number of IFF Fundamental Parameter Data records Section 6.2.76.
@@ -19,14 +21,17 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class SecondaryOperationalData extends Object implements Serializable, Marshaller
 {
-   /** additional operational characteristics of the IFF emitting system. Each 8-bit field will vary depending on the system type. */
-   protected byte operationalData1;
+   /** additional operational characteristics of the IFF emitting system. Each 8-bit field will vary depending on the system type. 
+   Value space: uint8 */
+   protected int operationalData1;
 
-   /** additional operational characteristics of the IFF emitting system. Each 8-bit field will vary depending on the system type. */
-   protected byte operationalData2;
+   /** additional operational characteristics of the IFF emitting system. Each 8-bit field will vary depending on the system type. 
+   Value space: uint8 */
+   protected int operationalData2;
 
-   /** The number of IFF Fundamental Parameter Data records that follow */
-   protected short numberOfIFFFundamentalParameterRecords;
+   /** The number of IFF Fundamental Parameter Data records that follow 
+   Value space: uint16 */
+   protected int numberOfIFFFundamentalParameterRecords;
 
 
 /** Constructor creates and configures a new instance object */
@@ -53,67 +58,52 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link SecondaryOperationalData#operationalData1}
-  * @param pOperationalData1 new value of interest
+  * @param pOperationalData1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized SecondaryOperationalData setOperationalData1(byte pOperationalData1)
+public synchronized SecondaryOperationalData setOperationalData1(int pOperationalData1)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pOperationalData1 >= 0 && pOperationalData1 <= 255, "Value outside valid value space");
     operationalData1 = pOperationalData1;
-    return this;
-}
-/** Utility setter for {@link SecondaryOperationalData#operationalData1}
-  * @param pOperationalData1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized SecondaryOperationalData setOperationalData1(int pOperationalData1){
-    operationalData1 = (byte) pOperationalData1;
     return this;
 }
 /** Getter for {@link SecondaryOperationalData#operationalData1}
   * @return value of interest */
-public byte getOperationalData1()
+public int getOperationalData1()
 {
     return operationalData1; 
 }
 
 /** Setter for {@link SecondaryOperationalData#operationalData2}
-  * @param pOperationalData2 new value of interest
+  * @param pOperationalData2 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized SecondaryOperationalData setOperationalData2(byte pOperationalData2)
+public synchronized SecondaryOperationalData setOperationalData2(int pOperationalData2)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pOperationalData2 >= 0 && pOperationalData2 <= 255, "Value outside valid value space");
     operationalData2 = pOperationalData2;
-    return this;
-}
-/** Utility setter for {@link SecondaryOperationalData#operationalData2}
-  * @param pOperationalData2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized SecondaryOperationalData setOperationalData2(int pOperationalData2){
-    operationalData2 = (byte) pOperationalData2;
     return this;
 }
 /** Getter for {@link SecondaryOperationalData#operationalData2}
   * @return value of interest */
-public byte getOperationalData2()
+public int getOperationalData2()
 {
     return operationalData2; 
 }
 
 /** Setter for {@link SecondaryOperationalData#numberOfIFFFundamentalParameterRecords}
-  * @param pNumberOfIFFFundamentalParameterRecords new value of interest
+  * @param pNumberOfIFFFundamentalParameterRecords new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized SecondaryOperationalData setNumberOfIFFFundamentalParameterRecords(short pNumberOfIFFFundamentalParameterRecords)
+public synchronized SecondaryOperationalData setNumberOfIFFFundamentalParameterRecords(int pNumberOfIFFFundamentalParameterRecords)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pNumberOfIFFFundamentalParameterRecords >= 0 && pNumberOfIFFFundamentalParameterRecords <= 65535, "Value outside valid value space");
     numberOfIFFFundamentalParameterRecords = pNumberOfIFFFundamentalParameterRecords;
-    return this;
-}
-/** Utility setter for {@link SecondaryOperationalData#numberOfIFFFundamentalParameterRecords}
-  * @param pNumberOfIFFFundamentalParameterRecords new value of interest
-  * @return same object to permit progressive setters */
-public synchronized SecondaryOperationalData setNumberOfIFFFundamentalParameterRecords(int pNumberOfIFFFundamentalParameterRecords){
-    numberOfIFFFundamentalParameterRecords = (short) pNumberOfIFFFundamentalParameterRecords;
     return this;
 }
 /** Getter for {@link SecondaryOperationalData#numberOfIFFFundamentalParameterRecords}
   * @return value of interest */
-public short getNumberOfIFFFundamentalParameterRecords()
+public int getNumberOfIFFFundamentalParameterRecords()
 {
     return numberOfIFFFundamentalParameterRecords; 
 }
@@ -127,15 +117,11 @@ public short getNumberOfIFFFundamentalParameterRecords()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeByte(operationalData1);
-       dos.writeByte(operationalData2);
-       dos.writeShort(numberOfIFFFundamentalParameterRecords);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) operationalData1);
+       dos.writeByte((byte) operationalData2);
+       dos.writeShort((short) numberOfIFFFundamentalParameterRecords);
     }
 }
 
@@ -151,18 +137,14 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        operationalData1 = (byte)dis.readUnsignedByte();
+        operationalData1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        operationalData2 = (byte)dis.readUnsignedByte();
+        operationalData2 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfIFFFundamentalParameterRecords = (short)dis.readUnsignedShort();
+        numberOfIFFFundamentalParameterRecords = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -178,9 +160,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.put( (byte)operationalData1);
-   byteBuffer.put( (byte)operationalData2);
-   byteBuffer.putShort( (short)numberOfIFFFundamentalParameterRecords);
+   byteBuffer.put((byte) operationalData1);
+   byteBuffer.put((byte) operationalData2);
+   byteBuffer.putShort((short) numberOfIFFFundamentalParameterRecords);
 }
 
 /**
@@ -195,20 +177,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute operationalData1 marked as not serialized
-        operationalData1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute operationalData2 marked as not serialized
-        operationalData2 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfIFFFundamentalParameterRecords marked as not serialized
-        numberOfIFFFundamentalParameterRecords = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        operationalData1 = Byte.toUnsignedInt(byteBuffer.get());
+        operationalData2 = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfIFFFundamentalParameterRecords = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("operationalData1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("operationalData2", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfIFFFundamentalParameterRecords", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.put(((Number) map.get("operationalData1")).byteValue());
+    byteBuffer.put(((Number) map.get("operationalData2")).byteValue());
+    byteBuffer.putShort(((Number) map.get("numberOfIFFFundamentalParameterRecords")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 1;  // operationalData1
+    marshalSize += 1;  // operationalData2
+    marshalSize += 2;  // numberOfIFFFundamentalParameterRecords
+
+    return marshalSize;
 }
 
  /*

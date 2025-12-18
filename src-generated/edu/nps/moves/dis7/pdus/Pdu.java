@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import edu.nps.moves.dis7.utilities.PduFactory;
 
 /**
@@ -395,8 +397,9 @@ public abstract class Pdu extends Object implements Serializable,Marshaller
    /** The version of the protocol. 5=DIS-1995, 6=DIS-1998, 7=DIS-2012 uid 3 */
    protected DISProtocolVersion protocolVersion = DISProtocolVersion.IEEE_12781_2012;
 
-   /** Exercise ID provides a unique identifier */
-   protected byte exerciseID = (byte)0;
+   /** Exercise ID provides a unique identifier 
+   Value space: uint8 */
+   protected int exerciseID = (int) 0;
 
    /** Type of pdu, unique for each PDU class uid 4 */
    protected DisPduType pduType = DisPduType.values()[0];
@@ -404,11 +407,13 @@ public abstract class Pdu extends Object implements Serializable,Marshaller
    /** value that refers to the protocol family, eg SimulationManagement, et uid 5 */
    protected DISProtocolFamily protocolFamily = DISProtocolFamily.values()[0];
 
-   /** Timestamp value, int representing number of 1.675 microseconds as interval past hour */
-   protected int timestamp;
+   /** Timestamp value, int representing number of 1.675 microseconds as interval past hour 
+   Value space: uint32 */
+   protected UnsignedInteger timestamp = UnsignedInteger.ZERO;
 
-   /** Length, in bytes, of the PDU */
-   protected short length;
+   /** Length, in bytes, of the PDU 
+   Value space: uint16 */
+   protected int length;
 
 
 /** Constructor creates and configures a new instance object */
@@ -474,23 +479,18 @@ public DISProtocolVersion getProtocolVersion()
 }
 
 /** Setter for {@link Pdu#exerciseID}
-  * @param pExerciseID new value of interest
+  * @param pExerciseID new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized Pdu setExerciseID(byte pExerciseID)
+public synchronized Pdu setExerciseID(int pExerciseID)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pExerciseID >= 0 && pExerciseID <= 255, "Value outside valid value space");
     exerciseID = pExerciseID;
-    return this;
-}
-/** Utility setter for {@link Pdu#exerciseID}
-  * @param pExerciseID new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Pdu setExerciseID(int pExerciseID){
-    exerciseID = (byte) pExerciseID;
     return this;
 }
 /** Getter for {@link Pdu#exerciseID}
   * @return value of interest */
-public byte getExerciseID()
+public int getExerciseID()
 {
     return exerciseID; 
 }
@@ -529,9 +529,9 @@ public DISProtocolFamily getProtocolFamily()
   * Warning: this method sets a DIS bit pattern
   * @see setTimestampSeconds
   * @see edu.nps.moves.dis7.utilities.DisTime
-  * @param pTimestamp new value of interest
+  * @param pTimestamp new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized Pdu setTimestamp(int pTimestamp)
+public synchronized Pdu setTimestamp(UnsignedInteger pTimestamp)
 {
     timestamp = pTimestamp;
     return this;
@@ -541,29 +541,24 @@ public synchronized Pdu setTimestamp(int pTimestamp)
   * @see getTimestampSeconds
   * @see edu.nps.moves.dis7.utilities.DisTime
   * @return value of interest */
-public int getTimestamp()
+public UnsignedInteger getTimestamp()
 {
     return timestamp; 
 }
 
 /** Setter for {@link Pdu#length}
-  * @param pLength new value of interest
+  * @param pLength new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized Pdu setLength(short pLength)
+public synchronized Pdu setLength(int pLength)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pLength >= 0 && pLength <= 65535, "Value outside valid value space");
     length = pLength;
-    return this;
-}
-/** Utility setter for {@link Pdu#length}
-  * @param pLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Pdu setLength(int pLength){
-    length = (short) pLength;
     return this;
 }
 /** Getter for {@link Pdu#length}
   * @return value of interest */
-public short getLength()
+public int getLength()
 {
     return length; 
 }
@@ -577,18 +572,14 @@ public short getLength()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        protocolVersion.marshal(dos);
-       dos.writeByte(exerciseID);
+       dos.writeByte((byte) exerciseID);
        pduType.marshal(dos);
        protocolFamily.marshal(dos);
-       dos.writeInt(timestamp);
-       dos.writeShort(length);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeInt(timestamp.intValue());
+       dos.writeShort((short) length);
     }
 }
 
@@ -604,24 +595,20 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         protocolVersion = DISProtocolVersion.unmarshalEnum(dis);
         uPosition += protocolVersion.getMarshalledSize();
-        exerciseID = (byte)dis.readUnsignedByte();
+        exerciseID = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         pduType = DisPduType.unmarshalEnum(dis);
         uPosition += pduType.getMarshalledSize();
         protocolFamily = DISProtocolFamily.unmarshalEnum(dis);
         uPosition += protocolFamily.getMarshalledSize();
-        timestamp = dis.readInt();
+        timestamp = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        length = (short)dis.readUnsignedShort();
+        length = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -638,11 +625,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    protocolVersion.marshal(byteBuffer);
-   byteBuffer.put( (byte)exerciseID);
+   byteBuffer.put((byte) exerciseID);
    pduType.marshal(byteBuffer);
    protocolFamily.marshal(byteBuffer);
-   byteBuffer.putInt( (int)timestamp);
-   byteBuffer.putShort( (short)length);
+   byteBuffer.putInt(timestamp.intValue());
+   byteBuffer.putShort((short) length);
 }
 
 /**
@@ -657,26 +644,76 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute protocolVersion marked as not serialized
         protocolVersion = DISProtocolVersion.unmarshalEnum(byteBuffer);
-        // attribute exerciseID marked as not serialized
-        exerciseID = (byte)(byteBuffer.get() & 0xFF);
-        // attribute pduType marked as not serialized
+        exerciseID = Byte.toUnsignedInt(byteBuffer.get());
         pduType = DisPduType.unmarshalEnum(byteBuffer);
-        // attribute protocolFamily marked as not serialized
         protocolFamily = DISProtocolFamily.unmarshalEnum(byteBuffer);
-        // attribute timestamp marked as not serialized
-        timestamp = byteBuffer.getInt();
-        // attribute length marked as not serialized
-        length = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        timestamp = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        length = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("protocolVersion", DISProtocolVersion.unmarshalEnum(byteBuffer).getValue());
+    map.put("exerciseID", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("pduType", DisPduType.unmarshalEnum(byteBuffer).getValue());
+    map.put("protocolFamily", DISProtocolFamily.unmarshalEnum(byteBuffer).getValue());
+    map.put("timestamp", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("length", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    DISProtocolVersion.getEnumForValue(((Number) map.get("protocolVersion")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("exerciseID")).byteValue());
+    DisPduType.getEnumForValue(((Number) map.get("pduType")).intValue()).marshal(byteBuffer);
+    DISProtocolFamily.getEnumForValue(((Number) map.get("protocolFamily")).intValue()).marshal(byteBuffer);
+    byteBuffer.putInt(((Number) map.get("timestamp")).intValue());
+    byteBuffer.putShort(((Number) map.get("length")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += DISProtocolVersion.getEnumForValue(((Number) map.get("protocolVersion")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // exerciseID
+    marshalSize += DisPduType.getEnumForValue(((Number) map.get("pduType")).intValue()).getMarshalledSize();
+    marshalSize += DISProtocolFamily.getEnumForValue(((Number) map.get("protocolFamily")).intValue()).getMarshalledSize();
+    marshalSize += 4;  // timestamp
+    marshalSize += 2;  // length
+
+    return marshalSize;
 }
 
 
@@ -760,16 +797,25 @@ public synchronized java.nio.ByteBuffer marshal() throws Exception
 // autogenerated by JavaGenerator.writePduUtilityMethods()
 
 /** Utility setter for {@link Pdu#timestamp} converting double (or float) to
-  * Timestamp in seconds at 2^31 - 1 units past top of hour
-  * @see setTimestamp
-  * @see edu.nps.moves.dis7.utilities.DisTime
-  * @param newTimestamp new timestamp in seconds
-  * @return same object to permit progressive setters */
-public synchronized Pdu setTimestampSeconds(double newTimestamp)
+* Timestamp in seconds at 2^31 - 1 units past top of hour
+* @see setTimestamp
+* @see edu.nps.moves.dis7.utilities.DisTime
+* @param newTimestampSeconds new timestamp in seconds
+* @param absoluteTime whether absolute/relative timestamp indicator bit should be set to 1 (absolute)
+* @return same object to permit progressive setters */
+public synchronized Pdu setTimestampSeconds(double newTimestampSeconds, boolean absoluteTime)
 {
-    timestamp = (int) ((newTimestamp * 3600.0) / Integer.MAX_VALUE);
+    if (newTimestampSeconds >= 3600.0 || newTimestampSeconds < 0.0) {
+        throw new IllegalArgumentException("Illegal timestamp seconds value: " + newTimestampSeconds);
+    }
+    double fractionOfHour = newTimestampSeconds / (double) 3600.0;
+    int timestampBits = (int) (fractionOfHour * Integer.MAX_VALUE);
+    if (absoluteTime) {
+        timestampBits |= (1 << 31);
+    }
+    timestamp = UnsignedInteger.fromIntBits(timestampBits);
     return this;
-}      
+}
 /** Utility getter for {@link Pdu#timestamp} converting 
   * integer timestamp at 2^31 - 1 units past top of hour to double (or float)
   * @see getTimestamp
@@ -777,35 +823,17 @@ public synchronized Pdu setTimestampSeconds(double newTimestamp)
   * @return fractional timestamp past hour */
 public double getTimestampSeconds()
 {
-    return timestamp * Integer.MAX_VALUE / 3600.0;
+    int timestampBits = timestamp.intValue();
+    timestampBits &= Integer.MAX_VALUE;
+    double frac = (double) timestampBits / Integer.MAX_VALUE;
+    return frac * 3600.0;
 }
- /**
-  * Whether or not timestamp for this Pdu occurs after timestamp as another Pdu.
-  * @param pdu2 second Pdu for comparison
-  * @return whether timestamp for this Pdu occurs later
-  */
-  public boolean occursAfter(Pdu pdu2)
-  {
-     return (getTimestamp() < pdu2.getTimestamp());
-  }
- /**
-  * Whether or not timestamp for this Pdu occurs before timestamp as another Pdu.
-  * @param pdu2 second Pdu for comparison
-  * @return whether timestamp for this Pdu occurs earlier
-  */
-  public boolean occursBefore(Pdu pdu2)
-  {
-     return (getTimestamp() < pdu2.getTimestamp());
-  }
- /**
-  * Whether or not this Pdu occurs at same timestamp as another Pdu.
-  * @param pdu2 second Pdu for comparison
-  * @return whether timestamps are identical for both Pdus
-  */
-  public boolean occursSameTime(Pdu pdu2)
-  {
-     return (getTimestamp() == pdu2.getTimestamp());
-  }
+/**
+ * Utility check if timestamp is absolute
+ */
+    public boolean isAbsoluteTimestamp() {
+        return timestamp.intValue() < 0;
+    }
 
 
 } // end of Pdu

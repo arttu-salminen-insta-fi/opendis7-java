@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * contains information describing the propulsion systems of the entity. This information shall be provided for each active propulsion system defined. Section 6.2.68
@@ -19,10 +21,12 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class PropulsionSystemData extends Object implements Serializable, Marshaller
 {
-   /** powerSetting */
+   /** powerSetting 
+   Value space: float32 */
    protected float powerSetting;
 
-   /** engine RPMs */
+   /** engine RPMs 
+   Value space: float32 */
    protected float engineRpm;
 
 
@@ -49,7 +53,7 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link PropulsionSystemData#powerSetting}
-  * @param pPowerSetting new value of interest
+  * @param pPowerSetting new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized PropulsionSystemData setPowerSetting(float pPowerSetting)
 {
@@ -64,7 +68,7 @@ public float getPowerSetting()
 }
 
 /** Setter for {@link PropulsionSystemData#engineRpm}
-  * @param pEngineRpm new value of interest
+  * @param pEngineRpm new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized PropulsionSystemData setEngineRpm(float pEngineRpm)
 {
@@ -87,14 +91,10 @@ public float getEngineRpm()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        dos.writeFloat(powerSetting);
        dos.writeFloat(engineRpm);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -110,16 +110,12 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        powerSetting = dis.readFloat();
+        powerSetting = (float) dis.readFloat();
         uPosition += 4;
-        engineRpm = dis.readFloat();
+        engineRpm = (float) dis.readFloat();
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -135,8 +131,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putFloat( (float)powerSetting);
-   byteBuffer.putFloat( (float)engineRpm);
+   byteBuffer.putFloat(powerSetting);
+   byteBuffer.putFloat(engineRpm);
 }
 
 /**
@@ -151,18 +147,60 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute powerSetting marked as not serialized
-        powerSetting = byteBuffer.getFloat();
-        // attribute engineRpm marked as not serialized
-        engineRpm = byteBuffer.getFloat();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        powerSetting = (float) byteBuffer.getFloat();
+        engineRpm = (float) byteBuffer.getFloat();
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("powerSetting", (float) byteBuffer.getFloat());
+    map.put("engineRpm", (float) byteBuffer.getFloat());
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putFloat(((Number) map.get("powerSetting")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("engineRpm")).floatValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // powerSetting
+    marshalSize += 4;  // engineRpm
+
+    return marshalSize;
 }
 
  /*

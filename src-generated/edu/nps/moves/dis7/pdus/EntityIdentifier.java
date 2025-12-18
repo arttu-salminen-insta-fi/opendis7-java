@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Entity Identifier. Unique ID for entities in the world. Consists of an simulation address and a entity number. Section 6.2.28.
@@ -22,8 +24,9 @@ public class EntityIdentifier extends Object implements Serializable, Marshaller
    /** Site and application IDs */
    protected SimulationAddress  simulationAddress = new SimulationAddress(); 
 
-   /** Entity number */
-   protected short entityNumber;
+   /** Entity number 
+   Value space: uint16 */
+   protected int entityNumber;
 
 
 /** Constructor creates and configures a new instance object */
@@ -66,23 +69,18 @@ public SimulationAddress getSimulationAddress()
 
 
 /** Setter for {@link EntityIdentifier#entityNumber}
-  * @param pEntityNumber new value of interest
+  * @param pEntityNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized EntityIdentifier setEntityNumber(short pEntityNumber)
+public synchronized EntityIdentifier setEntityNumber(int pEntityNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pEntityNumber >= 0 && pEntityNumber <= 65535, "Value outside valid value space");
     entityNumber = pEntityNumber;
-    return this;
-}
-/** Utility setter for {@link EntityIdentifier#entityNumber}
-  * @param pEntityNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityIdentifier setEntityNumber(int pEntityNumber){
-    entityNumber = (short) pEntityNumber;
     return this;
 }
 /** Getter for {@link EntityIdentifier#entityNumber}
   * @return value of interest */
-public short getEntityNumber()
+public int getEntityNumber()
 {
     return entityNumber; 
 }
@@ -96,14 +94,10 @@ public short getEntityNumber()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        simulationAddress.marshal(dos);
-       dos.writeShort(entityNumber);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) entityNumber);
     }
 }
 
@@ -119,15 +113,11 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         uPosition += simulationAddress.unmarshal(dis);
-        entityNumber = (short)dis.readUnsignedShort();
+        entityNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -144,7 +134,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    simulationAddress.marshal(byteBuffer);
-   byteBuffer.putShort( (short)entityNumber);
+   byteBuffer.putShort((short) entityNumber);
 }
 
 /**
@@ -159,18 +149,60 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute simulationAddress marked as not serialized
         simulationAddress.unmarshal(byteBuffer);
-        // attribute entityNumber marked as not serialized
-        entityNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        entityNumber = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("simulationAddress", SimulationAddress.fromBufferToMap(byteBuffer));
+    map.put("entityNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    SimulationAddress.fromMapToBuffer((PduMap) map.get("simulationAddress"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("entityNumber")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += SimulationAddress.getMarshalledSize((PduMap) map.get("simulationAddress"));
+    marshalSize += 2;  // entityNumber
+
+    return marshalSize;
 }
 
  /*

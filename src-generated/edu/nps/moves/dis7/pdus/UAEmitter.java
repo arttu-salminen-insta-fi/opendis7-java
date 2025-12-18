@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Underwater Acoustic (UA) active emissions (intentional emissions) and passive signature (unintentional emissions) information.
@@ -19,14 +21,17 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class UAEmitter extends Object implements Serializable, Marshaller
 {
-   /**  this field shall specify the length of this emitter system's data in 32-bit words. */
-   protected byte systemDataLength;
+   /**  this field shall specify the length of this emitter system's data in 32-bit words. 
+   Value space: uint8 */
+   protected int systemDataLength;
 
-   /** the number of beams being described in the current PDU for the emitter system being described. */
-   protected byte numberOfBeams;
+   /** the number of beams being described in the current PDU for the emitter system being described. 
+   Value space: uint8 */
+   protected int numberOfBeams;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding;
 
    /** TODO */
    protected AcousticEmitter  acousticEmitter = new AcousticEmitter(); 
@@ -72,45 +77,35 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link UAEmitter#systemDataLength}
-  * @param pSystemDataLength new value of interest
+  * @param pSystemDataLength new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized UAEmitter setSystemDataLength(byte pSystemDataLength)
+public synchronized UAEmitter setSystemDataLength(int pSystemDataLength)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSystemDataLength >= 0 && pSystemDataLength <= 255, "Value outside valid value space");
     systemDataLength = pSystemDataLength;
-    return this;
-}
-/** Utility setter for {@link UAEmitter#systemDataLength}
-  * @param pSystemDataLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized UAEmitter setSystemDataLength(int pSystemDataLength){
-    systemDataLength = (byte) pSystemDataLength;
     return this;
 }
 /** Getter for {@link UAEmitter#systemDataLength}
   * @return value of interest */
-public byte getSystemDataLength()
+public int getSystemDataLength()
 {
     return systemDataLength; 
 }
 
 /** Setter for {@link UAEmitter#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized UAEmitter setPadding(short pPadding)
+public synchronized UAEmitter setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link UAEmitter#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized UAEmitter setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link UAEmitter#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -171,11 +166,11 @@ public List<UABeam> getBeams()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeByte(systemDataLength);
+       dos.writeByte((byte) systemDataLength);
        dos.writeByte(beams.size());
-       dos.writeShort(padding);
+       dos.writeShort((short) padding);
        acousticEmitter.marshal(dos);
        location.marshal(dos);
 
@@ -185,10 +180,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aUABeam.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -204,27 +195,23 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        systemDataLength = (byte)dis.readUnsignedByte();
+        systemDataLength = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfBeams = (byte)dis.readUnsignedByte();
+        numberOfBeams = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += acousticEmitter.unmarshal(dis);
         uPosition += location.unmarshal(dis);
-        for (int idx = 0; idx < numberOfBeams; idx++)
+        for (int idx = 0; idx < ((Number) numberOfBeams).intValue(); idx++)
         {
             UABeam anX = new UABeam();
             uPosition += anX.unmarshal(dis);
             beams.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -240,9 +227,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.put( (byte)systemDataLength);
+   byteBuffer.put((byte) systemDataLength);
    byteBuffer.put( (byte)beams.size());
-   byteBuffer.putShort( (short)padding);
+   byteBuffer.putShort((short) padding);
    acousticEmitter.marshal(byteBuffer);
    location.marshal(byteBuffer);
 
@@ -266,32 +253,96 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute systemDataLength marked as not serialized
-        systemDataLength = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfBeams marked as not serialized
-        numberOfBeams = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute acousticEmitter marked as not serialized
+        systemDataLength = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfBeams = Byte.toUnsignedInt(byteBuffer.get());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
         acousticEmitter.unmarshal(byteBuffer);
-        // attribute location marked as not serialized
         location.unmarshal(byteBuffer);
-        // attribute beams marked as not serialized
-        for (int idx = 0; idx < numberOfBeams; idx++)
+        for (int idx = 0; idx < ((Number) numberOfBeams).intValue(); idx++)
         {
-        UABeam anX = new UABeam();
-        anX.unmarshal(byteBuffer);
-        beams.add(anX);
+            UABeam anX = new UABeam();
+            anX.unmarshal(byteBuffer);
+            beams.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("systemDataLength", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfBeams", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("acousticEmitter", AcousticEmitter.fromBufferToMap(byteBuffer));
+    map.put("location", Vector3Float.fromBufferToMap(byteBuffer));
+    List beams = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfBeams")).intValue(); idx++)
+    {
+        beams.add(UABeam.fromBufferToMap(byteBuffer));
+    }
+    map.put("beams", beams);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.put(((Number) map.get("systemDataLength")).byteValue());
+    byteBuffer.put(((Number) map.get("numberOfBeams")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+    AcousticEmitter.fromMapToBuffer((PduMap) map.get("acousticEmitter"), byteBuffer);
+    Vector3Float.fromMapToBuffer((PduMap) map.get("location"), byteBuffer);
+
+    List beams = (List) map.get("beams");
+    for (int idx = 0; idx < ((Number) map.get("numberOfBeams")).intValue(); idx++)
+    {
+        UABeam.fromMapToBuffer((PduMap) beams.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 1;  // systemDataLength
+    marshalSize += 1;  // numberOfBeams
+    marshalSize += 2;  // padding
+    marshalSize += AcousticEmitter.getMarshalledSize((PduMap) map.get("acousticEmitter"));
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("location"));
+    List beams = (List) map.get("beams");
+    for (int idx = 0; idx < ((Number) map.get("numberOfBeams")).intValue(); idx++)
+        marshalSize += UABeam.getMarshalledSize((PduMap) beams.get(idx));
+
+    return marshalSize;
 }
 
  /*

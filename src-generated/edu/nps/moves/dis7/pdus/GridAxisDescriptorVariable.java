@@ -12,26 +12,32 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Grid axis descriptor fo variable spacing axis data.
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class GridAxisDescriptorVariable extends GridAxisDescriptor implements Serializable, Marshaller
+public class GridAxisDescriptorVariable extends Object implements Serializable, Marshaller
 {
-   /** Number of grid locations along Xi axis */
-   protected short numberOfPointsOnXiAxis;
+   /** Number of grid locations along Xi axis 
+   Value space: uint16 */
+   protected int numberOfPointsOnXiAxis;
 
-   /** initial grid point for the current pdu */
-   protected short initialIndex;
+   /** initial grid point for the current pdu 
+   Value space: uint16 */
+   protected int initialIndex;
 
-   /** value that linearly scales the coordinates of the grid locations for the xi axis */
+   /** value that linearly scales the coordinates of the grid locations for the xi axis 
+   Value space: float64 */
    protected double coordinateScaleXi;
 
-   /** The constant offset value that shall be applied to the grid locations for the xi axis */
-   protected double coordinateOffsetXi = (double)0.0;
+   /** The constant offset value that shall be applied to the grid locations for the xi axis 
+   Value space: float64 */
+   protected double coordinateOffsetXi = (double) 0.0;
 
-   /** list of coordinates */
+   /** list of coordinates. Current implementation also holds the padding bits after unmarshall! */
    protected short[]  xiValues = new short[0]; 
 
    /** pad to 64-bit boundary */
@@ -54,7 +60,6 @@ public synchronized int getMarshalledSize()
 {
    int marshalSize = 0; 
 
-   marshalSize = super.getMarshalledSize();
    marshalSize += 2;  // numberOfPointsOnXiAxis
    marshalSize += 2;  // initialIndex
    marshalSize += 8;  // coordinateScaleXi
@@ -69,51 +74,41 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link GridAxisDescriptorVariable#numberOfPointsOnXiAxis}
-  * @param pNumberOfPointsOnXiAxis new value of interest
+  * @param pNumberOfPointsOnXiAxis new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized GridAxisDescriptorVariable setNumberOfPointsOnXiAxis(short pNumberOfPointsOnXiAxis)
+public synchronized GridAxisDescriptorVariable setNumberOfPointsOnXiAxis(int pNumberOfPointsOnXiAxis)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pNumberOfPointsOnXiAxis >= 0 && pNumberOfPointsOnXiAxis <= 65535, "Value outside valid value space");
     numberOfPointsOnXiAxis = pNumberOfPointsOnXiAxis;
-    return this;
-}
-/** Utility setter for {@link GridAxisDescriptorVariable#numberOfPointsOnXiAxis}
-  * @param pNumberOfPointsOnXiAxis new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GridAxisDescriptorVariable setNumberOfPointsOnXiAxis(int pNumberOfPointsOnXiAxis){
-    numberOfPointsOnXiAxis = (short) pNumberOfPointsOnXiAxis;
     return this;
 }
 /** Getter for {@link GridAxisDescriptorVariable#numberOfPointsOnXiAxis}
   * @return value of interest */
-public short getNumberOfPointsOnXiAxis()
+public int getNumberOfPointsOnXiAxis()
 {
     return numberOfPointsOnXiAxis; 
 }
 
 /** Setter for {@link GridAxisDescriptorVariable#initialIndex}
-  * @param pInitialIndex new value of interest
+  * @param pInitialIndex new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized GridAxisDescriptorVariable setInitialIndex(short pInitialIndex)
+public synchronized GridAxisDescriptorVariable setInitialIndex(int pInitialIndex)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pInitialIndex >= 0 && pInitialIndex <= 65535, "Value outside valid value space");
     initialIndex = pInitialIndex;
-    return this;
-}
-/** Utility setter for {@link GridAxisDescriptorVariable#initialIndex}
-  * @param pInitialIndex new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GridAxisDescriptorVariable setInitialIndex(int pInitialIndex){
-    initialIndex = (short) pInitialIndex;
     return this;
 }
 /** Getter for {@link GridAxisDescriptorVariable#initialIndex}
   * @return value of interest */
-public short getInitialIndex()
+public int getInitialIndex()
 {
     return initialIndex; 
 }
 
 /** Setter for {@link GridAxisDescriptorVariable#coordinateScaleXi}
-  * @param pCoordinateScaleXi new value of interest
+  * @param pCoordinateScaleXi new value of interest. Value space float64
   * @return same object to permit progressive setters */
 public synchronized GridAxisDescriptorVariable setCoordinateScaleXi(double pCoordinateScaleXi)
 {
@@ -128,7 +123,7 @@ public double getCoordinateScaleXi()
 }
 
 /** Setter for {@link GridAxisDescriptorVariable#coordinateOffsetXi}
-  * @param pCoordinateOffsetXi new value of interest
+  * @param pCoordinateOffsetXi new value of interest. Value space float64
   * @return same object to permit progressive setters */
 public synchronized GridAxisDescriptorVariable setCoordinateOffsetXi(double pCoordinateOffsetXi)
 {
@@ -166,11 +161,11 @@ public short[] getXiValues()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    super.marshal(dos);
-    try 
+
     {
-       dos.writeShort(numberOfPointsOnXiAxis);
-       dos.writeShort(initialIndex);
+       // Count in primitive instances
+       dos.writeShort(xiValues.length);
+       dos.writeShort((short) initialIndex);
        dos.writeDouble(coordinateScaleXi);
        dos.writeDouble(coordinateOffsetXi);
 
@@ -178,10 +173,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
            dos.writeShort(xiValues[idx]);
 
        padding = new byte[Align.to64bits(dos)];
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -197,27 +188,22 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    uPosition += super.unmarshal(dis);
 
-    try 
     {
-        numberOfPointsOnXiAxis = (short)dis.readUnsignedShort();
+        numberOfPointsOnXiAxis = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        initialIndex = (short)dis.readUnsignedShort();
+        initialIndex = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        coordinateScaleXi = dis.readDouble();
-        uPosition += 4;
-        coordinateOffsetXi = dis.readDouble();
-        uPosition += 4;
-        for (int idx = 0; idx < xiValues.length; idx++)
+        coordinateScaleXi = (double) dis.readDouble();
+        uPosition += 8;
+        coordinateOffsetXi = (double) dis.readDouble();
+        uPosition += 8;
+        xiValues = new short[((Number) numberOfPointsOnXiAxis).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfPointsOnXiAxis).intValue(); idx++)
             xiValues[idx] = dis.readShort();
         uPosition += (xiValues.length * 2);
         padding = new byte[Align.from64bits(uPosition,dis)];
         uPosition += padding.length;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -233,11 +219,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   super.marshal(byteBuffer);
-   byteBuffer.putShort( (short)numberOfPointsOnXiAxis);
-   byteBuffer.putShort( (short)initialIndex);
-   byteBuffer.putDouble( (double)coordinateScaleXi);
-   byteBuffer.putDouble( (double)coordinateOffsetXi);
+   // Count in primitive instances
+   byteBuffer.putShort((short) xiValues.length);
+   byteBuffer.putShort((short) initialIndex);
+   byteBuffer.putDouble(coordinateScaleXi);
+   byteBuffer.putDouble(coordinateOffsetXi);
 
    for (int idx = 0; idx < xiValues.length; idx++)
        byteBuffer.putShort((short)xiValues[idx]);
@@ -257,29 +243,88 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    super.unmarshal(byteBuffer);
-
-    try
     {
-        // attribute numberOfPointsOnXiAxis marked as not serialized
-        numberOfPointsOnXiAxis = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute initialIndex marked as not serialized
-        initialIndex = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute coordinateScaleXi marked as not serialized
-        coordinateScaleXi = byteBuffer.getDouble();
-        // attribute coordinateOffsetXi marked as not serialized
-        coordinateOffsetXi = byteBuffer.getDouble();
-        // attribute xiValues marked as not serialized
-        for (int idx = 0; idx < xiValues.length; idx++)
+        numberOfPointsOnXiAxis = Short.toUnsignedInt(byteBuffer.getShort());
+        initialIndex = Short.toUnsignedInt(byteBuffer.getShort());
+        coordinateScaleXi = (double) byteBuffer.getDouble();
+        coordinateOffsetXi = (double) byteBuffer.getDouble();
+        xiValues = new short[((Number) numberOfPointsOnXiAxis).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfPointsOnXiAxis).intValue(); idx++)
             xiValues[idx] = byteBuffer.getShort();
-        // attribute padding marked as not serialized
         padding = new byte[Align.from64bits(byteBuffer)];
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("numberOfPointsOnXiAxis", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("initialIndex", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("coordinateScaleXi", (double) byteBuffer.getDouble());
+    map.put("coordinateOffsetXi", (double) byteBuffer.getDouble());
+    // Valid primitive list varying length
+    short[] xiValues = new short[((Number) map.get("numberOfPointsOnXiAxis")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("numberOfPointsOnXiAxis")).intValue(); idx++)
+        xiValues[idx] = byteBuffer.getShort();
+    map.put("xiValues", xiValues);
+    map.put("padding", new byte[Align.from64bits(byteBuffer)]);
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("numberOfPointsOnXiAxis")).shortValue());
+    byteBuffer.putShort(((Number) map.get("initialIndex")).shortValue());
+    byteBuffer.putDouble(((Number) map.get("coordinateScaleXi")).doubleValue());
+    byteBuffer.putDouble(((Number) map.get("coordinateOffsetXi")).doubleValue());
+
+    short[] xiValues = (short[]) map.get("xiValues");
+    for (int idx = 0; idx < xiValues.length; idx++)
+        byteBuffer.putShort(xiValues[idx]);
+
+    byte[] padding = new byte[Align.to64bits(byteBuffer)];
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // numberOfPointsOnXiAxis
+    marshalSize += 2;  // initialIndex
+    marshalSize += 8;  // coordinateScaleXi
+    marshalSize += 8;  // coordinateOffsetXi
+    short[] xiValues = (short[]) map.get("xiValues");
+    for (int idx = 0; idx < xiValues.length; idx++)
+        marshalSize += 2;
+    marshalSize += ((byte[]) map.get("padding")).length;
+
+    return marshalSize;
 }
 
  /*
@@ -300,7 +345,12 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     return equalsImpl(obj);
  }
 
-@Override
+ /**
+  * Compare all fields that contribute to the state, ignoring
+  * transient and static fields, for <code>this</code> and the supplied object
+  * @param obj the object to compare to
+  * @return true if the objects are equal, false otherwise.
+  */
  public synchronized boolean equalsImpl(Object obj)
  {
      final GridAxisDescriptorVariable rhs = (GridAxisDescriptorVariable)obj;
@@ -315,7 +365,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
           if(!(xiValues[idx] == rhs.xiValues[idx])) return false;
      }
 
-    return super.equalsImpl(rhs);
+    return true;
  }
 
  @Override

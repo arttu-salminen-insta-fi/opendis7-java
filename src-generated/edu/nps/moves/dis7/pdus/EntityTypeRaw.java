@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Identifies the type of Entity
@@ -22,23 +24,29 @@ public class EntityTypeRaw extends Object implements Serializable, Marshaller
    /** Kind of entity uid 7 */
    protected EntityKind entityKind = EntityKind.values()[0];
 
-   /** Domain of entity (air, surface, subsurface, space, etc.) */
-   protected byte domain;
+   /** Domain of entity (air, surface, subsurface, space, etc.) 
+   Value space: uint8 */
+   protected int domain;
 
-   /** country to which the design of the entity is attributed */
-   protected short country;
+   /** country to which the design of the entity is attributed 
+   Value space: uint16 */
+   protected int country;
 
-   /** category of entity */
-   protected byte category;
+   /** category of entity 
+   Value space: uint8 */
+   protected int category;
 
-   /** subcategory of entity */
-   protected byte subCategory;
+   /** subcategory of entity 
+   Value space: uint8 */
+   protected int subCategory;
 
-   /** specific info based on subcategory field. Renamed from specific because that is a reserved word in SQL. */
-   protected byte specific;
+   /** specific info based on subcategory field. Renamed from specific because that is a reserved word in SQL. 
+   Value space: uint8 */
+   protected int specific;
 
-   /** extra is an undescribed parameter... */
-   protected byte extra;
+   /** extra is an undescribed parameter...
+   Value space: uint8 */
+   protected int extra;
 
 
 /** Constructor creates and configures a new instance object */
@@ -85,133 +93,103 @@ public EntityKind getEntityKind()
 }
 
 /** Setter for {@link EntityTypeRaw#domain}
-  * @param pDomain new value of interest
+  * @param pDomain new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized EntityTypeRaw setDomain(byte pDomain)
+public synchronized EntityTypeRaw setDomain(int pDomain)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pDomain >= 0 && pDomain <= 255, "Value outside valid value space");
     domain = pDomain;
-    return this;
-}
-/** Utility setter for {@link EntityTypeRaw#domain}
-  * @param pDomain new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityTypeRaw setDomain(int pDomain){
-    domain = (byte) pDomain;
     return this;
 }
 /** Getter for {@link EntityTypeRaw#domain}
   * @return value of interest */
-public byte getDomain()
+public int getDomain()
 {
     return domain; 
 }
 
 /** Setter for {@link EntityTypeRaw#country}
-  * @param pCountry new value of interest
+  * @param pCountry new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized EntityTypeRaw setCountry(short pCountry)
+public synchronized EntityTypeRaw setCountry(int pCountry)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pCountry >= 0 && pCountry <= 65535, "Value outside valid value space");
     country = pCountry;
-    return this;
-}
-/** Utility setter for {@link EntityTypeRaw#country}
-  * @param pCountry new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityTypeRaw setCountry(int pCountry){
-    country = (short) pCountry;
     return this;
 }
 /** Getter for {@link EntityTypeRaw#country}
   * @return value of interest */
-public short getCountry()
+public int getCountry()
 {
     return country; 
 }
 
 /** Setter for {@link EntityTypeRaw#category}
-  * @param pCategory new value of interest
+  * @param pCategory new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized EntityTypeRaw setCategory(byte pCategory)
+public synchronized EntityTypeRaw setCategory(int pCategory)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pCategory >= 0 && pCategory <= 255, "Value outside valid value space");
     category = pCategory;
-    return this;
-}
-/** Utility setter for {@link EntityTypeRaw#category}
-  * @param pCategory new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityTypeRaw setCategory(int pCategory){
-    category = (byte) pCategory;
     return this;
 }
 /** Getter for {@link EntityTypeRaw#category}
   * @return value of interest */
-public byte getCategory()
+public int getCategory()
 {
     return category; 
 }
 
 /** Setter for {@link EntityTypeRaw#subCategory}
-  * @param pSubCategory new value of interest
+  * @param pSubCategory new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized EntityTypeRaw setSubCategory(byte pSubCategory)
+public synchronized EntityTypeRaw setSubCategory(int pSubCategory)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSubCategory >= 0 && pSubCategory <= 255, "Value outside valid value space");
     subCategory = pSubCategory;
-    return this;
-}
-/** Utility setter for {@link EntityTypeRaw#subCategory}
-  * @param pSubCategory new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityTypeRaw setSubCategory(int pSubCategory){
-    subCategory = (byte) pSubCategory;
     return this;
 }
 /** Getter for {@link EntityTypeRaw#subCategory}
   * @return value of interest */
-public byte getSubCategory()
+public int getSubCategory()
 {
     return subCategory; 
 }
 
 /** Setter for {@link EntityTypeRaw#specific}
-  * @param pSpecific new value of interest
+  * @param pSpecific new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized EntityTypeRaw setSpecific(byte pSpecific)
+public synchronized EntityTypeRaw setSpecific(int pSpecific)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSpecific >= 0 && pSpecific <= 255, "Value outside valid value space");
     specific = pSpecific;
-    return this;
-}
-/** Utility setter for {@link EntityTypeRaw#specific}
-  * @param pSpecific new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityTypeRaw setSpecific(int pSpecific){
-    specific = (byte) pSpecific;
     return this;
 }
 /** Getter for {@link EntityTypeRaw#specific}
   * @return value of interest */
-public byte getSpecific()
+public int getSpecific()
 {
     return specific; 
 }
 
 /** Setter for {@link EntityTypeRaw#extra}
-  * @param pExtra new value of interest
+  * @param pExtra new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized EntityTypeRaw setExtra(byte pExtra)
+public synchronized EntityTypeRaw setExtra(int pExtra)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pExtra >= 0 && pExtra <= 255, "Value outside valid value space");
     extra = pExtra;
-    return this;
-}
-/** Utility setter for {@link EntityTypeRaw#extra}
-  * @param pExtra new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityTypeRaw setExtra(int pExtra){
-    extra = (byte) pExtra;
     return this;
 }
 /** Getter for {@link EntityTypeRaw#extra}
   * @return value of interest */
-public byte getExtra()
+public int getExtra()
 {
     return extra; 
 }
@@ -225,19 +203,15 @@ public byte getExtra()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        entityKind.marshal(dos);
-       dos.writeByte(domain);
-       dos.writeShort(country);
-       dos.writeByte(category);
-       dos.writeByte(subCategory);
-       dos.writeByte(specific);
-       dos.writeByte(extra);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) domain);
+       dos.writeShort((short) country);
+       dos.writeByte((byte) category);
+       dos.writeByte((byte) subCategory);
+       dos.writeByte((byte) specific);
+       dos.writeByte((byte) extra);
     }
 }
 
@@ -253,26 +227,22 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         entityKind = EntityKind.unmarshalEnum(dis);
         uPosition += entityKind.getMarshalledSize();
-        domain = (byte)dis.readUnsignedByte();
+        domain = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        country = (short)dis.readUnsignedShort();
+        country = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        category = (byte)dis.readUnsignedByte();
+        category = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        subCategory = (byte)dis.readUnsignedByte();
+        subCategory = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        specific = (byte)dis.readUnsignedByte();
+        specific = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        extra = (byte)dis.readUnsignedByte();
+        extra = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -289,12 +259,12 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    entityKind.marshal(byteBuffer);
-   byteBuffer.put( (byte)domain);
-   byteBuffer.putShort( (short)country);
-   byteBuffer.put( (byte)category);
-   byteBuffer.put( (byte)subCategory);
-   byteBuffer.put( (byte)specific);
-   byteBuffer.put( (byte)extra);
+   byteBuffer.put((byte) domain);
+   byteBuffer.putShort((short) country);
+   byteBuffer.put((byte) category);
+   byteBuffer.put((byte) subCategory);
+   byteBuffer.put((byte) specific);
+   byteBuffer.put((byte) extra);
 }
 
 /**
@@ -309,28 +279,80 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute entityKind marked as not serialized
         entityKind = EntityKind.unmarshalEnum(byteBuffer);
-        // attribute domain marked as not serialized
-        domain = (byte)(byteBuffer.get() & 0xFF);
-        // attribute country marked as not serialized
-        country = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute category marked as not serialized
-        category = (byte)(byteBuffer.get() & 0xFF);
-        // attribute subCategory marked as not serialized
-        subCategory = (byte)(byteBuffer.get() & 0xFF);
-        // attribute specific marked as not serialized
-        specific = (byte)(byteBuffer.get() & 0xFF);
-        // attribute extra marked as not serialized
-        extra = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        domain = Byte.toUnsignedInt(byteBuffer.get());
+        country = Short.toUnsignedInt(byteBuffer.getShort());
+        category = Byte.toUnsignedInt(byteBuffer.get());
+        subCategory = Byte.toUnsignedInt(byteBuffer.get());
+        specific = Byte.toUnsignedInt(byteBuffer.get());
+        extra = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("entityKind", EntityKind.unmarshalEnum(byteBuffer).getValue());
+    map.put("domain", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("country", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("category", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("subCategory", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("specific", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("extra", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityKind.getEnumForValue(((Number) map.get("entityKind")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("domain")).byteValue());
+    byteBuffer.putShort(((Number) map.get("country")).shortValue());
+    byteBuffer.put(((Number) map.get("category")).byteValue());
+    byteBuffer.put(((Number) map.get("subCategory")).byteValue());
+    byteBuffer.put(((Number) map.get("specific")).byteValue());
+    byteBuffer.put(((Number) map.get("extra")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityKind.getEnumForValue(((Number) map.get("entityKind")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // domain
+    marshalSize += 2;  // country
+    marshalSize += 1;  // category
+    marshalSize += 1;  // subCategory
+    marshalSize += 1;  // specific
+    marshalSize += 1;  // extra
+
+    return marshalSize;
 }
 
  /*

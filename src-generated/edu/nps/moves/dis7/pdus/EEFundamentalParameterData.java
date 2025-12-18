@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Contains electromagnetic emission regeneration parameters that are variable throught a scenario. Section 6.2.22.
@@ -19,19 +21,24 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class EEFundamentalParameterData extends Object implements Serializable, Marshaller
 {
-   /** center frequency of the emission in hertz. */
+   /** center frequency of the emission in hertz. 
+   Value space: float32 */
    protected float frequency;
 
-   /** Bandwidth of the frequencies corresponding to the fequency field. */
+   /** Bandwidth of the frequencies corresponding to the fequency field. 
+   Value space: float32 */
    protected float frequencyRange;
 
-   /** Effective radiated power for the emission in DdBm. For a radar noise jammer, indicates the peak of the transmitted power. */
+   /** Effective radiated power for the emission in DdBm. For a radar noise jammer, indicates the peak of the transmitted power. 
+   Value space: float32 */
    protected float effectiveRadiatedPower;
 
-   /** Average repetition frequency of the emission in hertz. */
+   /** Average repetition frequency of the emission in hertz. 
+   Value space: float32 */
    protected float pulseRepetitionFrequency;
 
-   /** Average pulse width  of the emission in microseconds. */
+   /** Average pulse width  of the emission in microseconds. 
+   Value space: float32 */
    protected float pulseWidth;
 
 
@@ -61,7 +68,7 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link EEFundamentalParameterData#frequency}
-  * @param pFrequency new value of interest
+  * @param pFrequency new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized EEFundamentalParameterData setFrequency(float pFrequency)
 {
@@ -76,7 +83,7 @@ public float getFrequency()
 }
 
 /** Setter for {@link EEFundamentalParameterData#frequencyRange}
-  * @param pFrequencyRange new value of interest
+  * @param pFrequencyRange new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized EEFundamentalParameterData setFrequencyRange(float pFrequencyRange)
 {
@@ -91,7 +98,7 @@ public float getFrequencyRange()
 }
 
 /** Setter for {@link EEFundamentalParameterData#effectiveRadiatedPower}
-  * @param pEffectiveRadiatedPower new value of interest
+  * @param pEffectiveRadiatedPower new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized EEFundamentalParameterData setEffectiveRadiatedPower(float pEffectiveRadiatedPower)
 {
@@ -106,7 +113,7 @@ public float getEffectiveRadiatedPower()
 }
 
 /** Setter for {@link EEFundamentalParameterData#pulseRepetitionFrequency}
-  * @param pPulseRepetitionFrequency new value of interest
+  * @param pPulseRepetitionFrequency new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized EEFundamentalParameterData setPulseRepetitionFrequency(float pPulseRepetitionFrequency)
 {
@@ -121,7 +128,7 @@ public float getPulseRepetitionFrequency()
 }
 
 /** Setter for {@link EEFundamentalParameterData#pulseWidth}
-  * @param pPulseWidth new value of interest
+  * @param pPulseWidth new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized EEFundamentalParameterData setPulseWidth(float pPulseWidth)
 {
@@ -144,17 +151,13 @@ public float getPulseWidth()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        dos.writeFloat(frequency);
        dos.writeFloat(frequencyRange);
        dos.writeFloat(effectiveRadiatedPower);
        dos.writeFloat(pulseRepetitionFrequency);
        dos.writeFloat(pulseWidth);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -170,22 +173,18 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        frequency = dis.readFloat();
+        frequency = (float) dis.readFloat();
         uPosition += 4;
-        frequencyRange = dis.readFloat();
+        frequencyRange = (float) dis.readFloat();
         uPosition += 4;
-        effectiveRadiatedPower = dis.readFloat();
+        effectiveRadiatedPower = (float) dis.readFloat();
         uPosition += 4;
-        pulseRepetitionFrequency = dis.readFloat();
+        pulseRepetitionFrequency = (float) dis.readFloat();
         uPosition += 4;
-        pulseWidth = dis.readFloat();
+        pulseWidth = (float) dis.readFloat();
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -201,11 +200,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putFloat( (float)frequency);
-   byteBuffer.putFloat( (float)frequencyRange);
-   byteBuffer.putFloat( (float)effectiveRadiatedPower);
-   byteBuffer.putFloat( (float)pulseRepetitionFrequency);
-   byteBuffer.putFloat( (float)pulseWidth);
+   byteBuffer.putFloat(frequency);
+   byteBuffer.putFloat(frequencyRange);
+   byteBuffer.putFloat(effectiveRadiatedPower);
+   byteBuffer.putFloat(pulseRepetitionFrequency);
+   byteBuffer.putFloat(pulseWidth);
 }
 
 /**
@@ -220,24 +219,72 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute frequency marked as not serialized
-        frequency = byteBuffer.getFloat();
-        // attribute frequencyRange marked as not serialized
-        frequencyRange = byteBuffer.getFloat();
-        // attribute effectiveRadiatedPower marked as not serialized
-        effectiveRadiatedPower = byteBuffer.getFloat();
-        // attribute pulseRepetitionFrequency marked as not serialized
-        pulseRepetitionFrequency = byteBuffer.getFloat();
-        // attribute pulseWidth marked as not serialized
-        pulseWidth = byteBuffer.getFloat();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        frequency = (float) byteBuffer.getFloat();
+        frequencyRange = (float) byteBuffer.getFloat();
+        effectiveRadiatedPower = (float) byteBuffer.getFloat();
+        pulseRepetitionFrequency = (float) byteBuffer.getFloat();
+        pulseWidth = (float) byteBuffer.getFloat();
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("frequency", (float) byteBuffer.getFloat());
+    map.put("frequencyRange", (float) byteBuffer.getFloat());
+    map.put("effectiveRadiatedPower", (float) byteBuffer.getFloat());
+    map.put("pulseRepetitionFrequency", (float) byteBuffer.getFloat());
+    map.put("pulseWidth", (float) byteBuffer.getFloat());
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putFloat(((Number) map.get("frequency")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("frequencyRange")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("effectiveRadiatedPower")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("pulseRepetitionFrequency")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("pulseWidth")).floatValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // frequency
+    marshalSize += 4;  // frequencyRange
+    marshalSize += 4;  // effectiveRadiatedPower
+    marshalSize += 4;  // pulseRepetitionFrequency
+    marshalSize += 4;  // pulseWidth
+
+    return marshalSize;
 }
 
  /*

@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -27,11 +29,13 @@ public class EntityStateUpdatePdu extends EntityInformationInteractionFamilyPdu 
    /** This field shall identify the entity issuing the PDU, and shall be represented by an Entity Identifier record (see 6.2.28). */
    protected EntityID  entityID = new EntityID(); 
 
-   /** Padding */
-   protected byte padding1;
+   /** Padding 
+   Value space: uint8 */
+   protected int padding1;
 
-   /** This field shall specify the number of variable parameters present. This field shall be represented by an 8-bit unsigned integer (see Annex I). */
-   protected byte numberOfVariableParameters;
+   /** This field shall specify the number of variable parameters present. This field shall be represented by an 8-bit unsigned integer (see Annex I). 
+   Value space: uint8 */
+   protected int numberOfVariableParameters;
 
    /** This field shall specify an entity's linear velocity. The coordinate system for an entity's linear velocity depends on the dead reckoning algorithm used. This field shall be represented by a Linear Velocity Vector record [see 6.2.95 item c)]). */
    protected Vector3Float  entityLinearVelocity = new Vector3Float(); 
@@ -42,8 +46,9 @@ public class EntityStateUpdatePdu extends EntityInformationInteractionFamilyPdu 
    /** This field shall specify an entity's orientation with units of radians and shall be represented by an Euler Angles record (see 6.2.33). */
    protected EulerAngles  entityOrientation = new EulerAngles(); 
 
-   /** This field shall specify the dynamic changes to the entity's appearance attributes. This field shall be represented by an Entity Appearance record (see 6.2.26). */
-   protected int entityAppearance;
+   /** This field shall specify the dynamic changes to the entity's appearance attributes. This field shall be represented by an Entity Appearance record (see 6.2.26). 
+   Value space: uint32 */
+   protected UnsignedInteger entityAppearance = UnsignedInteger.ZERO;
 
    /** This field shall specify the parameter values for each Variable Parameter record that is included (see 6.2.93 and Annex I). */
    protected List< VariableParameter > variableParameters = new ArrayList<>();
@@ -167,23 +172,18 @@ public EntityID getEntityID()
 
 
 /** Setter for {@link EntityStateUpdatePdu#padding1}
-  * @param pPadding1 new value of interest
+  * @param pPadding1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized EntityStateUpdatePdu setPadding1(byte pPadding1)
+public synchronized EntityStateUpdatePdu setPadding1(int pPadding1)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 255, "Value outside valid value space");
     padding1 = pPadding1;
-    return this;
-}
-/** Utility setter for {@link EntityStateUpdatePdu#padding1}
-  * @param pPadding1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityStateUpdatePdu setPadding1(int pPadding1){
-    padding1 = (byte) pPadding1;
     return this;
 }
 /** Getter for {@link EntityStateUpdatePdu#padding1}
   * @return value of interest */
-public byte getPadding1()
+public int getPadding1()
 {
     return padding1; 
 }
@@ -237,16 +237,16 @@ public EulerAngles getEntityOrientation()
 
 
 /** Setter for {@link EntityStateUpdatePdu#entityAppearance}
-  * @param pEntityAppearance new value of interest
+  * @param pEntityAppearance new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized EntityStateUpdatePdu setEntityAppearance(int pEntityAppearance)
+public synchronized EntityStateUpdatePdu setEntityAppearance(UnsignedInteger pEntityAppearance)
 {
     entityAppearance = pEntityAppearance;
     return this;
 }
 /** Getter for {@link EntityStateUpdatePdu#entityAppearance}
   * @return value of interest */
-public int getEntityAppearance()
+public UnsignedInteger getEntityAppearance()
 {
     return entityAppearance; 
 }
@@ -276,15 +276,15 @@ public List<VariableParameter> getVariableParameters()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        entityID.marshal(dos);
-       dos.writeByte(padding1);
+       dos.writeByte((byte) padding1);
        dos.writeByte(variableParameters.size());
        entityLinearVelocity.marshal(dos);
        entityLocation.marshal(dos);
        entityOrientation.marshal(dos);
-       dos.writeInt(entityAppearance);
+       dos.writeInt(entityAppearance.intValue());
 
        for (int idx = 0; idx < variableParameters.size(); idx++)
        {
@@ -292,10 +292,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aVariableParameter.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -313,29 +309,25 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += entityID.unmarshal(dis);
-        padding1 = (byte)dis.readUnsignedByte();
+        padding1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfVariableParameters = (byte)dis.readUnsignedByte();
+        numberOfVariableParameters = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += entityLinearVelocity.unmarshal(dis);
         uPosition += entityLocation.unmarshal(dis);
         uPosition += entityOrientation.unmarshal(dis);
-        entityAppearance = dis.readInt();
+        entityAppearance = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        for (int idx = 0; idx < numberOfVariableParameters; idx++)
+        for (int idx = 0; idx < ((Number) numberOfVariableParameters).intValue(); idx++)
         {
             VariableParameter anX = new VariableParameter();
             uPosition += anX.unmarshal(dis);
             variableParameters.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -353,12 +345,12 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    entityID.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding1);
+   byteBuffer.put((byte) padding1);
    byteBuffer.put( (byte)variableParameters.size());
    entityLinearVelocity.marshal(byteBuffer);
    entityLocation.marshal(byteBuffer);
    entityOrientation.marshal(byteBuffer);
-   byteBuffer.putInt( (int)entityAppearance);
+   byteBuffer.putInt(entityAppearance.intValue());
 
    for (int idx = 0; idx < variableParameters.size(); idx++)
    {
@@ -382,36 +374,106 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute entityID marked as not serialized
         entityID.unmarshal(byteBuffer);
-        // attribute padding1 marked as not serialized
-        padding1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfVariableParameters marked as not serialized
-        numberOfVariableParameters = (byte)(byteBuffer.get() & 0xFF);
-        // attribute entityLinearVelocity marked as not serialized
+        padding1 = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfVariableParameters = Byte.toUnsignedInt(byteBuffer.get());
         entityLinearVelocity.unmarshal(byteBuffer);
-        // attribute entityLocation marked as not serialized
         entityLocation.unmarshal(byteBuffer);
-        // attribute entityOrientation marked as not serialized
         entityOrientation.unmarshal(byteBuffer);
-        // attribute entityAppearance marked as not serialized
-        entityAppearance = byteBuffer.getInt();
-        // attribute variableParameters marked as not serialized
-        for (int idx = 0; idx < numberOfVariableParameters; idx++)
+        entityAppearance = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        for (int idx = 0; idx < ((Number) numberOfVariableParameters).intValue(); idx++)
         {
-        VariableParameter anX = new VariableParameter();
-        anX.unmarshal(byteBuffer);
-        variableParameters.add(anX);
+            VariableParameter anX = new VariableParameter();
+            anX.unmarshal(byteBuffer);
+            variableParameters.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = EntityInformationInteractionFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("entityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("padding1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfVariableParameters", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("entityLinearVelocity", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("entityLocation", Vector3Double.fromBufferToMap(byteBuffer));
+    map.put("entityOrientation", EulerAngles.fromBufferToMap(byteBuffer));
+    map.put("entityAppearance", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    List variableParameters = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableParameters")).intValue(); idx++)
+    {
+        variableParameters.add(VariableParameter.fromBufferToMap(byteBuffer));
+    }
+    map.put("variableParameters", variableParameters);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityInformationInteractionFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("entityID"), byteBuffer);
+    byteBuffer.put(((Number) map.get("padding1")).byteValue());
+    byteBuffer.put(((Number) map.get("numberOfVariableParameters")).byteValue());
+    Vector3Float.fromMapToBuffer((PduMap) map.get("entityLinearVelocity"), byteBuffer);
+    Vector3Double.fromMapToBuffer((PduMap) map.get("entityLocation"), byteBuffer);
+    EulerAngles.fromMapToBuffer((PduMap) map.get("entityOrientation"), byteBuffer);
+    byteBuffer.putInt(((Number) map.get("entityAppearance")).intValue());
+
+    List variableParameters = (List) map.get("variableParameters");
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableParameters")).intValue(); idx++)
+    {
+        VariableParameter.fromMapToBuffer((PduMap) variableParameters.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityInformationInteractionFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("entityID"));
+    marshalSize += 1;  // padding1
+    marshalSize += 1;  // numberOfVariableParameters
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("entityLinearVelocity"));
+    marshalSize += Vector3Double.getMarshalledSize((PduMap) map.get("entityLocation"));
+    marshalSize += EulerAngles.getMarshalledSize((PduMap) map.get("entityOrientation"));
+    marshalSize += 4;  // entityAppearance
+    List variableParameters = (List) map.get("variableParameters");
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableParameters")).intValue(); idx++)
+        marshalSize += VariableParameter.getMarshalledSize((PduMap) variableParameters.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -452,7 +514,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" entityID:").append(entityID); // writeOneToString
     sb.append(" padding1:").append(padding1); // writeOneToString
     sb.append(" entityLinearVelocity:").append(entityLinearVelocity); // writeOneToString

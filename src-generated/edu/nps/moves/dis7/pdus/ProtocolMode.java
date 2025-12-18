@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Bit field used to identify minefield data. bits 14-15 are a 2-bit enum, other bits unused. Section 6.2.69
@@ -19,8 +21,9 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class ProtocolMode extends Object implements Serializable, Marshaller
 {
-   /** Bitfields, 14-15 contain an enum, uid 336 */
-   protected short protocolMode;
+   /** Bitfields, 14-15 contain an enum, uid 336 
+   Value space: uint16 */
+   protected int protocolMode;
 
 
 /** Constructor creates and configures a new instance object */
@@ -45,23 +48,18 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link ProtocolMode#protocolMode}
-  * @param pProtocolMode new value of interest
+  * @param pProtocolMode new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized ProtocolMode setProtocolMode(short pProtocolMode)
+public synchronized ProtocolMode setProtocolMode(int pProtocolMode)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pProtocolMode >= 0 && pProtocolMode <= 65535, "Value outside valid value space");
     protocolMode = pProtocolMode;
-    return this;
-}
-/** Utility setter for {@link ProtocolMode#protocolMode}
-  * @param pProtocolMode new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ProtocolMode setProtocolMode(int pProtocolMode){
-    protocolMode = (short) pProtocolMode;
     return this;
 }
 /** Getter for {@link ProtocolMode#protocolMode}
   * @return value of interest */
-public short getProtocolMode()
+public int getProtocolMode()
 {
     return protocolMode; 
 }
@@ -75,13 +73,9 @@ public short getProtocolMode()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(protocolMode);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) protocolMode);
     }
 }
 
@@ -97,14 +91,10 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        protocolMode = (short)dis.readUnsignedShort();
+        protocolMode = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -120,7 +110,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)protocolMode);
+   byteBuffer.putShort((short) protocolMode);
 }
 
 /**
@@ -135,16 +125,56 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute protocolMode marked as not serialized
-        protocolMode = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        protocolMode = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("protocolMode", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("protocolMode")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // protocolMode
+
+    return marshalSize;
 }
 
  /*

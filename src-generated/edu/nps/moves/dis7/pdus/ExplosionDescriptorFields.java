@@ -12,28 +12,29 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
- * Explosion of a non-munition. Section 6.2.19.3
+ * Explosion of a non-munition records specific fields. Section 6.2.19.3
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class ExplosionDescriptor extends Object implements Serializable, Marshaller
+public class ExplosionDescriptorFields extends Object implements Serializable, Marshaller
 {
-   /** Type of the object that exploded. See 6.2.30 */
-   protected EntityType  explodingObject = new EntityType(); 
-
    /** Material that exploded. Can be grain dust, tnt, gasoline, etc. Enumeration uid 310 */
    protected ExplosiveMaterialCategories explosiveMaterial = ExplosiveMaterialCategories.values()[0];
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding = (short)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding = (int) 0;
 
-   /** Force of explosion, in equivalent KG of TNT */
+   /** Force of explosion, in equivalent KG of TNT 
+   Value space: float32 */
    protected float explosiveForce;
 
 
 /** Constructor creates and configures a new instance object */
- public ExplosionDescriptor()
+ public ExplosionDescriptorFields()
  {
  }
 
@@ -47,8 +48,6 @@ public synchronized int getMarshalledSize()
 {
    int marshalSize = 0; 
 
-   if (explodingObject != null)
-       marshalSize += explodingObject.getMarshalledSize();
    if (explosiveMaterial != null)
        marshalSize += explosiveMaterial.getMarshalledSize();
    marshalSize += 2;  // padding
@@ -58,68 +57,47 @@ public synchronized int getMarshalledSize()
 }
 
 
-/** Setter for {@link ExplosionDescriptor#explodingObject}
-  * @param pExplodingObject new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ExplosionDescriptor setExplodingObject(EntityType pExplodingObject)
-{
-    explodingObject = pExplodingObject;
-    return this;
-}
-/** Getter for {@link ExplosionDescriptor#explodingObject}
-  * @return value of interest */
-public EntityType getExplodingObject()
-{
-    return explodingObject;
-}
-
-
-/** Setter for {@link ExplosionDescriptor#explosiveMaterial}
+/** Setter for {@link ExplosionDescriptorFields#explosiveMaterial}
   * @param pExplosiveMaterial new value of interest
   * @return same object to permit progressive setters */
-public synchronized ExplosionDescriptor setExplosiveMaterial(ExplosiveMaterialCategories pExplosiveMaterial)
+public synchronized ExplosionDescriptorFields setExplosiveMaterial(ExplosiveMaterialCategories pExplosiveMaterial)
 {
     explosiveMaterial = pExplosiveMaterial;
     return this;
 }
-/** Getter for {@link ExplosionDescriptor#explosiveMaterial}
+/** Getter for {@link ExplosionDescriptorFields#explosiveMaterial}
   * @return value of interest */
 public ExplosiveMaterialCategories getExplosiveMaterial()
 {
     return explosiveMaterial; 
 }
 
-/** Setter for {@link ExplosionDescriptor#padding}
-  * @param pPadding new value of interest
+/** Setter for {@link ExplosionDescriptorFields#padding}
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized ExplosionDescriptor setPadding(short pPadding)
+public synchronized ExplosionDescriptorFields setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
     return this;
 }
-/** Utility setter for {@link ExplosionDescriptor#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ExplosionDescriptor setPadding(int pPadding){
-    padding = (short) pPadding;
-    return this;
-}
-/** Getter for {@link ExplosionDescriptor#padding}
+/** Getter for {@link ExplosionDescriptorFields#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
 
-/** Setter for {@link ExplosionDescriptor#explosiveForce}
-  * @param pExplosiveForce new value of interest
+/** Setter for {@link ExplosionDescriptorFields#explosiveForce}
+  * @param pExplosiveForce new value of interest. Value space float32
   * @return same object to permit progressive setters */
-public synchronized ExplosionDescriptor setExplosiveForce(float pExplosiveForce)
+public synchronized ExplosionDescriptorFields setExplosiveForce(float pExplosiveForce)
 {
     explosiveForce = pExplosiveForce;
     return this;
 }
-/** Getter for {@link ExplosionDescriptor#explosiveForce}
+/** Getter for {@link ExplosionDescriptorFields#explosiveForce}
   * @return value of interest */
 public float getExplosiveForce()
 {
@@ -135,16 +113,11 @@ public float getExplosiveForce()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       explodingObject.marshal(dos);
        explosiveMaterial.marshal(dos);
-       dos.writeShort(padding);
+       dos.writeShort((short) padding);
        dos.writeFloat(explosiveForce);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -160,19 +133,14 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        uPosition += explodingObject.unmarshal(dis);
         explosiveMaterial = ExplosiveMaterialCategories.unmarshalEnum(dis);
         uPosition += explosiveMaterial.getMarshalledSize();
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        explosiveForce = dis.readFloat();
+        explosiveForce = (float) dis.readFloat();
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -188,10 +156,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   explodingObject.marshal(byteBuffer);
    explosiveMaterial.marshal(byteBuffer);
-   byteBuffer.putShort( (short)padding);
-   byteBuffer.putFloat( (float)explosiveForce);
+   byteBuffer.putShort((short) padding);
+   byteBuffer.putFloat(explosiveForce);
 }
 
 /**
@@ -206,22 +173,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute explodingObject marked as not serialized
-        explodingObject.unmarshal(byteBuffer);
-        // attribute explosiveMaterial marked as not serialized
         explosiveMaterial = ExplosiveMaterialCategories.unmarshalEnum(byteBuffer);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute explosiveForce marked as not serialized
-        explosiveForce = byteBuffer.getFloat();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
+        explosiveForce = (float) byteBuffer.getFloat();
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("explosiveMaterial", ExplosiveMaterialCategories.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("explosiveForce", (float) byteBuffer.getFloat());
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    ExplosiveMaterialCategories.getEnumForValue(((Number) map.get("explosiveMaterial")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+    byteBuffer.putFloat(((Number) map.get("explosiveForce")).floatValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += ExplosiveMaterialCategories.getEnumForValue(((Number) map.get("explosiveMaterial")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // padding
+    marshalSize += 4;  // explosiveForce
+
+    return marshalSize;
 }
 
  /*
@@ -250,9 +259,8 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
   */
  public synchronized boolean equalsImpl(Object obj)
  {
-     final ExplosionDescriptor rhs = (ExplosionDescriptor)obj;
+     final ExplosionDescriptorFields rhs = (ExplosionDescriptorFields)obj;
 
-     if( ! Objects.equals(explodingObject, rhs.explodingObject) ) return false;
      if( ! (explosiveMaterial == rhs.explosiveMaterial)) return false;
      if( ! (padding == rhs.padding)) return false;
      if( ! (explosiveForce == rhs.explosiveForce)) return false;
@@ -265,7 +273,6 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
     sb.append(getClass().getSimpleName());
-    sb.append(" explodingObject:").append(explodingObject); // writeOneToString
     sb.append(" explosiveMaterial:").append(explosiveMaterial); // writeOneToString
     sb.append(" padding:").append(padding); // writeOneToString
     sb.append(" explosiveForce:").append(explosiveForce); // writeOneToString
@@ -276,9 +283,8 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  @Override
  public int hashCode()
  {
-	 return Objects.hash(this.explodingObject,
-	                     this.explosiveMaterial,
+	 return Objects.hash(this.explosiveMaterial,
 	                     this.padding,
 	                     this.explosiveForce);
  }
-} // end of ExplosionDescriptor
+} // end of ExplosionDescriptorFields

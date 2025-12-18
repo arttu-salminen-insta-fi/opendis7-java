@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * The ID of the IFF emitting system. Section 6.2.87
@@ -130,16 +132,12 @@ public ChangeOptions getChangeOptions()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        systemType.marshal(dos);
        systemName.marshal(dos);
        systemMode.marshal(dos);
        changeOptions.marshal(dos);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -155,7 +153,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         systemType = IFFSystemType.unmarshalEnum(dis);
         uPosition += systemType.getMarshalledSize();
@@ -164,10 +162,6 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         systemMode = IFFSystemMode.unmarshalEnum(dis);
         uPosition += systemMode.getMarshalledSize();
         uPosition += changeOptions.unmarshal(dis);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -201,22 +195,68 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute systemType marked as not serialized
         systemType = IFFSystemType.unmarshalEnum(byteBuffer);
-        // attribute systemName marked as not serialized
         systemName = IFFSystemName.unmarshalEnum(byteBuffer);
-        // attribute systemMode marked as not serialized
         systemMode = IFFSystemMode.unmarshalEnum(byteBuffer);
-        // attribute changeOptions marked as not serialized
         changeOptions.unmarshal(byteBuffer);
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("systemType", IFFSystemType.unmarshalEnum(byteBuffer).getValue());
+    map.put("systemName", IFFSystemName.unmarshalEnum(byteBuffer).getValue());
+    map.put("systemMode", IFFSystemMode.unmarshalEnum(byteBuffer).getValue());
+    map.put("changeOptions", ChangeOptions.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    IFFSystemType.getEnumForValue(((Number) map.get("systemType")).intValue()).marshal(byteBuffer);
+    IFFSystemName.getEnumForValue(((Number) map.get("systemName")).intValue()).marshal(byteBuffer);
+    IFFSystemMode.getEnumForValue(((Number) map.get("systemMode")).intValue()).marshal(byteBuffer);
+    ChangeOptions.fromMapToBuffer((PduMap) map.get("changeOptions"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += IFFSystemType.getEnumForValue(((Number) map.get("systemType")).intValue()).getMarshalledSize();
+    marshalSize += IFFSystemName.getEnumForValue(((Number) map.get("systemName")).intValue()).getMarshalledSize();
+    marshalSize += IFFSystemMode.getEnumForValue(((Number) map.get("systemMode")).intValue()).getMarshalledSize();
+    marshalSize += ChangeOptions.getMarshalledSize((PduMap) map.get("changeOptions"));
+
+    return marshalSize;
 }
 
  /*

@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -27,20 +29,23 @@ public class MinefieldStatePdu extends MinefieldFamilyPdu implements Serializabl
    /** Minefield ID provides a unique identifier */
    protected MinefieldIdentifier  minefieldID = new MinefieldIdentifier(); 
 
-   /** Minefield sequence number shall specify a change in state of a minefield as a result of a change in minefield information or a change in the state, in accordance with the rules specified in 5.10.2.3, of any of the mines contained therein */
-   protected short minefieldSequence;
+   /** Minefield sequence number shall specify a change in state of a minefield as a result of a change in minefield information or a change in the state, in accordance with the rules specified in 5.10.2.3, of any of the mines contained therein 
+   Value space: uint16 */
+   protected int minefieldSequence;
 
    /** force ID provides a unique identifier uid 6 */
    protected ForceID forceID = ForceID.values()[0];
 
-   /** Number of permieter points */
-   protected byte numberOfPerimeterPoints;
+   /** Number of permieter points 
+   Value space: uint8 */
+   protected int numberOfPerimeterPoints;
 
    /** type of minefield */
    protected EntityType  minefieldType = new EntityType(); 
 
-   /** the number of different mine types employed in the minefield */
-   protected short numberOfMineTypes;
+   /** the number of different mine types employed in the minefield 
+   Value space: uint16 */
+   protected int numberOfMineTypes;
 
    /** location of center of minefield in world coordinates */
    protected Vector3Double  minefieldLocation = new Vector3Double(); 
@@ -191,23 +196,18 @@ public MinefieldIdentifier getMinefieldID()
 
 
 /** Setter for {@link MinefieldStatePdu#minefieldSequence}
-  * @param pMinefieldSequence new value of interest
+  * @param pMinefieldSequence new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized MinefieldStatePdu setMinefieldSequence(short pMinefieldSequence)
+public synchronized MinefieldStatePdu setMinefieldSequence(int pMinefieldSequence)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pMinefieldSequence >= 0 && pMinefieldSequence <= 65535, "Value outside valid value space");
     minefieldSequence = pMinefieldSequence;
-    return this;
-}
-/** Utility setter for {@link MinefieldStatePdu#minefieldSequence}
-  * @param pMinefieldSequence new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MinefieldStatePdu setMinefieldSequence(int pMinefieldSequence){
-    minefieldSequence = (short) pMinefieldSequence;
     return this;
 }
 /** Getter for {@link MinefieldStatePdu#minefieldSequence}
   * @return value of interest */
-public short getMinefieldSequence()
+public int getMinefieldSequence()
 {
     return minefieldSequence; 
 }
@@ -346,10 +346,10 @@ public List<EntityType> getMineType()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        minefieldID.marshal(dos);
-       dos.writeShort(minefieldSequence);
+       dos.writeShort((short) minefieldSequence);
        forceID.marshal(dos);
        dos.writeByte(perimeterPoints.size());
        minefieldType.marshal(dos);
@@ -373,10 +373,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        }
 
     }
-    catch(Exception e)
-    {
-      System.err.println(e);
-    }
 }
 
 /**
@@ -393,40 +389,36 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += minefieldID.unmarshal(dis);
-        minefieldSequence = (short)dis.readUnsignedShort();
+        minefieldSequence = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         forceID = ForceID.unmarshalEnum(dis);
         uPosition += forceID.getMarshalledSize();
-        numberOfPerimeterPoints = (byte)dis.readUnsignedByte();
+        numberOfPerimeterPoints = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += minefieldType.unmarshal(dis);
-        numberOfMineTypes = (short)dis.readUnsignedShort();
+        numberOfMineTypes = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += minefieldLocation.unmarshal(dis);
         uPosition += minefieldOrientation.unmarshal(dis);
         uPosition += appearance.unmarshal(dis);
         uPosition += protocolMode.unmarshal(dis);
-        for (int idx = 0; idx < numberOfPerimeterPoints; idx++)
+        for (int idx = 0; idx < ((Number) numberOfPerimeterPoints).intValue(); idx++)
         {
             Vector2Float anX = new Vector2Float();
             uPosition += anX.unmarshal(dis);
             perimeterPoints.add(anX);
         }
 
-        for (int idx = 0; idx < numberOfMineTypes; idx++)
+        for (int idx = 0; idx < ((Number) numberOfMineTypes).intValue(); idx++)
         {
             EntityType anX = new EntityType();
             uPosition += anX.unmarshal(dis);
             mineType.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -444,7 +436,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    minefieldID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)minefieldSequence);
+   byteBuffer.putShort((short) minefieldSequence);
    forceID.marshal(byteBuffer);
    byteBuffer.put( (byte)perimeterPoints.size());
    minefieldType.marshal(byteBuffer);
@@ -483,50 +475,142 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute minefieldID marked as not serialized
         minefieldID.unmarshal(byteBuffer);
-        // attribute minefieldSequence marked as not serialized
-        minefieldSequence = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute forceID marked as not serialized
+        minefieldSequence = Short.toUnsignedInt(byteBuffer.getShort());
         forceID = ForceID.unmarshalEnum(byteBuffer);
-        // attribute numberOfPerimeterPoints marked as not serialized
-        numberOfPerimeterPoints = (byte)(byteBuffer.get() & 0xFF);
-        // attribute minefieldType marked as not serialized
+        numberOfPerimeterPoints = Byte.toUnsignedInt(byteBuffer.get());
         minefieldType.unmarshal(byteBuffer);
-        // attribute numberOfMineTypes marked as not serialized
-        numberOfMineTypes = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute minefieldLocation marked as not serialized
+        numberOfMineTypes = Short.toUnsignedInt(byteBuffer.getShort());
         minefieldLocation.unmarshal(byteBuffer);
-        // attribute minefieldOrientation marked as not serialized
         minefieldOrientation.unmarshal(byteBuffer);
-        // attribute appearance marked as not serialized
         appearance.unmarshal(byteBuffer);
-        // attribute protocolMode marked as not serialized
         protocolMode.unmarshal(byteBuffer);
-        // attribute perimeterPoints marked as not serialized
-        for (int idx = 0; idx < numberOfPerimeterPoints; idx++)
+        for (int idx = 0; idx < ((Number) numberOfPerimeterPoints).intValue(); idx++)
         {
-        Vector2Float anX = new Vector2Float();
-        anX.unmarshal(byteBuffer);
-        perimeterPoints.add(anX);
+            Vector2Float anX = new Vector2Float();
+            anX.unmarshal(byteBuffer);
+            perimeterPoints.add(anX);
         }
 
-        // attribute mineType marked as not serialized
-        for (int idx = 0; idx < numberOfMineTypes; idx++)
+        for (int idx = 0; idx < ((Number) numberOfMineTypes).intValue(); idx++)
         {
-        EntityType anX = new EntityType();
-        anX.unmarshal(byteBuffer);
-        mineType.add(anX);
+            EntityType anX = new EntityType();
+            anX.unmarshal(byteBuffer);
+            mineType.add(anX);
         }
 
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = MinefieldFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("minefieldID", MinefieldIdentifier.fromBufferToMap(byteBuffer));
+    map.put("minefieldSequence", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("forceID", ForceID.unmarshalEnum(byteBuffer).getValue());
+    map.put("numberOfPerimeterPoints", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("minefieldType", EntityType.fromBufferToMap(byteBuffer));
+    map.put("numberOfMineTypes", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("minefieldLocation", Vector3Double.fromBufferToMap(byteBuffer));
+    map.put("minefieldOrientation", EulerAngles.fromBufferToMap(byteBuffer));
+    map.put("appearance", MinefieldStateAppearanceBitMap.fromBufferToMap(byteBuffer));
+    map.put("protocolMode", ProtocolMode.fromBufferToMap(byteBuffer));
+    List perimeterPoints = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfPerimeterPoints")).intValue(); idx++)
+    {
+        perimeterPoints.add(Vector2Float.fromBufferToMap(byteBuffer));
+    }
+    map.put("perimeterPoints", perimeterPoints);
+
+    List mineType = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfMineTypes")).intValue(); idx++)
+    {
+        mineType.add(EntityType.fromBufferToMap(byteBuffer));
+    }
+    map.put("mineType", mineType);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    MinefieldFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    MinefieldIdentifier.fromMapToBuffer((PduMap) map.get("minefieldID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("minefieldSequence")).shortValue());
+    ForceID.getEnumForValue(((Number) map.get("forceID")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("numberOfPerimeterPoints")).byteValue());
+    EntityType.fromMapToBuffer((PduMap) map.get("minefieldType"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("numberOfMineTypes")).shortValue());
+    Vector3Double.fromMapToBuffer((PduMap) map.get("minefieldLocation"), byteBuffer);
+    EulerAngles.fromMapToBuffer((PduMap) map.get("minefieldOrientation"), byteBuffer);
+    MinefieldStateAppearanceBitMap.fromMapToBuffer((PduMap) map.get("appearance"), byteBuffer);
+    ProtocolMode.fromMapToBuffer((PduMap) map.get("protocolMode"), byteBuffer);
+
+    List perimeterPoints = (List) map.get("perimeterPoints");
+    for (int idx = 0; idx < ((Number) map.get("numberOfPerimeterPoints")).intValue(); idx++)
+    {
+        Vector2Float.fromMapToBuffer((PduMap) perimeterPoints.get(idx), byteBuffer);
+    }
+
+
+    List mineType = (List) map.get("mineType");
+    for (int idx = 0; idx < ((Number) map.get("numberOfMineTypes")).intValue(); idx++)
+    {
+        EntityType.fromMapToBuffer((PduMap) mineType.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += MinefieldFamilyPdu.getMarshalledSize(map);
+    marshalSize += MinefieldIdentifier.getMarshalledSize((PduMap) map.get("minefieldID"));
+    marshalSize += 2;  // minefieldSequence
+    marshalSize += ForceID.getEnumForValue(((Number) map.get("forceID")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // numberOfPerimeterPoints
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("minefieldType"));
+    marshalSize += 2;  // numberOfMineTypes
+    marshalSize += Vector3Double.getMarshalledSize((PduMap) map.get("minefieldLocation"));
+    marshalSize += EulerAngles.getMarshalledSize((PduMap) map.get("minefieldOrientation"));
+    marshalSize += MinefieldStateAppearanceBitMap.getMarshalledSize((PduMap) map.get("appearance"));
+    marshalSize += ProtocolMode.getMarshalledSize((PduMap) map.get("protocolMode"));
+    List perimeterPoints = (List) map.get("perimeterPoints");
+    for (int idx = 0; idx < ((Number) map.get("numberOfPerimeterPoints")).intValue(); idx++)
+        marshalSize += Vector2Float.getMarshalledSize((PduMap) perimeterPoints.get(idx));
+    List mineType = (List) map.get("mineType");
+    for (int idx = 0; idx < ((Number) map.get("numberOfMineTypes")).intValue(); idx++)
+        marshalSize += EntityType.getMarshalledSize((PduMap) mineType.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -570,7 +654,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" minefieldID:").append(minefieldID); // writeOneToString
     sb.append(" minefieldSequence:").append(minefieldSequence); // writeOneToString
     sb.append(" forceID:").append(forceID); // writeOneToString

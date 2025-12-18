@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Damage sustained by an entity due to directed energy. Location of the damage based on a relative x,y,z location from the center of the entity. Section 6.2.15.2
@@ -19,23 +21,28 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class DirectedEnergyDamage extends Object implements Serializable, Marshaller
 {
-   /** DE Record Type. */
-   protected int recordType = (int)4500;
+   /** DE Record Type. 
+   Value space: uint32 */
+   protected UnsignedInteger recordType = UnsignedInteger.valueOf(4500);
 
-   /** DE Record Length (bytes) */
-   protected short recordLength = (short)40;
+   /** DE Record Length (bytes) 
+   Value space: uint16 */
+   protected int recordLength = (int) 40;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding = (short)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding = (int) 0;
 
    /** location of damage, relative to center of entity */
    protected Vector3Float  damageLocation = new Vector3Float(); 
 
-   /** Size of damaged area, in meters */
+   /** Size of damaged area, in meters 
+   Value space: float32 */
    protected float damageDiameter;
 
-   /** average temp of the damaged area, in degrees celsius. If firing entitty does not model this, use a value of -273.15 */
-   protected float temperature = (float)-273.15;
+   /** average temp of the damaged area, in degrees celsius. If firing entitty does not model this, use a value of -273.15 
+   Value space: float32 */
+   protected float temperature = (float) -273.15;
 
    /** enumeration uid 314 */
    protected EntityDamageStatusComponentIdentification componentIdentification = EntityDamageStatusComponentIdentification.values()[0];
@@ -52,8 +59,9 @@ public class DirectedEnergyDamage extends Object implements Serializable, Marsha
    /** For any component damage resulting this field shall be set to the fire event ID from that PDU. */
    protected EventIdentifier  fireEventID = new EventIdentifier(); 
 
-   /** padding */
-   protected short padding2 = (short)0;
+   /** padding 
+   Value space: uint16 */
+   protected int padding2 = (int) 0;
 
 
 /** Constructor creates and configures a new instance object */
@@ -95,60 +103,50 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link DirectedEnergyDamage#recordType}
-  * @param pRecordType new value of interest
+  * @param pRecordType new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyDamage setRecordType(int pRecordType)
+public synchronized DirectedEnergyDamage setRecordType(UnsignedInteger pRecordType)
 {
     recordType = pRecordType;
     return this;
 }
 /** Getter for {@link DirectedEnergyDamage#recordType}
   * @return value of interest */
-public int getRecordType()
+public UnsignedInteger getRecordType()
 {
     return recordType; 
 }
 
 /** Setter for {@link DirectedEnergyDamage#recordLength}
-  * @param pRecordLength new value of interest
+  * @param pRecordLength new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyDamage setRecordLength(short pRecordLength)
+public synchronized DirectedEnergyDamage setRecordLength(int pRecordLength)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pRecordLength >= 0 && pRecordLength <= 65535, "Value outside valid value space");
     recordLength = pRecordLength;
-    return this;
-}
-/** Utility setter for {@link DirectedEnergyDamage#recordLength}
-  * @param pRecordLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DirectedEnergyDamage setRecordLength(int pRecordLength){
-    recordLength = (short) pRecordLength;
     return this;
 }
 /** Getter for {@link DirectedEnergyDamage#recordLength}
   * @return value of interest */
-public short getRecordLength()
+public int getRecordLength()
 {
     return recordLength; 
 }
 
 /** Setter for {@link DirectedEnergyDamage#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyDamage setPadding(short pPadding)
+public synchronized DirectedEnergyDamage setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link DirectedEnergyDamage#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DirectedEnergyDamage setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link DirectedEnergyDamage#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -170,7 +168,7 @@ public Vector3Float getDamageLocation()
 
 
 /** Setter for {@link DirectedEnergyDamage#damageDiameter}
-  * @param pDamageDiameter new value of interest
+  * @param pDamageDiameter new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DirectedEnergyDamage setDamageDiameter(float pDamageDiameter)
 {
@@ -185,7 +183,7 @@ public float getDamageDiameter()
 }
 
 /** Setter for {@link DirectedEnergyDamage#temperature}
-  * @param pTemperature new value of interest
+  * @param pTemperature new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DirectedEnergyDamage setTemperature(float pTemperature)
 {
@@ -276,23 +274,18 @@ public EventIdentifier getFireEventID()
 
 
 /** Setter for {@link DirectedEnergyDamage#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyDamage setPadding2(short pPadding2)
+public synchronized DirectedEnergyDamage setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 65535, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link DirectedEnergyDamage#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DirectedEnergyDamage setPadding2(int pPadding2){
-    padding2 = (short) pPadding2;
     return this;
 }
 /** Getter for {@link DirectedEnergyDamage#padding2}
   * @return value of interest */
-public short getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
@@ -306,11 +299,11 @@ public short getPadding2()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeInt(recordType);
-       dos.writeShort(recordLength);
-       dos.writeShort(padding);
+       dos.writeInt(recordType.intValue());
+       dos.writeShort((short) recordLength);
+       dos.writeShort((short) padding);
        damageLocation.marshal(dos);
        dos.writeFloat(damageDiameter);
        dos.writeFloat(temperature);
@@ -319,11 +312,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        componentVisualDamageStatus.marshal(dos);
        componentVisualSmokeColor.marshal(dos);
        fireEventID.marshal(dos);
-       dos.writeShort(padding2);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) padding2);
     }
 }
 
@@ -339,18 +328,18 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        recordType = dis.readInt();
+        recordType = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        recordLength = (short)dis.readUnsignedShort();
+        recordLength = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += damageLocation.unmarshal(dis);
-        damageDiameter = dis.readFloat();
+        damageDiameter = (float) dis.readFloat();
         uPosition += 4;
-        temperature = dis.readFloat();
+        temperature = (float) dis.readFloat();
         uPosition += 4;
         componentIdentification = EntityDamageStatusComponentIdentification.unmarshalEnum(dis);
         uPosition += componentIdentification.getMarshalledSize();
@@ -360,12 +349,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         componentVisualSmokeColor = DEDamageDescriptionComponentVisualSmokeColor.unmarshalEnum(dis);
         uPosition += componentVisualSmokeColor.getMarshalledSize();
         uPosition += fireEventID.unmarshal(dis);
-        padding2 = (short)dis.readUnsignedShort();
+        padding2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -381,18 +366,18 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putInt( (int)recordType);
-   byteBuffer.putShort( (short)recordLength);
-   byteBuffer.putShort( (short)padding);
+   byteBuffer.putInt(recordType.intValue());
+   byteBuffer.putShort((short) recordLength);
+   byteBuffer.putShort((short) padding);
    damageLocation.marshal(byteBuffer);
-   byteBuffer.putFloat( (float)damageDiameter);
-   byteBuffer.putFloat( (float)temperature);
+   byteBuffer.putFloat(damageDiameter);
+   byteBuffer.putFloat(temperature);
    componentIdentification.marshal(byteBuffer);
    componentDamageStatus.marshal(byteBuffer);
    componentVisualDamageStatus.marshal(byteBuffer);
    componentVisualSmokeColor.marshal(byteBuffer);
    fireEventID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)padding2);
+   byteBuffer.putShort((short) padding2);
 }
 
 /**
@@ -407,38 +392,100 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute recordType marked as not serialized
-        recordType = byteBuffer.getInt();
-        // attribute recordLength marked as not serialized
-        recordLength = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute damageLocation marked as not serialized
+        recordType = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        recordLength = Short.toUnsignedInt(byteBuffer.getShort());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
         damageLocation.unmarshal(byteBuffer);
-        // attribute damageDiameter marked as not serialized
-        damageDiameter = byteBuffer.getFloat();
-        // attribute temperature marked as not serialized
-        temperature = byteBuffer.getFloat();
-        // attribute componentIdentification marked as not serialized
+        damageDiameter = (float) byteBuffer.getFloat();
+        temperature = (float) byteBuffer.getFloat();
         componentIdentification = EntityDamageStatusComponentIdentification.unmarshalEnum(byteBuffer);
-        // attribute componentDamageStatus marked as not serialized
         componentDamageStatus = DEDamageDescriptionComponentDamageStatus.unmarshalEnum(byteBuffer);
-        // attribute componentVisualDamageStatus marked as not serialized
         componentVisualDamageStatus.unmarshal(byteBuffer);
-        // attribute componentVisualSmokeColor marked as not serialized
         componentVisualSmokeColor = DEDamageDescriptionComponentVisualSmokeColor.unmarshalEnum(byteBuffer);
-        // attribute fireEventID marked as not serialized
         fireEventID.unmarshal(byteBuffer);
-        // attribute padding2 marked as not serialized
-        padding2 = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding2 = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("recordType", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("recordLength", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("damageLocation", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("damageDiameter", (float) byteBuffer.getFloat());
+    map.put("temperature", (float) byteBuffer.getFloat());
+    map.put("componentIdentification", EntityDamageStatusComponentIdentification.unmarshalEnum(byteBuffer).getValue());
+    map.put("componentDamageStatus", DEDamageDescriptionComponentDamageStatus.unmarshalEnum(byteBuffer).getValue());
+    map.put("componentVisualDamageStatus", DEDamageDescriptionComponentVisualDamageStatus.fromBufferToMap(byteBuffer));
+    map.put("componentVisualSmokeColor", DEDamageDescriptionComponentVisualSmokeColor.unmarshalEnum(byteBuffer).getValue());
+    map.put("fireEventID", EventIdentifier.fromBufferToMap(byteBuffer));
+    map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putInt(((Number) map.get("recordType")).intValue());
+    byteBuffer.putShort(((Number) map.get("recordLength")).shortValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+    Vector3Float.fromMapToBuffer((PduMap) map.get("damageLocation"), byteBuffer);
+    byteBuffer.putFloat(((Number) map.get("damageDiameter")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("temperature")).floatValue());
+    EntityDamageStatusComponentIdentification.getEnumForValue(((Number) map.get("componentIdentification")).intValue()).marshal(byteBuffer);
+    DEDamageDescriptionComponentDamageStatus.getEnumForValue(((Number) map.get("componentDamageStatus")).intValue()).marshal(byteBuffer);
+    DEDamageDescriptionComponentVisualDamageStatus.fromMapToBuffer((PduMap) map.get("componentVisualDamageStatus"), byteBuffer);
+    DEDamageDescriptionComponentVisualSmokeColor.getEnumForValue(((Number) map.get("componentVisualSmokeColor")).intValue()).marshal(byteBuffer);
+    EventIdentifier.fromMapToBuffer((PduMap) map.get("fireEventID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // recordType
+    marshalSize += 2;  // recordLength
+    marshalSize += 2;  // padding
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("damageLocation"));
+    marshalSize += 4;  // damageDiameter
+    marshalSize += 4;  // temperature
+    marshalSize += EntityDamageStatusComponentIdentification.getEnumForValue(((Number) map.get("componentIdentification")).intValue()).getMarshalledSize();
+    marshalSize += DEDamageDescriptionComponentDamageStatus.getEnumForValue(((Number) map.get("componentDamageStatus")).intValue()).getMarshalledSize();
+    marshalSize += DEDamageDescriptionComponentVisualDamageStatus.getMarshalledSize((PduMap) map.get("componentVisualDamageStatus"));
+    marshalSize += DEDamageDescriptionComponentVisualSmokeColor.getEnumForValue(((Number) map.get("componentVisualSmokeColor")).intValue()).getMarshalledSize();
+    marshalSize += EventIdentifier.getMarshalledSize((PduMap) map.get("fireEventID"));
+    marshalSize += 2;  // padding2
+
+    return marshalSize;
 }
 
  /*

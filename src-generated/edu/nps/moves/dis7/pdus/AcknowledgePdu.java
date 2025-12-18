@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -30,8 +32,9 @@ public class AcknowledgePdu extends SimulationManagementFamilyPdu implements Ser
    /** Whether or not the receiving entity was able to comply with the request uid 70 */
    protected AcknowledgeResponseFlag responseFlag = AcknowledgeResponseFlag.values()[0];
 
-   /** Request ID that is unique */
-   protected int requestID;
+   /** Request ID that is unique 
+   Value space: uint32 */
+   protected UnsignedInteger requestID = UnsignedInteger.ZERO;
 
 
 /** Constructor creates and configures a new instance object */
@@ -154,16 +157,16 @@ public AcknowledgeResponseFlag getResponseFlag()
 }
 
 /** Setter for {@link AcknowledgePdu#requestID}
-  * @param pRequestID new value of interest
+  * @param pRequestID new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized AcknowledgePdu setRequestID(int pRequestID)
+public synchronized AcknowledgePdu setRequestID(UnsignedInteger pRequestID)
 {
     requestID = pRequestID;
     return this;
 }
 /** Getter for {@link AcknowledgePdu#requestID}
   * @return value of interest */
-public int getRequestID()
+public UnsignedInteger getRequestID()
 {
     return requestID; 
 }
@@ -178,15 +181,11 @@ public int getRequestID()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        acknowledgeFlag.marshal(dos);
        responseFlag.marshal(dos);
-       dos.writeInt(requestID);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeInt(requestID.intValue());
     }
 }
 
@@ -204,18 +203,14 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         acknowledgeFlag = AcknowledgeAcknowledgeFlag.unmarshalEnum(dis);
         uPosition += acknowledgeFlag.getMarshalledSize();
         responseFlag = AcknowledgeResponseFlag.unmarshalEnum(dis);
         uPosition += responseFlag.getMarshalledSize();
-        requestID = dis.readInt();
+        requestID = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -234,7 +229,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    super.marshal(byteBuffer);
    acknowledgeFlag.marshal(byteBuffer);
    responseFlag.marshal(byteBuffer);
-   byteBuffer.putInt( (int)requestID);
+   byteBuffer.putInt(requestID.intValue());
 }
 
 /**
@@ -251,20 +246,66 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute acknowledgeFlag marked as not serialized
         acknowledgeFlag = AcknowledgeAcknowledgeFlag.unmarshalEnum(byteBuffer);
-        // attribute responseFlag marked as not serialized
         responseFlag = AcknowledgeResponseFlag.unmarshalEnum(byteBuffer);
-        // attribute requestID marked as not serialized
-        requestID = byteBuffer.getInt();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        requestID = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = SimulationManagementFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("acknowledgeFlag", AcknowledgeAcknowledgeFlag.unmarshalEnum(byteBuffer).getValue());
+    map.put("responseFlag", AcknowledgeResponseFlag.unmarshalEnum(byteBuffer).getValue());
+    map.put("requestID", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    SimulationManagementFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    AcknowledgeAcknowledgeFlag.getEnumForValue(((Number) map.get("acknowledgeFlag")).intValue()).marshal(byteBuffer);
+    AcknowledgeResponseFlag.getEnumForValue(((Number) map.get("responseFlag")).intValue()).marshal(byteBuffer);
+    byteBuffer.putInt(((Number) map.get("requestID")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += SimulationManagementFamilyPdu.getMarshalledSize(map);
+    marshalSize += AcknowledgeAcknowledgeFlag.getEnumForValue(((Number) map.get("acknowledgeFlag")).intValue()).getMarshalledSize();
+    marshalSize += AcknowledgeResponseFlag.getEnumForValue(((Number) map.get("responseFlag")).intValue()).getMarshalledSize();
+    marshalSize += 4;  // requestID
+
+    return marshalSize;
 }
 
  /*
@@ -301,7 +342,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" acknowledgeFlag:").append(acknowledgeFlag); // writeOneToString
     sb.append(" responseFlag:").append(responseFlag); // writeOneToString
     sb.append(" requestID:").append(requestID); // writeOneToString

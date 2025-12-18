@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -27,20 +29,24 @@ public class IntercomControlPdu extends RadioCommunicationsFamilyPdu implements 
    /** control type uid 180 */
    protected IntercomControlControlType controlType = IntercomControlControlType.values()[0];
 
-   /** control type */
-   protected byte communicationsChannelType;
+   /** control type 
+   Value space: uint8 */
+   protected int communicationsChannelType;
 
    /** Source entity ID, this can also be ObjectIdentifier or UnattachedIdentifier */
    protected EntityID  sourceEntityID = new EntityID(); 
 
-   /** The specific intercom device being simulated within an entity. */
-   protected short sourceIntercomNumber;
+   /** The specific intercom device being simulated within an entity. 
+   Value space: uint16 */
+   protected int sourceIntercomNumber;
 
-   /** Line number to which the intercom control refers */
-   protected byte sourceLineID;
+   /** Line number to which the intercom control refers 
+   Value space: uint8 */
+   protected int sourceLineID;
 
-   /** priority of this message relative to transmissons from other intercom devices */
-   protected byte transmitPriority;
+   /** priority of this message relative to transmissons from other intercom devices 
+   Value space: uint8 */
+   protected int transmitPriority;
 
    /** current transmit state of the line uid 183 */
    protected IntercomControlTransmitLineState transmitLineState = IntercomControlTransmitLineState.values()[0];
@@ -51,18 +57,21 @@ public class IntercomControlPdu extends RadioCommunicationsFamilyPdu implements 
    /** eid of the entity that has created this intercom channel, same comments as sourceEntityId */
    protected EntityID  masterIntercomReferenceID = new EntityID(); 
 
-   /** specific intercom device that has created this intercom channel */
-   protected short masterIntercomNumber;
+   /** specific intercom device that has created this intercom channel 
+   Value space: uint16 */
+   protected int masterIntercomNumber;
 
-   /** masterChannelID is an undescribed parameter... */
-   protected short masterChannelID;
+   /** masterChannelID is an undescribed parameter...
+   Value space: uint16 */
+   protected int masterChannelID;
 
-   /** number of intercom parameters */
-   protected int intercomParametersLength;
+   /** number of intercom parameters 
+   Value space: uint32 */
+   protected UnsignedInteger intercomParametersLength = UnsignedInteger.ZERO;
 
    /** intercomParameters is an undescribed parameter... */
-   protected List< IntercomCommunicationsParameters > intercomParameters = new ArrayList<>();
- 
+   protected IntercomCommunicationsParameters  intercomParameters = new IntercomCommunicationsParameters(); 
+
 
 /** Constructor creates and configures a new instance object */
  public IntercomControlPdu()
@@ -161,11 +170,7 @@ public synchronized int getMarshalledSize()
    marshalSize += 2;  // masterChannelID
    marshalSize += 4;  // intercomParametersLength
    if (intercomParameters != null)
-       for (int idx=0; idx < intercomParameters.size(); idx++)
-       {
-            IntercomCommunicationsParameters listElement = intercomParameters.get(idx);
-            marshalSize += listElement.getMarshalledSize();
-       }
+       marshalSize += intercomParameters.getMarshalledSize();
 
    return marshalSize;
 }
@@ -187,23 +192,18 @@ public IntercomControlControlType getControlType()
 }
 
 /** Setter for {@link IntercomControlPdu#communicationsChannelType}
-  * @param pCommunicationsChannelType new value of interest
+  * @param pCommunicationsChannelType new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized IntercomControlPdu setCommunicationsChannelType(byte pCommunicationsChannelType)
+public synchronized IntercomControlPdu setCommunicationsChannelType(int pCommunicationsChannelType)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pCommunicationsChannelType >= 0 && pCommunicationsChannelType <= 255, "Value outside valid value space");
     communicationsChannelType = pCommunicationsChannelType;
-    return this;
-}
-/** Utility setter for {@link IntercomControlPdu#communicationsChannelType}
-  * @param pCommunicationsChannelType new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IntercomControlPdu setCommunicationsChannelType(int pCommunicationsChannelType){
-    communicationsChannelType = (byte) pCommunicationsChannelType;
     return this;
 }
 /** Getter for {@link IntercomControlPdu#communicationsChannelType}
   * @return value of interest */
-public byte getCommunicationsChannelType()
+public int getCommunicationsChannelType()
 {
     return communicationsChannelType; 
 }
@@ -225,67 +225,52 @@ public EntityID getSourceEntityID()
 
 
 /** Setter for {@link IntercomControlPdu#sourceIntercomNumber}
-  * @param pSourceIntercomNumber new value of interest
+  * @param pSourceIntercomNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized IntercomControlPdu setSourceIntercomNumber(short pSourceIntercomNumber)
+public synchronized IntercomControlPdu setSourceIntercomNumber(int pSourceIntercomNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pSourceIntercomNumber >= 0 && pSourceIntercomNumber <= 65535, "Value outside valid value space");
     sourceIntercomNumber = pSourceIntercomNumber;
-    return this;
-}
-/** Utility setter for {@link IntercomControlPdu#sourceIntercomNumber}
-  * @param pSourceIntercomNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IntercomControlPdu setSourceIntercomNumber(int pSourceIntercomNumber){
-    sourceIntercomNumber = (short) pSourceIntercomNumber;
     return this;
 }
 /** Getter for {@link IntercomControlPdu#sourceIntercomNumber}
   * @return value of interest */
-public short getSourceIntercomNumber()
+public int getSourceIntercomNumber()
 {
     return sourceIntercomNumber; 
 }
 
 /** Setter for {@link IntercomControlPdu#sourceLineID}
-  * @param pSourceLineID new value of interest
+  * @param pSourceLineID new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized IntercomControlPdu setSourceLineID(byte pSourceLineID)
+public synchronized IntercomControlPdu setSourceLineID(int pSourceLineID)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSourceLineID >= 0 && pSourceLineID <= 255, "Value outside valid value space");
     sourceLineID = pSourceLineID;
-    return this;
-}
-/** Utility setter for {@link IntercomControlPdu#sourceLineID}
-  * @param pSourceLineID new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IntercomControlPdu setSourceLineID(int pSourceLineID){
-    sourceLineID = (byte) pSourceLineID;
     return this;
 }
 /** Getter for {@link IntercomControlPdu#sourceLineID}
   * @return value of interest */
-public byte getSourceLineID()
+public int getSourceLineID()
 {
     return sourceLineID; 
 }
 
 /** Setter for {@link IntercomControlPdu#transmitPriority}
-  * @param pTransmitPriority new value of interest
+  * @param pTransmitPriority new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized IntercomControlPdu setTransmitPriority(byte pTransmitPriority)
+public synchronized IntercomControlPdu setTransmitPriority(int pTransmitPriority)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pTransmitPriority >= 0 && pTransmitPriority <= 255, "Value outside valid value space");
     transmitPriority = pTransmitPriority;
-    return this;
-}
-/** Utility setter for {@link IntercomControlPdu#transmitPriority}
-  * @param pTransmitPriority new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IntercomControlPdu setTransmitPriority(int pTransmitPriority){
-    transmitPriority = (byte) pTransmitPriority;
     return this;
 }
 /** Getter for {@link IntercomControlPdu#transmitPriority}
   * @return value of interest */
-public byte getTransmitPriority()
+public int getTransmitPriority()
 {
     return transmitPriority; 
 }
@@ -337,45 +322,35 @@ public EntityID getMasterIntercomReferenceID()
 
 
 /** Setter for {@link IntercomControlPdu#masterIntercomNumber}
-  * @param pMasterIntercomNumber new value of interest
+  * @param pMasterIntercomNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized IntercomControlPdu setMasterIntercomNumber(short pMasterIntercomNumber)
+public synchronized IntercomControlPdu setMasterIntercomNumber(int pMasterIntercomNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pMasterIntercomNumber >= 0 && pMasterIntercomNumber <= 65535, "Value outside valid value space");
     masterIntercomNumber = pMasterIntercomNumber;
-    return this;
-}
-/** Utility setter for {@link IntercomControlPdu#masterIntercomNumber}
-  * @param pMasterIntercomNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IntercomControlPdu setMasterIntercomNumber(int pMasterIntercomNumber){
-    masterIntercomNumber = (short) pMasterIntercomNumber;
     return this;
 }
 /** Getter for {@link IntercomControlPdu#masterIntercomNumber}
   * @return value of interest */
-public short getMasterIntercomNumber()
+public int getMasterIntercomNumber()
 {
     return masterIntercomNumber; 
 }
 
 /** Setter for {@link IntercomControlPdu#masterChannelID}
-  * @param pMasterChannelID new value of interest
+  * @param pMasterChannelID new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized IntercomControlPdu setMasterChannelID(short pMasterChannelID)
+public synchronized IntercomControlPdu setMasterChannelID(int pMasterChannelID)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pMasterChannelID >= 0 && pMasterChannelID <= 65535, "Value outside valid value space");
     masterChannelID = pMasterChannelID;
-    return this;
-}
-/** Utility setter for {@link IntercomControlPdu#masterChannelID}
-  * @param pMasterChannelID new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IntercomControlPdu setMasterChannelID(int pMasterChannelID){
-    masterChannelID = (short) pMasterChannelID;
     return this;
 }
 /** Getter for {@link IntercomControlPdu#masterChannelID}
   * @return value of interest */
-public short getMasterChannelID()
+public int getMasterChannelID()
 {
     return masterChannelID; 
 }
@@ -383,17 +358,18 @@ public short getMasterChannelID()
 /** Setter for {@link IntercomControlPdu#intercomParameters}
   * @param pIntercomParameters new value of interest
   * @return same object to permit progressive setters */
-public synchronized IntercomControlPdu setIntercomParameters(List<IntercomCommunicationsParameters> pIntercomParameters)
+public synchronized IntercomControlPdu setIntercomParameters(IntercomCommunicationsParameters pIntercomParameters)
 {
     intercomParameters = pIntercomParameters;
     return this;
 }
 /** Getter for {@link IntercomControlPdu#intercomParameters}
   * @return value of interest */
-public List<IntercomCommunicationsParameters> getIntercomParameters()
+public IntercomCommunicationsParameters getIntercomParameters()
 {
-    return intercomParameters; 
+    return intercomParameters;
 }
+
 
 /**
  * Serializes an object to a DataOutputStream.
@@ -405,31 +381,21 @@ public List<IntercomCommunicationsParameters> getIntercomParameters()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        controlType.marshal(dos);
-       dos.writeByte(communicationsChannelType);
+       dos.writeByte((byte) communicationsChannelType);
        sourceEntityID.marshal(dos);
-       dos.writeShort(sourceIntercomNumber);
-       dos.writeByte(sourceLineID);
-       dos.writeByte(transmitPriority);
+       dos.writeShort((short) sourceIntercomNumber);
+       dos.writeByte((byte) sourceLineID);
+       dos.writeByte((byte) transmitPriority);
        transmitLineState.marshal(dos);
        command.marshal(dos);
        masterIntercomReferenceID.marshal(dos);
-       dos.writeShort(masterIntercomNumber);
-       dos.writeShort(masterChannelID);
-       dos.writeInt(intercomParameters.size());
-
-       for (int idx = 0; idx < intercomParameters.size(); idx++)
-       {
-            IntercomCommunicationsParameters aIntercomCommunicationsParameters = intercomParameters.get(idx);
-            aIntercomCommunicationsParameters.marshal(dos);
-       }
-
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) masterIntercomNumber);
+       dos.writeShort((short) masterChannelID);
+       dos.writeInt(intercomParametersLength.intValue());
+       intercomParameters.marshal(dos);
     }
 }
 
@@ -447,41 +413,31 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         controlType = IntercomControlControlType.unmarshalEnum(dis);
         uPosition += controlType.getMarshalledSize();
-        communicationsChannelType = (byte)dis.readUnsignedByte();
+        communicationsChannelType = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += sourceEntityID.unmarshal(dis);
-        sourceIntercomNumber = (short)dis.readUnsignedShort();
+        sourceIntercomNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        sourceLineID = (byte)dis.readUnsignedByte();
+        sourceLineID = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        transmitPriority = (byte)dis.readUnsignedByte();
+        transmitPriority = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         transmitLineState = IntercomControlTransmitLineState.unmarshalEnum(dis);
         uPosition += transmitLineState.getMarshalledSize();
         command = IntercomControlCommand.unmarshalEnum(dis);
         uPosition += command.getMarshalledSize();
         uPosition += masterIntercomReferenceID.unmarshal(dis);
-        masterIntercomNumber = (short)dis.readUnsignedShort();
+        masterIntercomNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        masterChannelID = (short)dis.readUnsignedShort();
+        masterChannelID = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        intercomParametersLength = dis.readInt();
+        intercomParametersLength = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        for (int idx = 0; idx < intercomParametersLength; idx++)
-        {
-            IntercomCommunicationsParameters anX = new IntercomCommunicationsParameters();
-            uPosition += anX.unmarshal(dis);
-            intercomParameters.add(anX);
-        }
-
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
+        uPosition += intercomParameters.unmarshal(dis);
     }
     return getMarshalledSize();
 }
@@ -499,24 +455,18 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    controlType.marshal(byteBuffer);
-   byteBuffer.put( (byte)communicationsChannelType);
+   byteBuffer.put((byte) communicationsChannelType);
    sourceEntityID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)sourceIntercomNumber);
-   byteBuffer.put( (byte)sourceLineID);
-   byteBuffer.put( (byte)transmitPriority);
+   byteBuffer.putShort((short) sourceIntercomNumber);
+   byteBuffer.put((byte) sourceLineID);
+   byteBuffer.put((byte) transmitPriority);
    transmitLineState.marshal(byteBuffer);
    command.marshal(byteBuffer);
    masterIntercomReferenceID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)masterIntercomNumber);
-   byteBuffer.putShort( (short)masterChannelID);
-   byteBuffer.putInt( (int)intercomParameters.size());
-
-   for (int idx = 0; idx < intercomParameters.size(); idx++)
-   {
-        IntercomCommunicationsParameters aIntercomCommunicationsParameters = intercomParameters.get(idx);
-        aIntercomCommunicationsParameters.marshal(byteBuffer);
-   }
-
+   byteBuffer.putShort((short) masterIntercomNumber);
+   byteBuffer.putShort((short) masterChannelID);
+   byteBuffer.putInt(intercomParametersLength.intValue());
+   intercomParameters.marshal(byteBuffer);
 }
 
 /**
@@ -533,46 +483,106 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute controlType marked as not serialized
         controlType = IntercomControlControlType.unmarshalEnum(byteBuffer);
-        // attribute communicationsChannelType marked as not serialized
-        communicationsChannelType = (byte)(byteBuffer.get() & 0xFF);
-        // attribute sourceEntityID marked as not serialized
+        communicationsChannelType = Byte.toUnsignedInt(byteBuffer.get());
         sourceEntityID.unmarshal(byteBuffer);
-        // attribute sourceIntercomNumber marked as not serialized
-        sourceIntercomNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute sourceLineID marked as not serialized
-        sourceLineID = (byte)(byteBuffer.get() & 0xFF);
-        // attribute transmitPriority marked as not serialized
-        transmitPriority = (byte)(byteBuffer.get() & 0xFF);
-        // attribute transmitLineState marked as not serialized
+        sourceIntercomNumber = Short.toUnsignedInt(byteBuffer.getShort());
+        sourceLineID = Byte.toUnsignedInt(byteBuffer.get());
+        transmitPriority = Byte.toUnsignedInt(byteBuffer.get());
         transmitLineState = IntercomControlTransmitLineState.unmarshalEnum(byteBuffer);
-        // attribute command marked as not serialized
         command = IntercomControlCommand.unmarshalEnum(byteBuffer);
-        // attribute masterIntercomReferenceID marked as not serialized
         masterIntercomReferenceID.unmarshal(byteBuffer);
-        // attribute masterIntercomNumber marked as not serialized
-        masterIntercomNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute masterChannelID marked as not serialized
-        masterChannelID = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute intercomParametersLength marked as not serialized
-        intercomParametersLength = byteBuffer.getInt();
-        // attribute intercomParameters marked as not serialized
-        for (int idx = 0; idx < intercomParametersLength; idx++)
-        {
-        IntercomCommunicationsParameters anX = new IntercomCommunicationsParameters();
-        anX.unmarshal(byteBuffer);
-        intercomParameters.add(anX);
-        }
-
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        masterIntercomNumber = Short.toUnsignedInt(byteBuffer.getShort());
+        masterChannelID = Short.toUnsignedInt(byteBuffer.getShort());
+        intercomParametersLength = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        intercomParameters.unmarshal(byteBuffer);
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = RadioCommunicationsFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("controlType", IntercomControlControlType.unmarshalEnum(byteBuffer).getValue());
+    map.put("communicationsChannelType", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("sourceEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("sourceIntercomNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("sourceLineID", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("transmitPriority", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("transmitLineState", IntercomControlTransmitLineState.unmarshalEnum(byteBuffer).getValue());
+    map.put("command", IntercomControlCommand.unmarshalEnum(byteBuffer).getValue());
+    map.put("masterIntercomReferenceID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("masterIntercomNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("masterChannelID", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("intercomParametersLength", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("intercomParameters", IntercomCommunicationsParameters.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    RadioCommunicationsFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    IntercomControlControlType.getEnumForValue(((Number) map.get("controlType")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("communicationsChannelType")).byteValue());
+    EntityID.fromMapToBuffer((PduMap) map.get("sourceEntityID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("sourceIntercomNumber")).shortValue());
+    byteBuffer.put(((Number) map.get("sourceLineID")).byteValue());
+    byteBuffer.put(((Number) map.get("transmitPriority")).byteValue());
+    IntercomControlTransmitLineState.getEnumForValue(((Number) map.get("transmitLineState")).intValue()).marshal(byteBuffer);
+    IntercomControlCommand.getEnumForValue(((Number) map.get("command")).intValue()).marshal(byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("masterIntercomReferenceID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("masterIntercomNumber")).shortValue());
+    byteBuffer.putShort(((Number) map.get("masterChannelID")).shortValue());
+    byteBuffer.putInt(((Number) map.get("intercomParametersLength")).intValue());
+    IntercomCommunicationsParameters.fromMapToBuffer((PduMap) map.get("intercomParameters"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += RadioCommunicationsFamilyPdu.getMarshalledSize(map);
+    marshalSize += IntercomControlControlType.getEnumForValue(((Number) map.get("controlType")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // communicationsChannelType
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("sourceEntityID"));
+    marshalSize += 2;  // sourceIntercomNumber
+    marshalSize += 1;  // sourceLineID
+    marshalSize += 1;  // transmitPriority
+    marshalSize += IntercomControlTransmitLineState.getEnumForValue(((Number) map.get("transmitLineState")).intValue()).getMarshalledSize();
+    marshalSize += IntercomControlCommand.getEnumForValue(((Number) map.get("command")).intValue()).getMarshalledSize();
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("masterIntercomReferenceID"));
+    marshalSize += 2;  // masterIntercomNumber
+    marshalSize += 2;  // masterChannelID
+    marshalSize += 4;  // intercomParametersLength
+    marshalSize += IntercomCommunicationsParameters.getMarshalledSize((PduMap) map.get("intercomParameters"));
+
+    return marshalSize;
 }
 
  /*
@@ -618,7 +628,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" controlType:").append(controlType); // writeOneToString
     sb.append(" communicationsChannelType:").append(communicationsChannelType); // writeOneToString
     sb.append(" sourceEntityID:").append(sourceEntityID); // writeOneToString
@@ -630,11 +640,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     sb.append(" masterIntercomReferenceID:").append(masterIntercomReferenceID); // writeOneToString
     sb.append(" masterIntercomNumber:").append(masterIntercomNumber); // writeOneToString
     sb.append(" masterChannelID:").append(masterChannelID); // writeOneToString
-    sb.append(" intercomParameters: ");
-    intercomParameters.forEach(r->{ sb2.append(" ").append(r);}); // writeList
-    sb.append(sb2.toString().trim());
-    // https://stackoverflow.com/questions/2242471/clearing-a-string-buffer-builder-after-loop
-    sb2.setLength(0); // reset
+    sb.append(" intercomParameters:").append(intercomParameters); // writeOneToString
 
    return sb.toString();
  }

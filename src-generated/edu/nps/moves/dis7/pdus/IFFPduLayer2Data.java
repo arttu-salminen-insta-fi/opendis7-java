@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * 7.6.5.3 Layer 2 emissions data
@@ -25,14 +27,17 @@ public class IFFPduLayer2Data extends AbstractIFFPduLayerData implements Seriali
    /** Beam data */
    protected BeamData  beamData = new BeamData(); 
 
-   /** secondaryOpParameter1 is an undescribed parameter... */
-   protected byte secondaryOpParameter1;
+   /** secondaryOpParameter1 is an undescribed parameter...
+   Value space: uint8 */
+   protected int secondaryOpParameter1;
 
-   /** secondaryOpParameter2 is an undescribed parameter... */
-   protected byte secondaryOpParameter2;
+   /** secondaryOpParameter2 is an undescribed parameter...
+   Value space: uint8 */
+   protected int secondaryOpParameter2;
 
-   /** numberOfIFFFundamentalParameterDataRecordsParameters is an undescribed parameter... */
-   protected short numberOfIFFFundamentalParameterDataRecordsParameters;
+   /** numberOfIFFFundamentalParameterDataRecordsParameters is an undescribed parameter...
+   Value space: uint16 */
+   protected int numberOfIFFFundamentalParameterDataRecordsParameters;
 
    /** Variable length list of fundamental parameters. */
    protected List< IFFFundamentalParameterData > IFFFundamentalParameterDataRecord = new ArrayList<>();
@@ -105,66 +110,37 @@ public BeamData getBeamData()
 
 
 /** Setter for {@link IFFPduLayer2Data#secondaryOpParameter1}
-  * @param pSecondaryOpParameter1 new value of interest
+  * @param pSecondaryOpParameter1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized IFFPduLayer2Data setSecondaryOpParameter1(byte pSecondaryOpParameter1)
+public synchronized IFFPduLayer2Data setSecondaryOpParameter1(int pSecondaryOpParameter1)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSecondaryOpParameter1 >= 0 && pSecondaryOpParameter1 <= 255, "Value outside valid value space");
     secondaryOpParameter1 = pSecondaryOpParameter1;
-    return this;
-}
-/** Utility setter for {@link IFFPduLayer2Data#secondaryOpParameter1}
-  * @param pSecondaryOpParameter1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IFFPduLayer2Data setSecondaryOpParameter1(int pSecondaryOpParameter1){
-    secondaryOpParameter1 = (byte) pSecondaryOpParameter1;
     return this;
 }
 /** Getter for {@link IFFPduLayer2Data#secondaryOpParameter1}
   * @return value of interest */
-public byte getSecondaryOpParameter1()
+public int getSecondaryOpParameter1()
 {
     return secondaryOpParameter1; 
 }
 
 /** Setter for {@link IFFPduLayer2Data#secondaryOpParameter2}
-  * @param pSecondaryOpParameter2 new value of interest
+  * @param pSecondaryOpParameter2 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized IFFPduLayer2Data setSecondaryOpParameter2(byte pSecondaryOpParameter2)
+public synchronized IFFPduLayer2Data setSecondaryOpParameter2(int pSecondaryOpParameter2)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSecondaryOpParameter2 >= 0 && pSecondaryOpParameter2 <= 255, "Value outside valid value space");
     secondaryOpParameter2 = pSecondaryOpParameter2;
-    return this;
-}
-/** Utility setter for {@link IFFPduLayer2Data#secondaryOpParameter2}
-  * @param pSecondaryOpParameter2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IFFPduLayer2Data setSecondaryOpParameter2(int pSecondaryOpParameter2){
-    secondaryOpParameter2 = (byte) pSecondaryOpParameter2;
     return this;
 }
 /** Getter for {@link IFFPduLayer2Data#secondaryOpParameter2}
   * @return value of interest */
-public byte getSecondaryOpParameter2()
+public int getSecondaryOpParameter2()
 {
     return secondaryOpParameter2; 
-}
-
-/** Utility method to get size of field
- * @return size of field */
-public short getNumberOfIFFFundamentalParameterDataRecordsParameters()
-{
-    return (short)IFFFundamentalParameterDataRecord.size(); 
-}
-
-/** Note that setting this value will not change the marshalled value. The list whose length this describes is used for that purpose.
- * The getnumberOfIFFFundamentalParameterDataRecordsParameters method will also be based on the actual list length rather than this value. 
- * The method is simply here for java bean completeness.
- * @param pNumberOfIFFFundamentalParameterDataRecordsParameters passed parameter
- * @return this object
- */
-public synchronized IFFPduLayer2Data setNumberOfIFFFundamentalParameterDataRecordsParameters(short pNumberOfIFFFundamentalParameterDataRecordsParameters)
-{
-    numberOfIFFFundamentalParameterDataRecordsParameters = pNumberOfIFFFundamentalParameterDataRecordsParameters;
-    return this;
 }
 
 /** Setter for {@link IFFPduLayer2Data#IFFFundamentalParameterDataRecord}
@@ -192,12 +168,12 @@ public List<IFFFundamentalParameterData> getIFFFundamentalParameterDataRecord()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        layerHeader.marshal(dos);
        beamData.marshal(dos);
-       dos.writeByte(secondaryOpParameter1);
-       dos.writeByte(secondaryOpParameter2);
+       dos.writeByte((byte) secondaryOpParameter1);
+       dos.writeByte((byte) secondaryOpParameter2);
        dos.writeShort(IFFFundamentalParameterDataRecord.size());
 
        for (int idx = 0; idx < IFFFundamentalParameterDataRecord.size(); idx++)
@@ -206,10 +182,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aIFFFundamentalParameterData.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -227,27 +199,23 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += layerHeader.unmarshal(dis);
         uPosition += beamData.unmarshal(dis);
-        secondaryOpParameter1 = (byte)dis.readUnsignedByte();
+        secondaryOpParameter1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        secondaryOpParameter2 = (byte)dis.readUnsignedByte();
+        secondaryOpParameter2 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfIFFFundamentalParameterDataRecordsParameters = (short)dis.readUnsignedShort();
+        numberOfIFFFundamentalParameterDataRecordsParameters = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < numberOfIFFFundamentalParameterDataRecordsParameters; idx++)
+        for (int idx = 0; idx < ((Number) numberOfIFFFundamentalParameterDataRecordsParameters).intValue(); idx++)
         {
             IFFFundamentalParameterData anX = new IFFFundamentalParameterData();
             uPosition += anX.unmarshal(dis);
             IFFFundamentalParameterDataRecord.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -266,8 +234,8 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    super.marshal(byteBuffer);
    layerHeader.marshal(byteBuffer);
    beamData.marshal(byteBuffer);
-   byteBuffer.put( (byte)secondaryOpParameter1);
-   byteBuffer.put( (byte)secondaryOpParameter2);
+   byteBuffer.put((byte) secondaryOpParameter1);
+   byteBuffer.put((byte) secondaryOpParameter2);
    byteBuffer.putShort( (short)IFFFundamentalParameterDataRecord.size());
 
    for (int idx = 0; idx < IFFFundamentalParameterDataRecord.size(); idx++)
@@ -292,32 +260,98 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute layerHeader marked as not serialized
         layerHeader.unmarshal(byteBuffer);
-        // attribute beamData marked as not serialized
         beamData.unmarshal(byteBuffer);
-        // attribute secondaryOpParameter1 marked as not serialized
-        secondaryOpParameter1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute secondaryOpParameter2 marked as not serialized
-        secondaryOpParameter2 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfIFFFundamentalParameterDataRecordsParameters marked as not serialized
-        numberOfIFFFundamentalParameterDataRecordsParameters = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute IFFFundamentalParameterDataRecord marked as not serialized
-        for (int idx = 0; idx < numberOfIFFFundamentalParameterDataRecordsParameters; idx++)
+        secondaryOpParameter1 = Byte.toUnsignedInt(byteBuffer.get());
+        secondaryOpParameter2 = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfIFFFundamentalParameterDataRecordsParameters = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) numberOfIFFFundamentalParameterDataRecordsParameters).intValue(); idx++)
         {
-        IFFFundamentalParameterData anX = new IFFFundamentalParameterData();
-        anX.unmarshal(byteBuffer);
-        IFFFundamentalParameterDataRecord.add(anX);
+            IFFFundamentalParameterData anX = new IFFFundamentalParameterData();
+            anX.unmarshal(byteBuffer);
+            IFFFundamentalParameterDataRecord.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = AbstractIFFPduLayerData.fromBufferToMap(byteBuffer);
+
+    map.put("layerHeader", LayerHeader.fromBufferToMap(byteBuffer));
+    map.put("beamData", BeamData.fromBufferToMap(byteBuffer));
+    map.put("secondaryOpParameter1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("secondaryOpParameter2", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfIFFFundamentalParameterDataRecordsParameters", Short.toUnsignedInt(byteBuffer.getShort()));
+    List IFFFundamentalParameterDataRecord = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfIFFFundamentalParameterDataRecordsParameters")).intValue(); idx++)
+    {
+        IFFFundamentalParameterDataRecord.add(IFFFundamentalParameterData.fromBufferToMap(byteBuffer));
+    }
+    map.put("IFFFundamentalParameterDataRecord", IFFFundamentalParameterDataRecord);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    AbstractIFFPduLayerData.fromMapToBuffer(map, byteBuffer);
+    LayerHeader.fromMapToBuffer((PduMap) map.get("layerHeader"), byteBuffer);
+    BeamData.fromMapToBuffer((PduMap) map.get("beamData"), byteBuffer);
+    byteBuffer.put(((Number) map.get("secondaryOpParameter1")).byteValue());
+    byteBuffer.put(((Number) map.get("secondaryOpParameter2")).byteValue());
+    byteBuffer.putShort(((Number) map.get("numberOfIFFFundamentalParameterDataRecordsParameters")).shortValue());
+
+    List IFFFundamentalParameterDataRecord = (List) map.get("IFFFundamentalParameterDataRecord");
+    for (int idx = 0; idx < ((Number) map.get("numberOfIFFFundamentalParameterDataRecordsParameters")).intValue(); idx++)
+    {
+        IFFFundamentalParameterData.fromMapToBuffer((PduMap) IFFFundamentalParameterDataRecord.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += AbstractIFFPduLayerData.getMarshalledSize(map);
+    marshalSize += LayerHeader.getMarshalledSize((PduMap) map.get("layerHeader"));
+    marshalSize += BeamData.getMarshalledSize((PduMap) map.get("beamData"));
+    marshalSize += 1;  // secondaryOpParameter1
+    marshalSize += 1;  // secondaryOpParameter2
+    marshalSize += 2;  // numberOfIFFFundamentalParameterDataRecordsParameters
+    List IFFFundamentalParameterDataRecord = (List) map.get("IFFFundamentalParameterDataRecord");
+    for (int idx = 0; idx < ((Number) map.get("numberOfIFFFundamentalParameterDataRecordsParameters")).intValue(); idx++)
+        marshalSize += IFFFundamentalParameterData.getMarshalledSize((PduMap) IFFFundamentalParameterDataRecord.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -357,7 +391,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" layerHeader:").append(layerHeader); // writeOneToString
     sb.append(" beamData:").append(beamData); // writeOneToString
     sb.append(" secondaryOpParameter1:").append(secondaryOpParameter1); // writeOneToString

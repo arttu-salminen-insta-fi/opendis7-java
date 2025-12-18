@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Fundamental IFF atc data. Section 6.2.44
@@ -19,20 +21,25 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class IFFFundamentalParameterData extends Object implements Serializable, Marshaller
 {
-   /** ERP */
+   /** ERP 
+   Value space: float32 */
    protected float erp;
 
-   /** frequency */
+   /** frequency 
+   Value space: float32 */
    protected float frequency;
 
-   /** pgrf */
+   /** pgrf 
+   Value space: float32 */
    protected float pgrf;
 
-   /** Pulse width */
+   /** Pulse width 
+   Value space: float32 */
    protected float pulseWidth;
 
-   /** Burst length */
-   protected int burstLength;
+   /** Burst length 
+   Value space: uint32 */
+   protected UnsignedInteger burstLength = UnsignedInteger.ZERO;
 
    /** Applicable modes enumeration uid 339 */
    protected IFFApplicableModes applicableModes = IFFApplicableModes.values()[0];
@@ -71,7 +78,7 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link IFFFundamentalParameterData#erp}
-  * @param pErp new value of interest
+  * @param pErp new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized IFFFundamentalParameterData setErp(float pErp)
 {
@@ -86,7 +93,7 @@ public float getErp()
 }
 
 /** Setter for {@link IFFFundamentalParameterData#frequency}
-  * @param pFrequency new value of interest
+  * @param pFrequency new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized IFFFundamentalParameterData setFrequency(float pFrequency)
 {
@@ -101,7 +108,7 @@ public float getFrequency()
 }
 
 /** Setter for {@link IFFFundamentalParameterData#pgrf}
-  * @param pPgrf new value of interest
+  * @param pPgrf new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized IFFFundamentalParameterData setPgrf(float pPgrf)
 {
@@ -116,7 +123,7 @@ public float getPgrf()
 }
 
 /** Setter for {@link IFFFundamentalParameterData#pulseWidth}
-  * @param pPulseWidth new value of interest
+  * @param pPulseWidth new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized IFFFundamentalParameterData setPulseWidth(float pPulseWidth)
 {
@@ -131,16 +138,16 @@ public float getPulseWidth()
 }
 
 /** Setter for {@link IFFFundamentalParameterData#burstLength}
-  * @param pBurstLength new value of interest
+  * @param pBurstLength new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized IFFFundamentalParameterData setBurstLength(int pBurstLength)
+public synchronized IFFFundamentalParameterData setBurstLength(UnsignedInteger pBurstLength)
 {
     burstLength = pBurstLength;
     return this;
 }
 /** Getter for {@link IFFFundamentalParameterData#burstLength}
   * @return value of interest */
-public int getBurstLength()
+public UnsignedInteger getBurstLength()
 {
     return burstLength; 
 }
@@ -184,22 +191,18 @@ public byte[] getSystemSpecificData()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        dos.writeFloat(erp);
        dos.writeFloat(frequency);
        dos.writeFloat(pgrf);
        dos.writeFloat(pulseWidth);
-       dos.writeInt(burstLength);
+       dos.writeInt(burstLength.intValue());
        applicableModes.marshal(dos);
 
        for (int idx = 0; idx < systemSpecificData.length; idx++)
            dos.writeByte(systemSpecificData[idx]);
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -215,27 +218,23 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        erp = dis.readFloat();
+        erp = (float) dis.readFloat();
         uPosition += 4;
-        frequency = dis.readFloat();
+        frequency = (float) dis.readFloat();
         uPosition += 4;
-        pgrf = dis.readFloat();
+        pgrf = (float) dis.readFloat();
         uPosition += 4;
-        pulseWidth = dis.readFloat();
+        pulseWidth = (float) dis.readFloat();
         uPosition += 4;
-        burstLength = dis.readInt();
+        burstLength = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         applicableModes = IFFApplicableModes.unmarshalEnum(dis);
         uPosition += applicableModes.getMarshalledSize();
         for (int idx = 0; idx < systemSpecificData.length; idx++)
             systemSpecificData[idx] = dis.readByte();
         uPosition += (systemSpecificData.length * 1);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -251,11 +250,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putFloat( (float)erp);
-   byteBuffer.putFloat( (float)frequency);
-   byteBuffer.putFloat( (float)pgrf);
-   byteBuffer.putFloat( (float)pulseWidth);
-   byteBuffer.putInt( (int)burstLength);
+   byteBuffer.putFloat(erp);
+   byteBuffer.putFloat(frequency);
+   byteBuffer.putFloat(pgrf);
+   byteBuffer.putFloat(pulseWidth);
+   byteBuffer.putInt(burstLength.intValue());
    applicableModes.marshal(byteBuffer);
 
    for (int idx = 0; idx < systemSpecificData.length; idx++)
@@ -275,29 +274,91 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute erp marked as not serialized
-        erp = byteBuffer.getFloat();
-        // attribute frequency marked as not serialized
-        frequency = byteBuffer.getFloat();
-        // attribute pgrf marked as not serialized
-        pgrf = byteBuffer.getFloat();
-        // attribute pulseWidth marked as not serialized
-        pulseWidth = byteBuffer.getFloat();
-        // attribute burstLength marked as not serialized
-        burstLength = byteBuffer.getInt();
-        // attribute applicableModes marked as not serialized
+        erp = (float) byteBuffer.getFloat();
+        frequency = (float) byteBuffer.getFloat();
+        pgrf = (float) byteBuffer.getFloat();
+        pulseWidth = (float) byteBuffer.getFloat();
+        burstLength = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         applicableModes = IFFApplicableModes.unmarshalEnum(byteBuffer);
-        // attribute systemSpecificData marked as not serialized
         for (int idx = 0; idx < systemSpecificData.length; idx++)
             systemSpecificData[idx] = byteBuffer.get();
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("erp", (float) byteBuffer.getFloat());
+    map.put("frequency", (float) byteBuffer.getFloat());
+    map.put("pgrf", (float) byteBuffer.getFloat());
+    map.put("pulseWidth", (float) byteBuffer.getFloat());
+    map.put("burstLength", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("applicableModes", IFFApplicableModes.unmarshalEnum(byteBuffer).getValue());
+    // Valid (> 0) primitive list fixed length
+    byte[] systemSpecificData = new byte[3];
+    for (int idx = 0; idx < 3; idx++)
+        systemSpecificData[idx] = byteBuffer.get();
+    map.put("systemSpecificData", systemSpecificData);
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putFloat(((Number) map.get("erp")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("frequency")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("pgrf")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("pulseWidth")).floatValue());
+    byteBuffer.putInt(((Number) map.get("burstLength")).intValue());
+    IFFApplicableModes.getEnumForValue(((Number) map.get("applicableModes")).intValue()).marshal(byteBuffer);
+
+    byte[] systemSpecificData = (byte[]) map.get("systemSpecificData");
+    for (int idx = 0; idx < systemSpecificData.length; idx++)
+        byteBuffer.put(systemSpecificData[idx]);
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // erp
+    marshalSize += 4;  // frequency
+    marshalSize += 4;  // pgrf
+    marshalSize += 4;  // pulseWidth
+    marshalSize += 4;  // burstLength
+    marshalSize += IFFApplicableModes.getEnumForValue(((Number) map.get("applicableModes")).intValue()).getMarshalledSize();
+    byte[] systemSpecificData = (byte[]) map.get("systemSpecificData");
+    for (int idx = 0; idx < systemSpecificData.length; idx++)
+        marshalSize += 1;
+
+    return marshalSize;
 }
 
  /*

@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -30,17 +32,20 @@ public class ReceiverPdu extends RadioCommunicationsFamilyPdu implements Seriali
    /** encoding scheme used, and enumeration uid 179 */
    protected ReceiverReceiverState receiverState = ReceiverReceiverState.values()[0];
 
-   /** padding1 is an undescribed parameter... */
-   protected short padding1;
+   /** padding1 is an undescribed parameter...
+   Value space: uint16 */
+   protected int padding1;
 
-   /** received power */
+   /** received power 
+   Value space: float32 */
    protected float receivedPower;
 
    /** ID of transmitter */
    protected EntityID  transmitterEntityId = new EntityID(); 
 
-   /** ID of transmitting radio */
-   protected short transmitterRadioId;
+   /** ID of transmitting radio 
+   Value space: uint16 */
+   protected int transmitterRadioId;
 
 
 /** Constructor creates and configures a new instance object */
@@ -168,29 +173,24 @@ public ReceiverReceiverState getReceiverState()
 }
 
 /** Setter for {@link ReceiverPdu#padding1}
-  * @param pPadding1 new value of interest
+  * @param pPadding1 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized ReceiverPdu setPadding1(short pPadding1)
+public synchronized ReceiverPdu setPadding1(int pPadding1)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 65535, "Value outside valid value space");
     padding1 = pPadding1;
-    return this;
-}
-/** Utility setter for {@link ReceiverPdu#padding1}
-  * @param pPadding1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ReceiverPdu setPadding1(int pPadding1){
-    padding1 = (short) pPadding1;
     return this;
 }
 /** Getter for {@link ReceiverPdu#padding1}
   * @return value of interest */
-public short getPadding1()
+public int getPadding1()
 {
     return padding1; 
 }
 
 /** Setter for {@link ReceiverPdu#receivedPower}
-  * @param pReceivedPower new value of interest
+  * @param pReceivedPower new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized ReceiverPdu setReceivedPower(float pReceivedPower)
 {
@@ -221,23 +221,18 @@ public EntityID getTransmitterEntityId()
 
 
 /** Setter for {@link ReceiverPdu#transmitterRadioId}
-  * @param pTransmitterRadioId new value of interest
+  * @param pTransmitterRadioId new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized ReceiverPdu setTransmitterRadioId(short pTransmitterRadioId)
+public synchronized ReceiverPdu setTransmitterRadioId(int pTransmitterRadioId)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pTransmitterRadioId >= 0 && pTransmitterRadioId <= 65535, "Value outside valid value space");
     transmitterRadioId = pTransmitterRadioId;
-    return this;
-}
-/** Utility setter for {@link ReceiverPdu#transmitterRadioId}
-  * @param pTransmitterRadioId new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ReceiverPdu setTransmitterRadioId(int pTransmitterRadioId){
-    transmitterRadioId = (short) pTransmitterRadioId;
     return this;
 }
 /** Getter for {@link ReceiverPdu#transmitterRadioId}
   * @return value of interest */
-public short getTransmitterRadioId()
+public int getTransmitterRadioId()
 {
     return transmitterRadioId; 
 }
@@ -252,18 +247,14 @@ public short getTransmitterRadioId()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        header.marshal(dos);
        receiverState.marshal(dos);
-       dos.writeShort(padding1);
+       dos.writeShort((short) padding1);
        dos.writeFloat(receivedPower);
        transmitterEntityId.marshal(dos);
-       dos.writeShort(transmitterRadioId);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) transmitterRadioId);
     }
 }
 
@@ -281,22 +272,18 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += header.unmarshal(dis);
         receiverState = ReceiverReceiverState.unmarshalEnum(dis);
         uPosition += receiverState.getMarshalledSize();
-        padding1 = (short)dis.readUnsignedShort();
+        padding1 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        receivedPower = dis.readFloat();
+        receivedPower = (float) dis.readFloat();
         uPosition += 4;
         uPosition += transmitterEntityId.unmarshal(dis);
-        transmitterRadioId = (short)dis.readUnsignedShort();
+        transmitterRadioId = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -315,10 +302,10 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    super.marshal(byteBuffer);
    header.marshal(byteBuffer);
    receiverState.marshal(byteBuffer);
-   byteBuffer.putShort( (short)padding1);
-   byteBuffer.putFloat( (float)receivedPower);
+   byteBuffer.putShort((short) padding1);
+   byteBuffer.putFloat(receivedPower);
    transmitterEntityId.marshal(byteBuffer);
-   byteBuffer.putShort( (short)transmitterRadioId);
+   byteBuffer.putShort((short) transmitterRadioId);
 }
 
 /**
@@ -335,26 +322,78 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute header marked as not serialized
         header.unmarshal(byteBuffer);
-        // attribute receiverState marked as not serialized
         receiverState = ReceiverReceiverState.unmarshalEnum(byteBuffer);
-        // attribute padding1 marked as not serialized
-        padding1 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute receivedPower marked as not serialized
-        receivedPower = byteBuffer.getFloat();
-        // attribute transmitterEntityId marked as not serialized
+        padding1 = Short.toUnsignedInt(byteBuffer.getShort());
+        receivedPower = (float) byteBuffer.getFloat();
         transmitterEntityId.unmarshal(byteBuffer);
-        // attribute transmitterRadioId marked as not serialized
-        transmitterRadioId = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        transmitterRadioId = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = RadioCommunicationsFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("header", RadioCommsHeader.fromBufferToMap(byteBuffer));
+    map.put("receiverState", ReceiverReceiverState.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding1", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("receivedPower", (float) byteBuffer.getFloat());
+    map.put("transmitterEntityId", EntityID.fromBufferToMap(byteBuffer));
+    map.put("transmitterRadioId", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    RadioCommunicationsFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    RadioCommsHeader.fromMapToBuffer((PduMap) map.get("header"), byteBuffer);
+    ReceiverReceiverState.getEnumForValue(((Number) map.get("receiverState")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("padding1")).shortValue());
+    byteBuffer.putFloat(((Number) map.get("receivedPower")).floatValue());
+    EntityID.fromMapToBuffer((PduMap) map.get("transmitterEntityId"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("transmitterRadioId")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += RadioCommunicationsFamilyPdu.getMarshalledSize(map);
+    marshalSize += RadioCommsHeader.getMarshalledSize((PduMap) map.get("header"));
+    marshalSize += ReceiverReceiverState.getEnumForValue(((Number) map.get("receiverState")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // padding1
+    marshalSize += 4;  // receivedPower
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("transmitterEntityId"));
+    marshalSize += 2;  // transmitterRadioId
+
+    return marshalSize;
 }
 
  /*
@@ -394,7 +433,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" header:").append(header); // writeOneToString
     sb.append(" receiverState:").append(receiverState); // writeOneToString
     sb.append(" padding1:").append(padding1); // writeOneToString

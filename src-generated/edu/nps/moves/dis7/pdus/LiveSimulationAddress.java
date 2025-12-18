@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * A simulation's designation associated with all Live Entity IDs contained in Live Entity PDUs. Section 6.2.55 
@@ -19,11 +21,13 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class LiveSimulationAddress extends Object implements Serializable, Marshaller
 {
-   /** facility, installation, organizational unit or geographic location may have multiple sites associated with it. The Site Number is the first component of the Live Simulation Address, which defines a live simulation. */
-   protected byte liveSiteNumber;
+   /** facility, installation, organizational unit or geographic location may have multiple sites associated with it. The Site Number is the first component of the Live Simulation Address, which defines a live simulation. 
+   Value space: uint8 */
+   protected int liveSiteNumber;
 
-   /** An application associated with a live site is termed a live application. Each live application participating in an event  */
-   protected byte liveApplicationNumber;
+   /** An application associated with a live site is termed a live application. Each live application participating in an event  
+   Value space: uint8 */
+   protected int liveApplicationNumber;
 
 
 /** Constructor creates and configures a new instance object */
@@ -49,45 +53,35 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link LiveSimulationAddress#liveSiteNumber}
-  * @param pLiveSiteNumber new value of interest
+  * @param pLiveSiteNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized LiveSimulationAddress setLiveSiteNumber(byte pLiveSiteNumber)
+public synchronized LiveSimulationAddress setLiveSiteNumber(int pLiveSiteNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pLiveSiteNumber >= 0 && pLiveSiteNumber <= 255, "Value outside valid value space");
     liveSiteNumber = pLiveSiteNumber;
-    return this;
-}
-/** Utility setter for {@link LiveSimulationAddress#liveSiteNumber}
-  * @param pLiveSiteNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveSimulationAddress setLiveSiteNumber(int pLiveSiteNumber){
-    liveSiteNumber = (byte) pLiveSiteNumber;
     return this;
 }
 /** Getter for {@link LiveSimulationAddress#liveSiteNumber}
   * @return value of interest */
-public byte getLiveSiteNumber()
+public int getLiveSiteNumber()
 {
     return liveSiteNumber; 
 }
 
 /** Setter for {@link LiveSimulationAddress#liveApplicationNumber}
-  * @param pLiveApplicationNumber new value of interest
+  * @param pLiveApplicationNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized LiveSimulationAddress setLiveApplicationNumber(byte pLiveApplicationNumber)
+public synchronized LiveSimulationAddress setLiveApplicationNumber(int pLiveApplicationNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pLiveApplicationNumber >= 0 && pLiveApplicationNumber <= 255, "Value outside valid value space");
     liveApplicationNumber = pLiveApplicationNumber;
-    return this;
-}
-/** Utility setter for {@link LiveSimulationAddress#liveApplicationNumber}
-  * @param pLiveApplicationNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveSimulationAddress setLiveApplicationNumber(int pLiveApplicationNumber){
-    liveApplicationNumber = (byte) pLiveApplicationNumber;
     return this;
 }
 /** Getter for {@link LiveSimulationAddress#liveApplicationNumber}
   * @return value of interest */
-public byte getLiveApplicationNumber()
+public int getLiveApplicationNumber()
 {
     return liveApplicationNumber; 
 }
@@ -101,14 +95,10 @@ public byte getLiveApplicationNumber()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeByte(liveSiteNumber);
-       dos.writeByte(liveApplicationNumber);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) liveSiteNumber);
+       dos.writeByte((byte) liveApplicationNumber);
     }
 }
 
@@ -124,16 +114,12 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        liveSiteNumber = (byte)dis.readUnsignedByte();
+        liveSiteNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        liveApplicationNumber = (byte)dis.readUnsignedByte();
+        liveApplicationNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -149,8 +135,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.put( (byte)liveSiteNumber);
-   byteBuffer.put( (byte)liveApplicationNumber);
+   byteBuffer.put((byte) liveSiteNumber);
+   byteBuffer.put((byte) liveApplicationNumber);
 }
 
 /**
@@ -165,18 +151,60 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute liveSiteNumber marked as not serialized
-        liveSiteNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute liveApplicationNumber marked as not serialized
-        liveApplicationNumber = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        liveSiteNumber = Byte.toUnsignedInt(byteBuffer.get());
+        liveApplicationNumber = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("liveSiteNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("liveApplicationNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.put(((Number) map.get("liveSiteNumber")).byteValue());
+    byteBuffer.put(((Number) map.get("liveApplicationNumber")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 1;  // liveSiteNumber
+    marshalSize += 1;  // liveApplicationNumber
+
+    return marshalSize;
 }
 
  /*

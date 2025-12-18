@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Emitter beams focused emissions from an electromagnetic or active acoustic transmitter. The beam is defined by the main lobe of the antenna pattern.
@@ -19,14 +21,17 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class EmitterBeam extends Object implements Serializable, Marshaller
 {
-   /** beamDataLength is an undescribed parameter... */
-   protected byte beamDataLength;
+   /** beamDataLength is an undescribed parameter...
+   Value space: uint8 */
+   protected int beamDataLength;
 
-   /** beamNumber is an undescribed parameter... */
-   protected byte beamNumber;
+   /** beamNumber is an undescribed parameter...
+   Value space: uint8 */
+   protected int beamNumber;
 
-   /** beamParameterIndex is an undescribed parameter... */
-   protected short beamParameterIndex;
+   /** beamParameterIndex is an undescribed parameter...
+   Value space: uint16 */
+   protected int beamParameterIndex;
 
    /** fundamentalParameterData is an undescribed parameter... */
    protected EEFundamentalParameterData  fundamentalParameterData = new EEFundamentalParameterData(); 
@@ -37,8 +42,9 @@ public class EmitterBeam extends Object implements Serializable, Marshaller
    /**  uid 78 */
    protected ElectromagneticEmissionBeamFunction beamFunction = ElectromagneticEmissionBeamFunction.values()[0];
 
-   /** numberOfTargets is an undescribed parameter... */
-   protected byte numberOfTargets;
+   /** numberOfTargets is an undescribed parameter...
+   Value space: uint8 */
+   protected int numberOfTargets;
 
    /**  uid 79 */
    protected HighDensityTrackJam highDensityTrackJam = HighDensityTrackJam.values()[0];
@@ -96,67 +102,52 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link EmitterBeam#beamDataLength}
-  * @param pBeamDataLength new value of interest
+  * @param pBeamDataLength new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized EmitterBeam setBeamDataLength(byte pBeamDataLength)
+public synchronized EmitterBeam setBeamDataLength(int pBeamDataLength)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pBeamDataLength >= 0 && pBeamDataLength <= 255, "Value outside valid value space");
     beamDataLength = pBeamDataLength;
-    return this;
-}
-/** Utility setter for {@link EmitterBeam#beamDataLength}
-  * @param pBeamDataLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EmitterBeam setBeamDataLength(int pBeamDataLength){
-    beamDataLength = (byte) pBeamDataLength;
     return this;
 }
 /** Getter for {@link EmitterBeam#beamDataLength}
   * @return value of interest */
-public byte getBeamDataLength()
+public int getBeamDataLength()
 {
     return beamDataLength; 
 }
 
 /** Setter for {@link EmitterBeam#beamNumber}
-  * @param pBeamNumber new value of interest
+  * @param pBeamNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized EmitterBeam setBeamNumber(byte pBeamNumber)
+public synchronized EmitterBeam setBeamNumber(int pBeamNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pBeamNumber >= 0 && pBeamNumber <= 255, "Value outside valid value space");
     beamNumber = pBeamNumber;
-    return this;
-}
-/** Utility setter for {@link EmitterBeam#beamNumber}
-  * @param pBeamNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EmitterBeam setBeamNumber(int pBeamNumber){
-    beamNumber = (byte) pBeamNumber;
     return this;
 }
 /** Getter for {@link EmitterBeam#beamNumber}
   * @return value of interest */
-public byte getBeamNumber()
+public int getBeamNumber()
 {
     return beamNumber; 
 }
 
 /** Setter for {@link EmitterBeam#beamParameterIndex}
-  * @param pBeamParameterIndex new value of interest
+  * @param pBeamParameterIndex new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized EmitterBeam setBeamParameterIndex(short pBeamParameterIndex)
+public synchronized EmitterBeam setBeamParameterIndex(int pBeamParameterIndex)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pBeamParameterIndex >= 0 && pBeamParameterIndex <= 65535, "Value outside valid value space");
     beamParameterIndex = pBeamParameterIndex;
-    return this;
-}
-/** Utility setter for {@link EmitterBeam#beamParameterIndex}
-  * @param pBeamParameterIndex new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EmitterBeam setBeamParameterIndex(int pBeamParameterIndex){
-    beamParameterIndex = (short) pBeamParameterIndex;
     return this;
 }
 /** Getter for {@link EmitterBeam#beamParameterIndex}
   * @return value of interest */
-public short getBeamParameterIndex()
+public int getBeamParameterIndex()
 {
     return beamParameterIndex; 
 }
@@ -279,11 +270,11 @@ public List<TrackJamData> getTrackJamData()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeByte(beamDataLength);
-       dos.writeByte(beamNumber);
-       dos.writeShort(beamParameterIndex);
+       dos.writeByte((byte) beamDataLength);
+       dos.writeByte((byte) beamNumber);
+       dos.writeShort((short) beamParameterIndex);
        fundamentalParameterData.marshal(dos);
        beamData.marshal(dos);
        beamFunction.marshal(dos);
@@ -299,10 +290,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        }
 
     }
-    catch(Exception e)
-    {
-      System.err.println(e);
-    }
 }
 
 /**
@@ -317,35 +304,31 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        beamDataLength = (byte)dis.readUnsignedByte();
+        beamDataLength = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        beamNumber = (byte)dis.readUnsignedByte();
+        beamNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        beamParameterIndex = (short)dis.readUnsignedShort();
+        beamParameterIndex = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += fundamentalParameterData.unmarshal(dis);
         uPosition += beamData.unmarshal(dis);
         beamFunction = ElectromagneticEmissionBeamFunction.unmarshalEnum(dis);
         uPosition += beamFunction.getMarshalledSize();
-        numberOfTargets = (byte)dis.readUnsignedByte();
+        numberOfTargets = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         highDensityTrackJam = HighDensityTrackJam.unmarshalEnum(dis);
         uPosition += highDensityTrackJam.getMarshalledSize();
         uPosition += beamStatus.unmarshal(dis);
         uPosition += jammingTechnique.unmarshal(dis);
-        for (int idx = 0; idx < numberOfTargets; idx++)
+        for (int idx = 0; idx < ((Number) numberOfTargets).intValue(); idx++)
         {
             TrackJamData anX = new TrackJamData();
             uPosition += anX.unmarshal(dis);
             trackJamData.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -361,9 +344,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.put( (byte)beamDataLength);
-   byteBuffer.put( (byte)beamNumber);
-   byteBuffer.putShort( (short)beamParameterIndex);
+   byteBuffer.put((byte) beamDataLength);
+   byteBuffer.put((byte) beamNumber);
+   byteBuffer.putShort((short) beamParameterIndex);
    fundamentalParameterData.marshal(byteBuffer);
    beamData.marshal(byteBuffer);
    beamFunction.marshal(byteBuffer);
@@ -392,42 +375,116 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute beamDataLength marked as not serialized
-        beamDataLength = (byte)(byteBuffer.get() & 0xFF);
-        // attribute beamNumber marked as not serialized
-        beamNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute beamParameterIndex marked as not serialized
-        beamParameterIndex = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute fundamentalParameterData marked as not serialized
+        beamDataLength = Byte.toUnsignedInt(byteBuffer.get());
+        beamNumber = Byte.toUnsignedInt(byteBuffer.get());
+        beamParameterIndex = Short.toUnsignedInt(byteBuffer.getShort());
         fundamentalParameterData.unmarshal(byteBuffer);
-        // attribute beamData marked as not serialized
         beamData.unmarshal(byteBuffer);
-        // attribute beamFunction marked as not serialized
         beamFunction = ElectromagneticEmissionBeamFunction.unmarshalEnum(byteBuffer);
-        // attribute numberOfTargets marked as not serialized
-        numberOfTargets = (byte)(byteBuffer.get() & 0xFF);
-        // attribute highDensityTrackJam marked as not serialized
+        numberOfTargets = Byte.toUnsignedInt(byteBuffer.get());
         highDensityTrackJam = HighDensityTrackJam.unmarshalEnum(byteBuffer);
-        // attribute beamStatus marked as not serialized
         beamStatus.unmarshal(byteBuffer);
-        // attribute jammingTechnique marked as not serialized
         jammingTechnique.unmarshal(byteBuffer);
-        // attribute trackJamData marked as not serialized
-        for (int idx = 0; idx < numberOfTargets; idx++)
+        for (int idx = 0; idx < ((Number) numberOfTargets).intValue(); idx++)
         {
-        TrackJamData anX = new TrackJamData();
-        anX.unmarshal(byteBuffer);
-        trackJamData.add(anX);
+            TrackJamData anX = new TrackJamData();
+            anX.unmarshal(byteBuffer);
+            trackJamData.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("beamDataLength", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("beamNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("beamParameterIndex", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("fundamentalParameterData", EEFundamentalParameterData.fromBufferToMap(byteBuffer));
+    map.put("beamData", BeamData.fromBufferToMap(byteBuffer));
+    map.put("beamFunction", ElectromagneticEmissionBeamFunction.unmarshalEnum(byteBuffer).getValue());
+    map.put("numberOfTargets", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("highDensityTrackJam", HighDensityTrackJam.unmarshalEnum(byteBuffer).getValue());
+    map.put("beamStatus", BeamStatus.fromBufferToMap(byteBuffer));
+    map.put("jammingTechnique", JammingTechnique.fromBufferToMap(byteBuffer));
+    List trackJamData = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfTargets")).intValue(); idx++)
+    {
+        trackJamData.add(TrackJamData.fromBufferToMap(byteBuffer));
+    }
+    map.put("trackJamData", trackJamData);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.put(((Number) map.get("beamDataLength")).byteValue());
+    byteBuffer.put(((Number) map.get("beamNumber")).byteValue());
+    byteBuffer.putShort(((Number) map.get("beamParameterIndex")).shortValue());
+    EEFundamentalParameterData.fromMapToBuffer((PduMap) map.get("fundamentalParameterData"), byteBuffer);
+    BeamData.fromMapToBuffer((PduMap) map.get("beamData"), byteBuffer);
+    ElectromagneticEmissionBeamFunction.getEnumForValue(((Number) map.get("beamFunction")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("numberOfTargets")).byteValue());
+    HighDensityTrackJam.getEnumForValue(((Number) map.get("highDensityTrackJam")).intValue()).marshal(byteBuffer);
+    BeamStatus.fromMapToBuffer((PduMap) map.get("beamStatus"), byteBuffer);
+    JammingTechnique.fromMapToBuffer((PduMap) map.get("jammingTechnique"), byteBuffer);
+
+    List trackJamData = (List) map.get("trackJamData");
+    for (int idx = 0; idx < ((Number) map.get("numberOfTargets")).intValue(); idx++)
+    {
+        TrackJamData.fromMapToBuffer((PduMap) trackJamData.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 1;  // beamDataLength
+    marshalSize += 1;  // beamNumber
+    marshalSize += 2;  // beamParameterIndex
+    marshalSize += EEFundamentalParameterData.getMarshalledSize((PduMap) map.get("fundamentalParameterData"));
+    marshalSize += BeamData.getMarshalledSize((PduMap) map.get("beamData"));
+    marshalSize += ElectromagneticEmissionBeamFunction.getEnumForValue(((Number) map.get("beamFunction")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // numberOfTargets
+    marshalSize += HighDensityTrackJam.getEnumForValue(((Number) map.get("highDensityTrackJam")).intValue()).getMarshalledSize();
+    marshalSize += BeamStatus.getMarshalledSize((PduMap) map.get("beamStatus"));
+    marshalSize += JammingTechnique.getMarshalledSize((PduMap) map.get("jammingTechnique"));
+    List trackJamData = (List) map.get("trackJamData");
+    for (int idx = 0; idx < ((Number) map.get("numberOfTargets")).intValue(); idx++)
+        marshalSize += TrackJamData.getMarshalledSize((PduMap) trackJamData.get(idx));
+
+    return marshalSize;
 }
 
  /*

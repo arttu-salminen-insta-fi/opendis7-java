@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * DE Precision Aimpoint Record. Section 6.2.20.2
@@ -19,20 +21,25 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class DirectedEnergyAreaAimpoint extends Object implements Serializable, Marshaller
 {
-   /** Type of Record enumeration */
-   protected int recordType = (int)4001;
+   /** Type of Record enumeration 
+   Value space: uint32 */
+   protected UnsignedInteger recordType = UnsignedInteger.valueOf(4001);
 
-   /** Length of Record */
-   protected short recordLength;
+   /** Length of Record 
+   Value space: uint16 */
+   protected int recordLength;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding = (short)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding = (int) 0;
 
-   /** Number of beam antenna pattern records */
-   protected short beamAntennaPatternRecordCount = (short)0;
+   /** Number of beam antenna pattern records 
+   Value space: uint16 */
+   protected int beamAntennaPatternRecordCount = (int) 0;
 
-   /** Number of DE target energy depositon records */
-   protected short directedEnergyTargetEnergyDepositionRecordCount = (short)0;
+   /** Number of DE target energy depositon records 
+   Value space: uint16 */
+   protected int directedEnergyTargetEnergyDepositionRecordCount = (int) 0;
 
    /** list of beam antenna records. See 6.2.9.2 */
    protected List< BeamAntennaPattern > beamAntennaParameterList = new ArrayList<>();
@@ -85,60 +92,50 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link DirectedEnergyAreaAimpoint#recordType}
-  * @param pRecordType new value of interest
+  * @param pRecordType new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyAreaAimpoint setRecordType(int pRecordType)
+public synchronized DirectedEnergyAreaAimpoint setRecordType(UnsignedInteger pRecordType)
 {
     recordType = pRecordType;
     return this;
 }
 /** Getter for {@link DirectedEnergyAreaAimpoint#recordType}
   * @return value of interest */
-public int getRecordType()
+public UnsignedInteger getRecordType()
 {
     return recordType; 
 }
 
 /** Setter for {@link DirectedEnergyAreaAimpoint#recordLength}
-  * @param pRecordLength new value of interest
+  * @param pRecordLength new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyAreaAimpoint setRecordLength(short pRecordLength)
+public synchronized DirectedEnergyAreaAimpoint setRecordLength(int pRecordLength)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pRecordLength >= 0 && pRecordLength <= 65535, "Value outside valid value space");
     recordLength = pRecordLength;
-    return this;
-}
-/** Utility setter for {@link DirectedEnergyAreaAimpoint#recordLength}
-  * @param pRecordLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DirectedEnergyAreaAimpoint setRecordLength(int pRecordLength){
-    recordLength = (short) pRecordLength;
     return this;
 }
 /** Getter for {@link DirectedEnergyAreaAimpoint#recordLength}
   * @return value of interest */
-public short getRecordLength()
+public int getRecordLength()
 {
     return recordLength; 
 }
 
 /** Setter for {@link DirectedEnergyAreaAimpoint#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyAreaAimpoint setPadding(short pPadding)
+public synchronized DirectedEnergyAreaAimpoint setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link DirectedEnergyAreaAimpoint#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DirectedEnergyAreaAimpoint setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link DirectedEnergyAreaAimpoint#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -182,11 +179,11 @@ public List<DirectedEnergyTargetEnergyDeposition> getDirectedEnergyTargetEnergyD
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeInt(recordType);
-       dos.writeShort(recordLength);
-       dos.writeShort(padding);
+       dos.writeInt(recordType.intValue());
+       dos.writeShort((short) recordLength);
+       dos.writeShort((short) padding);
        dos.writeShort(beamAntennaParameterList.size());
        dos.writeShort(directedEnergyTargetEnergyDepositionRecordList.size());
 
@@ -205,10 +202,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 
        padding2 = new byte[Align.to64bits(dos)];
     }
-    catch(Exception e)
-    {
-      System.err.println(e);
-    }
 }
 
 /**
@@ -223,26 +216,26 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        recordType = dis.readInt();
+        recordType = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        recordLength = (short)dis.readUnsignedShort();
+        recordLength = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        beamAntennaPatternRecordCount = (short)dis.readUnsignedShort();
+        beamAntennaPatternRecordCount = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        directedEnergyTargetEnergyDepositionRecordCount = (short)dis.readUnsignedShort();
+        directedEnergyTargetEnergyDepositionRecordCount = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < beamAntennaPatternRecordCount; idx++)
+        for (int idx = 0; idx < ((Number) beamAntennaPatternRecordCount).intValue(); idx++)
         {
             BeamAntennaPattern anX = new BeamAntennaPattern();
             uPosition += anX.unmarshal(dis);
             beamAntennaParameterList.add(anX);
         }
 
-        for (int idx = 0; idx < directedEnergyTargetEnergyDepositionRecordCount; idx++)
+        for (int idx = 0; idx < ((Number) directedEnergyTargetEnergyDepositionRecordCount).intValue(); idx++)
         {
             DirectedEnergyTargetEnergyDeposition anX = new DirectedEnergyTargetEnergyDeposition();
             uPosition += anX.unmarshal(dis);
@@ -251,10 +244,6 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 
         padding2 = new byte[Align.from64bits(uPosition,dis)];
         uPosition += padding2.length;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -270,9 +259,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putInt( (int)recordType);
-   byteBuffer.putShort( (short)recordLength);
-   byteBuffer.putShort( (short)padding);
+   byteBuffer.putInt(recordType.intValue());
+   byteBuffer.putShort((short) recordLength);
+   byteBuffer.putShort((short) padding);
    byteBuffer.putShort( (short)beamAntennaParameterList.size());
    byteBuffer.putShort( (short)directedEnergyTargetEnergyDepositionRecordList.size());
 
@@ -304,42 +293,124 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute recordType marked as not serialized
-        recordType = byteBuffer.getInt();
-        // attribute recordLength marked as not serialized
-        recordLength = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute beamAntennaPatternRecordCount marked as not serialized
-        beamAntennaPatternRecordCount = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute directedEnergyTargetEnergyDepositionRecordCount marked as not serialized
-        directedEnergyTargetEnergyDepositionRecordCount = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute beamAntennaParameterList marked as not serialized
-        for (int idx = 0; idx < beamAntennaPatternRecordCount; idx++)
+        recordType = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        recordLength = Short.toUnsignedInt(byteBuffer.getShort());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
+        beamAntennaPatternRecordCount = Short.toUnsignedInt(byteBuffer.getShort());
+        directedEnergyTargetEnergyDepositionRecordCount = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) beamAntennaPatternRecordCount).intValue(); idx++)
         {
-        BeamAntennaPattern anX = new BeamAntennaPattern();
-        anX.unmarshal(byteBuffer);
-        beamAntennaParameterList.add(anX);
+            BeamAntennaPattern anX = new BeamAntennaPattern();
+            anX.unmarshal(byteBuffer);
+            beamAntennaParameterList.add(anX);
         }
 
-        // attribute directedEnergyTargetEnergyDepositionRecordList marked as not serialized
-        for (int idx = 0; idx < directedEnergyTargetEnergyDepositionRecordCount; idx++)
+        for (int idx = 0; idx < ((Number) directedEnergyTargetEnergyDepositionRecordCount).intValue(); idx++)
         {
-        DirectedEnergyTargetEnergyDeposition anX = new DirectedEnergyTargetEnergyDeposition();
-        anX.unmarshal(byteBuffer);
-        directedEnergyTargetEnergyDepositionRecordList.add(anX);
+            DirectedEnergyTargetEnergyDeposition anX = new DirectedEnergyTargetEnergyDeposition();
+            anX.unmarshal(byteBuffer);
+            directedEnergyTargetEnergyDepositionRecordList.add(anX);
         }
 
-        // attribute padding2 marked as not serialized
         padding2 = new byte[Align.from64bits(byteBuffer)];
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("recordType", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("recordLength", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("beamAntennaPatternRecordCount", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("directedEnergyTargetEnergyDepositionRecordCount", Short.toUnsignedInt(byteBuffer.getShort()));
+    List beamAntennaParameterList = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("beamAntennaPatternRecordCount")).intValue(); idx++)
+    {
+        beamAntennaParameterList.add(BeamAntennaPattern.fromBufferToMap(byteBuffer));
+    }
+    map.put("beamAntennaParameterList", beamAntennaParameterList);
+
+    List directedEnergyTargetEnergyDepositionRecordList = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("directedEnergyTargetEnergyDepositionRecordCount")).intValue(); idx++)
+    {
+        directedEnergyTargetEnergyDepositionRecordList.add(DirectedEnergyTargetEnergyDeposition.fromBufferToMap(byteBuffer));
+    }
+    map.put("directedEnergyTargetEnergyDepositionRecordList", directedEnergyTargetEnergyDepositionRecordList);
+
+    map.put("padding2", new byte[Align.from64bits(byteBuffer)]);
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putInt(((Number) map.get("recordType")).intValue());
+    byteBuffer.putShort(((Number) map.get("recordLength")).shortValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+    byteBuffer.putShort(((Number) map.get("beamAntennaPatternRecordCount")).shortValue());
+    byteBuffer.putShort(((Number) map.get("directedEnergyTargetEnergyDepositionRecordCount")).shortValue());
+
+    List beamAntennaParameterList = (List) map.get("beamAntennaParameterList");
+    for (int idx = 0; idx < ((Number) map.get("beamAntennaPatternRecordCount")).intValue(); idx++)
+    {
+        BeamAntennaPattern.fromMapToBuffer((PduMap) beamAntennaParameterList.get(idx), byteBuffer);
+    }
+
+
+    List directedEnergyTargetEnergyDepositionRecordList = (List) map.get("directedEnergyTargetEnergyDepositionRecordList");
+    for (int idx = 0; idx < ((Number) map.get("directedEnergyTargetEnergyDepositionRecordCount")).intValue(); idx++)
+    {
+        DirectedEnergyTargetEnergyDeposition.fromMapToBuffer((PduMap) directedEnergyTargetEnergyDepositionRecordList.get(idx), byteBuffer);
+    }
+
+    byte[] padding2 = new byte[Align.to64bits(byteBuffer)];
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // recordType
+    marshalSize += 2;  // recordLength
+    marshalSize += 2;  // padding
+    marshalSize += 2;  // beamAntennaPatternRecordCount
+    marshalSize += 2;  // directedEnergyTargetEnergyDepositionRecordCount
+    List beamAntennaParameterList = (List) map.get("beamAntennaParameterList");
+    for (int idx = 0; idx < ((Number) map.get("beamAntennaPatternRecordCount")).intValue(); idx++)
+        marshalSize += BeamAntennaPattern.getMarshalledSize((PduMap) beamAntennaParameterList.get(idx));
+    List directedEnergyTargetEnergyDepositionRecordList = (List) map.get("directedEnergyTargetEnergyDepositionRecordList");
+    for (int idx = 0; idx < ((Number) map.get("directedEnergyTargetEnergyDepositionRecordCount")).intValue(); idx++)
+        marshalSize += DirectedEnergyTargetEnergyDeposition.getMarshalledSize((PduMap) directedEnergyTargetEnergyDepositionRecordList.get(idx));
+    marshalSize += ((byte[]) map.get("padding2")).length;
+
+    return marshalSize;
 }
 
  /*

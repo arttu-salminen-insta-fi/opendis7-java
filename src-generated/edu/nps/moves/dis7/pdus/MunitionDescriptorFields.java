@@ -12,31 +12,32 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
- * Represents the firing or detonation of a munition. Section 6.2.19.2
+ * Represents the firing or detonation of a munition records specific fields. Section 6.2.19.2
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class MunitionDescriptor extends Object implements Serializable, Marshaller
+public class MunitionDescriptorFields extends Object implements Serializable, Marshaller
 {
-   /** What munition was used in the burst */
-   protected EntityType  munitionType = new EntityType(); 
-
    /** type of warhead enumeration uid 60 */
    protected MunitionDescriptorWarhead warhead = MunitionDescriptorWarhead.values()[0];
 
    /** type of fuse used enumeration uid 61 */
    protected MunitionDescriptorFuse fuse = MunitionDescriptorFuse.values()[0];
 
-   /** how many of the munition were fired */
-   protected short quantity;
+   /** how many of the munition were fired 
+   Value space: uint16 */
+   protected int quantity;
 
-   /** rate at which the munition was fired */
-   protected short rate;
+   /** rate at which the munition was fired 
+   Value space: uint16 */
+   protected int rate;
 
 
 /** Constructor creates and configures a new instance object */
- public MunitionDescriptor()
+ public MunitionDescriptorFields()
  {
  }
 
@@ -50,8 +51,6 @@ public synchronized int getMarshalledSize()
 {
    int marshalSize = 0; 
 
-   if (munitionType != null)
-       marshalSize += munitionType.getMarshalledSize();
    if (warhead != null)
        marshalSize += warhead.getMarshalledSize();
    if (fuse != null)
@@ -63,92 +62,66 @@ public synchronized int getMarshalledSize()
 }
 
 
-/** Setter for {@link MunitionDescriptor#munitionType}
-  * @param pMunitionType new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MunitionDescriptor setMunitionType(EntityType pMunitionType)
-{
-    munitionType = pMunitionType;
-    return this;
-}
-/** Getter for {@link MunitionDescriptor#munitionType}
-  * @return value of interest */
-public EntityType getMunitionType()
-{
-    return munitionType;
-}
-
-
-/** Setter for {@link MunitionDescriptor#warhead}
+/** Setter for {@link MunitionDescriptorFields#warhead}
   * @param pWarhead new value of interest
   * @return same object to permit progressive setters */
-public synchronized MunitionDescriptor setWarhead(MunitionDescriptorWarhead pWarhead)
+public synchronized MunitionDescriptorFields setWarhead(MunitionDescriptorWarhead pWarhead)
 {
     warhead = pWarhead;
     return this;
 }
-/** Getter for {@link MunitionDescriptor#warhead}
+/** Getter for {@link MunitionDescriptorFields#warhead}
   * @return value of interest */
 public MunitionDescriptorWarhead getWarhead()
 {
     return warhead; 
 }
 
-/** Setter for {@link MunitionDescriptor#fuse}
+/** Setter for {@link MunitionDescriptorFields#fuse}
   * @param pFuse new value of interest
   * @return same object to permit progressive setters */
-public synchronized MunitionDescriptor setFuse(MunitionDescriptorFuse pFuse)
+public synchronized MunitionDescriptorFields setFuse(MunitionDescriptorFuse pFuse)
 {
     fuse = pFuse;
     return this;
 }
-/** Getter for {@link MunitionDescriptor#fuse}
+/** Getter for {@link MunitionDescriptorFields#fuse}
   * @return value of interest */
 public MunitionDescriptorFuse getFuse()
 {
     return fuse; 
 }
 
-/** Setter for {@link MunitionDescriptor#quantity}
-  * @param pQuantity new value of interest
+/** Setter for {@link MunitionDescriptorFields#quantity}
+  * @param pQuantity new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized MunitionDescriptor setQuantity(short pQuantity)
+public synchronized MunitionDescriptorFields setQuantity(int pQuantity)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pQuantity >= 0 && pQuantity <= 65535, "Value outside valid value space");
     quantity = pQuantity;
     return this;
 }
-/** Utility setter for {@link MunitionDescriptor#quantity}
-  * @param pQuantity new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MunitionDescriptor setQuantity(int pQuantity){
-    quantity = (short) pQuantity;
-    return this;
-}
-/** Getter for {@link MunitionDescriptor#quantity}
+/** Getter for {@link MunitionDescriptorFields#quantity}
   * @return value of interest */
-public short getQuantity()
+public int getQuantity()
 {
     return quantity; 
 }
 
-/** Setter for {@link MunitionDescriptor#rate}
-  * @param pRate new value of interest
+/** Setter for {@link MunitionDescriptorFields#rate}
+  * @param pRate new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized MunitionDescriptor setRate(short pRate)
+public synchronized MunitionDescriptorFields setRate(int pRate)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pRate >= 0 && pRate <= 65535, "Value outside valid value space");
     rate = pRate;
     return this;
 }
-/** Utility setter for {@link MunitionDescriptor#rate}
-  * @param pRate new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MunitionDescriptor setRate(int pRate){
-    rate = (short) pRate;
-    return this;
-}
-/** Getter for {@link MunitionDescriptor#rate}
+/** Getter for {@link MunitionDescriptorFields#rate}
   * @return value of interest */
-public short getRate()
+public int getRate()
 {
     return rate; 
 }
@@ -162,17 +135,12 @@ public short getRate()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       munitionType.marshal(dos);
        warhead.marshal(dos);
        fuse.marshal(dos);
-       dos.writeShort(quantity);
-       dos.writeShort(rate);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) quantity);
+       dos.writeShort((short) rate);
     }
 }
 
@@ -188,21 +156,16 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        uPosition += munitionType.unmarshal(dis);
         warhead = MunitionDescriptorWarhead.unmarshalEnum(dis);
         uPosition += warhead.getMarshalledSize();
         fuse = MunitionDescriptorFuse.unmarshalEnum(dis);
         uPosition += fuse.getMarshalledSize();
-        quantity = (short)dis.readUnsignedShort();
+        quantity = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        rate = (short)dis.readUnsignedShort();
+        rate = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -218,11 +181,10 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   munitionType.marshal(byteBuffer);
    warhead.marshal(byteBuffer);
    fuse.marshal(byteBuffer);
-   byteBuffer.putShort( (short)quantity);
-   byteBuffer.putShort( (short)rate);
+   byteBuffer.putShort((short) quantity);
+   byteBuffer.putShort((short) rate);
 }
 
 /**
@@ -237,24 +199,68 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute munitionType marked as not serialized
-        munitionType.unmarshal(byteBuffer);
-        // attribute warhead marked as not serialized
         warhead = MunitionDescriptorWarhead.unmarshalEnum(byteBuffer);
-        // attribute fuse marked as not serialized
         fuse = MunitionDescriptorFuse.unmarshalEnum(byteBuffer);
-        // attribute quantity marked as not serialized
-        quantity = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute rate marked as not serialized
-        rate = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        quantity = Short.toUnsignedInt(byteBuffer.getShort());
+        rate = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("warhead", MunitionDescriptorWarhead.unmarshalEnum(byteBuffer).getValue());
+    map.put("fuse", MunitionDescriptorFuse.unmarshalEnum(byteBuffer).getValue());
+    map.put("quantity", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("rate", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    MunitionDescriptorWarhead.getEnumForValue(((Number) map.get("warhead")).intValue()).marshal(byteBuffer);
+    MunitionDescriptorFuse.getEnumForValue(((Number) map.get("fuse")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("quantity")).shortValue());
+    byteBuffer.putShort(((Number) map.get("rate")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += MunitionDescriptorWarhead.getEnumForValue(((Number) map.get("warhead")).intValue()).getMarshalledSize();
+    marshalSize += MunitionDescriptorFuse.getEnumForValue(((Number) map.get("fuse")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // quantity
+    marshalSize += 2;  // rate
+
+    return marshalSize;
 }
 
  /*
@@ -283,9 +289,8 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
   */
  public synchronized boolean equalsImpl(Object obj)
  {
-     final MunitionDescriptor rhs = (MunitionDescriptor)obj;
+     final MunitionDescriptorFields rhs = (MunitionDescriptorFields)obj;
 
-     if( ! Objects.equals(munitionType, rhs.munitionType) ) return false;
      if( ! (warhead == rhs.warhead)) return false;
      if( ! (fuse == rhs.fuse)) return false;
      if( ! (quantity == rhs.quantity)) return false;
@@ -299,7 +304,6 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
     sb.append(getClass().getSimpleName());
-    sb.append(" munitionType:").append(munitionType); // writeOneToString
     sb.append(" warhead:").append(warhead); // writeOneToString
     sb.append(" fuse:").append(fuse); // writeOneToString
     sb.append(" quantity:").append(quantity); // writeOneToString
@@ -311,10 +315,9 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  @Override
  public int hashCode()
  {
-	 return Objects.hash(this.munitionType,
-	                     this.warhead,
+	 return Objects.hash(this.warhead,
 	                     this.fuse,
 	                     this.quantity,
 	                     this.rate);
  }
-} // end of MunitionDescriptor
+} // end of MunitionDescriptorFields

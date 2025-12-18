@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * The unique designation of an environmental object. Section 6.2.64
@@ -25,11 +27,13 @@ public class ObjectType extends Object implements Serializable, Marshaller
    /** country to which the design of the entity is attributed uid 225 */
    protected ObjectKind objectKind = ObjectKind.values()[0];
 
-   /** category of entity */
-   protected byte category;
+   /** category of entity 
+   Value space: uint8 */
+   protected int category;
 
-   /** subcategory of entity */
-   protected byte subCategory;
+   /** subcategory of entity 
+   Value space: uint8 */
+   protected int subCategory;
 
 
 /** Constructor creates and configures a new instance object */
@@ -89,45 +93,35 @@ public ObjectKind getObjectKind()
 }
 
 /** Setter for {@link ObjectType#category}
-  * @param pCategory new value of interest
+  * @param pCategory new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized ObjectType setCategory(byte pCategory)
+public synchronized ObjectType setCategory(int pCategory)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pCategory >= 0 && pCategory <= 255, "Value outside valid value space");
     category = pCategory;
-    return this;
-}
-/** Utility setter for {@link ObjectType#category}
-  * @param pCategory new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ObjectType setCategory(int pCategory){
-    category = (byte) pCategory;
     return this;
 }
 /** Getter for {@link ObjectType#category}
   * @return value of interest */
-public byte getCategory()
+public int getCategory()
 {
     return category; 
 }
 
 /** Setter for {@link ObjectType#subCategory}
-  * @param pSubCategory new value of interest
+  * @param pSubCategory new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized ObjectType setSubCategory(byte pSubCategory)
+public synchronized ObjectType setSubCategory(int pSubCategory)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSubCategory >= 0 && pSubCategory <= 255, "Value outside valid value space");
     subCategory = pSubCategory;
-    return this;
-}
-/** Utility setter for {@link ObjectType#subCategory}
-  * @param pSubCategory new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ObjectType setSubCategory(int pSubCategory){
-    subCategory = (byte) pSubCategory;
     return this;
 }
 /** Getter for {@link ObjectType#subCategory}
   * @return value of interest */
-public byte getSubCategory()
+public int getSubCategory()
 {
     return subCategory; 
 }
@@ -141,16 +135,12 @@ public byte getSubCategory()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        domain.marshal(dos);
        objectKind.marshal(dos);
-       dos.writeByte(category);
-       dos.writeByte(subCategory);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) category);
+       dos.writeByte((byte) subCategory);
     }
 }
 
@@ -166,20 +156,16 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         domain = PlatformDomain.unmarshalEnum(dis);
         uPosition += domain.getMarshalledSize();
         objectKind = ObjectKind.unmarshalEnum(dis);
         uPosition += objectKind.getMarshalledSize();
-        category = (byte)dis.readUnsignedByte();
+        category = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        subCategory = (byte)dis.readUnsignedByte();
+        subCategory = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -197,8 +183,8 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    domain.marshal(byteBuffer);
    objectKind.marshal(byteBuffer);
-   byteBuffer.put( (byte)category);
-   byteBuffer.put( (byte)subCategory);
+   byteBuffer.put((byte) category);
+   byteBuffer.put((byte) subCategory);
 }
 
 /**
@@ -213,22 +199,68 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute domain marked as not serialized
         domain = PlatformDomain.unmarshalEnum(byteBuffer);
-        // attribute objectKind marked as not serialized
         objectKind = ObjectKind.unmarshalEnum(byteBuffer);
-        // attribute category marked as not serialized
-        category = (byte)(byteBuffer.get() & 0xFF);
-        // attribute subCategory marked as not serialized
-        subCategory = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        category = Byte.toUnsignedInt(byteBuffer.get());
+        subCategory = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("domain", PlatformDomain.unmarshalEnum(byteBuffer).getValue());
+    map.put("objectKind", ObjectKind.unmarshalEnum(byteBuffer).getValue());
+    map.put("category", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("subCategory", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PlatformDomain.getEnumForValue(((Number) map.get("domain")).intValue()).marshal(byteBuffer);
+    ObjectKind.getEnumForValue(((Number) map.get("objectKind")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("category")).byteValue());
+    byteBuffer.put(((Number) map.get("subCategory")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += PlatformDomain.getEnumForValue(((Number) map.get("domain")).intValue()).getMarshalledSize();
+    marshalSize += ObjectKind.getEnumForValue(((Number) map.get("objectKind")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // category
+    marshalSize += 1;  // subCategory
+
+    return marshalSize;
 }
 
  /*

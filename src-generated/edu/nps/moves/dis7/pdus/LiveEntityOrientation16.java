@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * 16-bit fixed binaries
@@ -19,14 +21,17 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class LiveEntityOrientation16 extends Object implements Serializable, Marshaller
 {
-   /** psi is an undescribed parameter... */
-   protected short psi;
+   /** psi is an undescribed parameter...
+   Value space: uint16 */
+   protected int psi;
 
-   /** theta is an undescribed parameter... */
-   protected short theta;
+   /** theta is an undescribed parameter...
+   Value space: uint16 */
+   protected int theta;
 
-   /** phi is an undescribed parameter... */
-   protected short phi;
+   /** phi is an undescribed parameter...
+   Value space: uint16 */
+   protected int phi;
 
 
 /** Constructor creates and configures a new instance object */
@@ -53,67 +58,52 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link LiveEntityOrientation16#psi}
-  * @param pPsi new value of interest
+  * @param pPsi new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LiveEntityOrientation16 setPsi(short pPsi)
+public synchronized LiveEntityOrientation16 setPsi(int pPsi)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPsi >= 0 && pPsi <= 65535, "Value outside valid value space");
     psi = pPsi;
-    return this;
-}
-/** Utility setter for {@link LiveEntityOrientation16#psi}
-  * @param pPsi new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveEntityOrientation16 setPsi(int pPsi){
-    psi = (short) pPsi;
     return this;
 }
 /** Getter for {@link LiveEntityOrientation16#psi}
   * @return value of interest */
-public short getPsi()
+public int getPsi()
 {
     return psi; 
 }
 
 /** Setter for {@link LiveEntityOrientation16#theta}
-  * @param pTheta new value of interest
+  * @param pTheta new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LiveEntityOrientation16 setTheta(short pTheta)
+public synchronized LiveEntityOrientation16 setTheta(int pTheta)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pTheta >= 0 && pTheta <= 65535, "Value outside valid value space");
     theta = pTheta;
-    return this;
-}
-/** Utility setter for {@link LiveEntityOrientation16#theta}
-  * @param pTheta new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveEntityOrientation16 setTheta(int pTheta){
-    theta = (short) pTheta;
     return this;
 }
 /** Getter for {@link LiveEntityOrientation16#theta}
   * @return value of interest */
-public short getTheta()
+public int getTheta()
 {
     return theta; 
 }
 
 /** Setter for {@link LiveEntityOrientation16#phi}
-  * @param pPhi new value of interest
+  * @param pPhi new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LiveEntityOrientation16 setPhi(short pPhi)
+public synchronized LiveEntityOrientation16 setPhi(int pPhi)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPhi >= 0 && pPhi <= 65535, "Value outside valid value space");
     phi = pPhi;
-    return this;
-}
-/** Utility setter for {@link LiveEntityOrientation16#phi}
-  * @param pPhi new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveEntityOrientation16 setPhi(int pPhi){
-    phi = (short) pPhi;
     return this;
 }
 /** Getter for {@link LiveEntityOrientation16#phi}
   * @return value of interest */
-public short getPhi()
+public int getPhi()
 {
     return phi; 
 }
@@ -127,15 +117,11 @@ public short getPhi()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(psi);
-       dos.writeShort(theta);
-       dos.writeShort(phi);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) psi);
+       dos.writeShort((short) theta);
+       dos.writeShort((short) phi);
     }
 }
 
@@ -151,18 +137,14 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        psi = (short)dis.readUnsignedShort();
+        psi = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        theta = (short)dis.readUnsignedShort();
+        theta = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        phi = (short)dis.readUnsignedShort();
+        phi = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -178,9 +160,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)psi);
-   byteBuffer.putShort( (short)theta);
-   byteBuffer.putShort( (short)phi);
+   byteBuffer.putShort((short) psi);
+   byteBuffer.putShort((short) theta);
+   byteBuffer.putShort((short) phi);
 }
 
 /**
@@ -195,20 +177,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute psi marked as not serialized
-        psi = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute theta marked as not serialized
-        theta = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute phi marked as not serialized
-        phi = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        psi = Short.toUnsignedInt(byteBuffer.getShort());
+        theta = Short.toUnsignedInt(byteBuffer.getShort());
+        phi = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("psi", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("theta", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("phi", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("psi")).shortValue());
+    byteBuffer.putShort(((Number) map.get("theta")).shortValue());
+    byteBuffer.putShort(((Number) map.get("phi")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // psi
+    marshalSize += 2;  // theta
+    marshalSize += 2;  // phi
+
+    return marshalSize;
 }
 
  /*

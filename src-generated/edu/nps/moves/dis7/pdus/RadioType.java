@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Identifies the type of radio. Section 6.2.71
@@ -22,8 +24,9 @@ public class RadioType extends Object implements Serializable, Marshaller
    /** Kind of entity uid 7 */
    protected EntityKind entityKind = EntityKind.RADIO;
 
-   /** Domain of entity (air, surface, subsurface, space, etc.) */
-   protected byte domain;
+   /** Domain of entity (air, surface, subsurface, space, etc.) 
+   Value space: uint8 */
+   protected int domain;
 
    /** country to which the design of the entity is attributed uid 29 */
    protected Country country = Country.values()[0];
@@ -34,11 +37,13 @@ public class RadioType extends Object implements Serializable, Marshaller
    /** specific info based on subcategory field uid 23 */
    protected RadioSubcategory subcategory = RadioSubcategory.values()[0];
 
-   /** specific is an undescribed parameter... */
-   protected byte specific;
+   /** specific is an undescribed parameter...
+   Value space: uint8 */
+   protected int specific;
 
-   /** extra is an undescribed parameter... */
-   protected byte extra;
+   /** extra is an undescribed parameter...
+   Value space: uint8 */
+   protected int extra;
 
 
 /** Constructor creates and configures a new instance object */
@@ -88,23 +93,18 @@ public EntityKind getEntityKind()
 }
 
 /** Setter for {@link RadioType#domain}
-  * @param pDomain new value of interest
+  * @param pDomain new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized RadioType setDomain(byte pDomain)
+public synchronized RadioType setDomain(int pDomain)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pDomain >= 0 && pDomain <= 255, "Value outside valid value space");
     domain = pDomain;
-    return this;
-}
-/** Utility setter for {@link RadioType#domain}
-  * @param pDomain new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RadioType setDomain(int pDomain){
-    domain = (byte) pDomain;
     return this;
 }
 /** Getter for {@link RadioType#domain}
   * @return value of interest */
-public byte getDomain()
+public int getDomain()
 {
     return domain; 
 }
@@ -155,45 +155,35 @@ public RadioSubcategory getSubcategory()
 }
 
 /** Setter for {@link RadioType#specific}
-  * @param pSpecific new value of interest
+  * @param pSpecific new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized RadioType setSpecific(byte pSpecific)
+public synchronized RadioType setSpecific(int pSpecific)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSpecific >= 0 && pSpecific <= 255, "Value outside valid value space");
     specific = pSpecific;
-    return this;
-}
-/** Utility setter for {@link RadioType#specific}
-  * @param pSpecific new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RadioType setSpecific(int pSpecific){
-    specific = (byte) pSpecific;
     return this;
 }
 /** Getter for {@link RadioType#specific}
   * @return value of interest */
-public byte getSpecific()
+public int getSpecific()
 {
     return specific; 
 }
 
 /** Setter for {@link RadioType#extra}
-  * @param pExtra new value of interest
+  * @param pExtra new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized RadioType setExtra(byte pExtra)
+public synchronized RadioType setExtra(int pExtra)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pExtra >= 0 && pExtra <= 255, "Value outside valid value space");
     extra = pExtra;
-    return this;
-}
-/** Utility setter for {@link RadioType#extra}
-  * @param pExtra new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RadioType setExtra(int pExtra){
-    extra = (byte) pExtra;
     return this;
 }
 /** Getter for {@link RadioType#extra}
   * @return value of interest */
-public byte getExtra()
+public int getExtra()
 {
     return extra; 
 }
@@ -207,19 +197,15 @@ public byte getExtra()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        entityKind.marshal(dos);
-       dos.writeByte(domain);
+       dos.writeByte((byte) domain);
        country.marshal(dos);
        category.marshal(dos);
        subcategory.marshal(dos);
-       dos.writeByte(specific);
-       dos.writeByte(extra);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) specific);
+       dos.writeByte((byte) extra);
     }
 }
 
@@ -235,11 +221,11 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         entityKind = EntityKind.unmarshalEnum(dis);
         uPosition += entityKind.getMarshalledSize();
-        domain = (byte)dis.readUnsignedByte();
+        domain = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         country = Country.unmarshalEnum(dis);
         uPosition += country.getMarshalledSize();
@@ -247,14 +233,10 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += category.getMarshalledSize();
         subcategory = RadioSubcategory.unmarshalEnum(dis);
         uPosition += subcategory.getMarshalledSize();
-        specific = (byte)dis.readUnsignedByte();
+        specific = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        extra = (byte)dis.readUnsignedByte();
+        extra = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -271,12 +253,12 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    entityKind.marshal(byteBuffer);
-   byteBuffer.put( (byte)domain);
+   byteBuffer.put((byte) domain);
    country.marshal(byteBuffer);
    category.marshal(byteBuffer);
    subcategory.marshal(byteBuffer);
-   byteBuffer.put( (byte)specific);
-   byteBuffer.put( (byte)extra);
+   byteBuffer.put((byte) specific);
+   byteBuffer.put((byte) extra);
 }
 
 /**
@@ -291,28 +273,80 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute entityKind marked as not serialized
         entityKind = EntityKind.unmarshalEnum(byteBuffer);
-        // attribute domain marked as not serialized
-        domain = (byte)(byteBuffer.get() & 0xFF);
-        // attribute country marked as not serialized
+        domain = Byte.toUnsignedInt(byteBuffer.get());
         country = Country.unmarshalEnum(byteBuffer);
-        // attribute category marked as not serialized
         category = RadioCategory.unmarshalEnum(byteBuffer);
-        // attribute subcategory marked as not serialized
         subcategory = RadioSubcategory.unmarshalEnum(byteBuffer);
-        // attribute specific marked as not serialized
-        specific = (byte)(byteBuffer.get() & 0xFF);
-        // attribute extra marked as not serialized
-        extra = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        specific = Byte.toUnsignedInt(byteBuffer.get());
+        extra = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("entityKind", EntityKind.unmarshalEnum(byteBuffer).getValue());
+    map.put("domain", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("country", Country.unmarshalEnum(byteBuffer).getValue());
+    map.put("category", RadioCategory.unmarshalEnum(byteBuffer).getValue());
+    map.put("subcategory", RadioSubcategory.unmarshalEnum(byteBuffer).getValue());
+    map.put("specific", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("extra", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityKind.getEnumForValue(((Number) map.get("entityKind")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("domain")).byteValue());
+    Country.getEnumForValue(((Number) map.get("country")).intValue()).marshal(byteBuffer);
+    RadioCategory.getEnumForValue(((Number) map.get("category")).intValue()).marshal(byteBuffer);
+    RadioSubcategory.getEnumForValue(((Number) map.get("subcategory")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("specific")).byteValue());
+    byteBuffer.put(((Number) map.get("extra")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityKind.getEnumForValue(((Number) map.get("entityKind")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // domain
+    marshalSize += Country.getEnumForValue(((Number) map.get("country")).intValue()).getMarshalledSize();
+    marshalSize += RadioCategory.getEnumForValue(((Number) map.get("category")).intValue()).getMarshalledSize();
+    marshalSize += RadioSubcategory.getEnumForValue(((Number) map.get("subcategory")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // specific
+    marshalSize += 1;  // extra
+
+    return marshalSize;
 }
 
  /*

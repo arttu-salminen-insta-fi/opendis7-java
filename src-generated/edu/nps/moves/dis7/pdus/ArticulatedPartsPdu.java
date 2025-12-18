@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -27,8 +29,9 @@ public class ArticulatedPartsPdu extends LiveEntityFamilyPdu implements Serializ
    /** liveEntityId is an undescribed parameter... */
    protected EntityID  liveEntityId = new EntityID(); 
 
-   /** numberOfParameterRecords is an undescribed parameter... */
-   protected byte numberOfParameterRecords;
+   /** numberOfParameterRecords is an undescribed parameter...
+   Value space: uint8 */
+   protected int numberOfParameterRecords;
 
    /** variableParameters is an undescribed parameter... */
    protected List< VariableParameter > variableParameters = new ArrayList<>();
@@ -168,7 +171,7 @@ public List<VariableParameter> getVariableParameters()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        liveEntityId.marshal(dos);
        dos.writeByte(variableParameters.size());
@@ -179,10 +182,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aVariableParameter.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -200,22 +199,18 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += liveEntityId.unmarshal(dis);
-        numberOfParameterRecords = (byte)dis.readUnsignedByte();
+        numberOfParameterRecords = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        for (int idx = 0; idx < numberOfParameterRecords; idx++)
+        for (int idx = 0; idx < ((Number) numberOfParameterRecords).intValue(); idx++)
         {
             VariableParameter anX = new VariableParameter();
             uPosition += anX.unmarshal(dis);
             variableParameters.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -257,26 +252,86 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute liveEntityId marked as not serialized
         liveEntityId.unmarshal(byteBuffer);
-        // attribute numberOfParameterRecords marked as not serialized
-        numberOfParameterRecords = (byte)(byteBuffer.get() & 0xFF);
-        // attribute variableParameters marked as not serialized
-        for (int idx = 0; idx < numberOfParameterRecords; idx++)
+        numberOfParameterRecords = Byte.toUnsignedInt(byteBuffer.get());
+        for (int idx = 0; idx < ((Number) numberOfParameterRecords).intValue(); idx++)
         {
-        VariableParameter anX = new VariableParameter();
-        anX.unmarshal(byteBuffer);
-        variableParameters.add(anX);
+            VariableParameter anX = new VariableParameter();
+            anX.unmarshal(byteBuffer);
+            variableParameters.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = LiveEntityFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("liveEntityId", EntityID.fromBufferToMap(byteBuffer));
+    map.put("numberOfParameterRecords", Byte.toUnsignedInt(byteBuffer.get()));
+    List variableParameters = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfParameterRecords")).intValue(); idx++)
+    {
+        variableParameters.add(VariableParameter.fromBufferToMap(byteBuffer));
+    }
+    map.put("variableParameters", variableParameters);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    LiveEntityFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("liveEntityId"), byteBuffer);
+    byteBuffer.put(((Number) map.get("numberOfParameterRecords")).byteValue());
+
+    List variableParameters = (List) map.get("variableParameters");
+    for (int idx = 0; idx < ((Number) map.get("numberOfParameterRecords")).intValue(); idx++)
+    {
+        VariableParameter.fromMapToBuffer((PduMap) variableParameters.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += LiveEntityFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("liveEntityId"));
+    marshalSize += 1;  // numberOfParameterRecords
+    List variableParameters = (List) map.get("variableParameters");
+    for (int idx = 0; idx < ((Number) map.get("numberOfParameterRecords")).intValue(); idx++)
+        marshalSize += VariableParameter.getMarshalledSize((PduMap) variableParameters.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -312,7 +367,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" liveEntityId:").append(liveEntityId); // writeOneToString
     sb.append(" variableParameters: ");
     variableParameters.forEach(r->{ sb2.append(" ").append(r);}); // writeList

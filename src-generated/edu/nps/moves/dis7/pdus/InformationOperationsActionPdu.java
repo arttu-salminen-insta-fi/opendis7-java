@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -27,8 +29,9 @@ public class InformationOperationsActionPdu extends InformationOperationsFamilyP
    /** the simulation to which this PDU is addressed */
    protected EntityID  receivingSimID = new EntityID(); 
 
-   /** request ID provides a unique identifier */
-   protected int requestID;
+   /** request ID provides a unique identifier 
+   Value space: uint32 */
+   protected UnsignedInteger requestID = UnsignedInteger.ZERO;
 
    /**  uid 285 */
    protected IOActionIOWarfareType IOWarfareType = IOActionIOWarfareType.values()[0];
@@ -42,8 +45,9 @@ public class InformationOperationsActionPdu extends InformationOperationsFamilyP
    /**  uid 288 */
    protected IOActionIOActionPhase IOActionPhase = IOActionIOActionPhase.values()[0];
 
-   /** padding1 is an undescribed parameter... */
-   protected int padding1;
+   /** padding1 is an undescribed parameter...
+   Value space: uint32 */
+   protected UnsignedInteger padding1 = UnsignedInteger.ZERO;
 
    /** ioAttackerID is an undescribed parameter... */
    protected EntityID  ioAttackerID = new EntityID(); 
@@ -51,11 +55,13 @@ public class InformationOperationsActionPdu extends InformationOperationsFamilyP
    /** ioPrimaryTargetID is an undescribed parameter... */
    protected EntityID  ioPrimaryTargetID = new EntityID(); 
 
-   /** padding2 is an undescribed parameter... */
-   protected short padding2;
+   /** padding2 is an undescribed parameter...
+   Value space: uint16 */
+   protected int padding2;
 
-   /** numberOfIORecords is an undescribed parameter... */
-   protected short numberOfIORecords;
+   /** numberOfIORecords is an undescribed parameter...
+   Value space: uint16 */
+   protected int numberOfIORecords;
 
    /** ioRecords is an undescribed parameter... */
    protected List< IORecord > ioRecords = new ArrayList<>();
@@ -186,16 +192,16 @@ public EntityID getReceivingSimID()
 
 
 /** Setter for {@link InformationOperationsActionPdu#requestID}
-  * @param pRequestID new value of interest
+  * @param pRequestID new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized InformationOperationsActionPdu setRequestID(int pRequestID)
+public synchronized InformationOperationsActionPdu setRequestID(UnsignedInteger pRequestID)
 {
     requestID = pRequestID;
     return this;
 }
 /** Getter for {@link InformationOperationsActionPdu#requestID}
   * @return value of interest */
-public int getRequestID()
+public UnsignedInteger getRequestID()
 {
     return requestID; 
 }
@@ -261,16 +267,16 @@ public IOActionIOActionPhase getIOActionPhase()
 }
 
 /** Setter for {@link InformationOperationsActionPdu#padding1}
-  * @param pPadding1 new value of interest
+  * @param pPadding1 new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized InformationOperationsActionPdu setPadding1(int pPadding1)
+public synchronized InformationOperationsActionPdu setPadding1(UnsignedInteger pPadding1)
 {
     padding1 = pPadding1;
     return this;
 }
 /** Getter for {@link InformationOperationsActionPdu#padding1}
   * @return value of interest */
-public int getPadding1()
+public UnsignedInteger getPadding1()
 {
     return padding1; 
 }
@@ -308,23 +314,18 @@ public EntityID getIoPrimaryTargetID()
 
 
 /** Setter for {@link InformationOperationsActionPdu#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized InformationOperationsActionPdu setPadding2(short pPadding2)
+public synchronized InformationOperationsActionPdu setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 65535, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link InformationOperationsActionPdu#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized InformationOperationsActionPdu setPadding2(int pPadding2){
-    padding2 = (short) pPadding2;
     return this;
 }
 /** Getter for {@link InformationOperationsActionPdu#padding2}
   * @return value of interest */
-public short getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
@@ -354,18 +355,18 @@ public List<IORecord> getIoRecords()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        receivingSimID.marshal(dos);
-       dos.writeInt(requestID);
+       dos.writeInt(requestID.intValue());
        IOWarfareType.marshal(dos);
        IOSimulationSource.marshal(dos);
        IOActionType.marshal(dos);
        IOActionPhase.marshal(dos);
-       dos.writeInt(padding1);
+       dos.writeInt(padding1.intValue());
        ioAttackerID.marshal(dos);
        ioPrimaryTargetID.marshal(dos);
-       dos.writeShort(padding2);
+       dos.writeShort((short) padding2);
        dos.writeShort(ioRecords.size());
 
        for (int idx = 0; idx < ioRecords.size(); idx++)
@@ -374,10 +375,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aIORecord.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -395,10 +392,10 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += receivingSimID.unmarshal(dis);
-        requestID = dis.readInt();
+        requestID = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         IOWarfareType = IOActionIOWarfareType.unmarshalEnum(dis);
         uPosition += IOWarfareType.getMarshalledSize();
@@ -408,25 +405,21 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += IOActionType.getMarshalledSize();
         IOActionPhase = IOActionIOActionPhase.unmarshalEnum(dis);
         uPosition += IOActionPhase.getMarshalledSize();
-        padding1 = dis.readInt();
+        padding1 = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         uPosition += ioAttackerID.unmarshal(dis);
         uPosition += ioPrimaryTargetID.unmarshal(dis);
-        padding2 = (short)dis.readUnsignedShort();
+        padding2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        numberOfIORecords = (short)dis.readUnsignedShort();
+        numberOfIORecords = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < numberOfIORecords; idx++)
+        for (int idx = 0; idx < ((Number) numberOfIORecords).intValue(); idx++)
         {
             IORecord anX = new IORecord();
             uPosition += anX.unmarshal(dis);
             ioRecords.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -444,15 +437,15 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    receivingSimID.marshal(byteBuffer);
-   byteBuffer.putInt( (int)requestID);
+   byteBuffer.putInt(requestID.intValue());
    IOWarfareType.marshal(byteBuffer);
    IOSimulationSource.marshal(byteBuffer);
    IOActionType.marshal(byteBuffer);
    IOActionPhase.marshal(byteBuffer);
-   byteBuffer.putInt( (int)padding1);
+   byteBuffer.putInt(padding1.intValue());
    ioAttackerID.marshal(byteBuffer);
    ioPrimaryTargetID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)padding2);
+   byteBuffer.putShort((short) padding2);
    byteBuffer.putShort( (short)ioRecords.size());
 
    for (int idx = 0; idx < ioRecords.size(); idx++)
@@ -477,44 +470,122 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute receivingSimID marked as not serialized
         receivingSimID.unmarshal(byteBuffer);
-        // attribute requestID marked as not serialized
-        requestID = byteBuffer.getInt();
-        // attribute IOWarfareType marked as not serialized
+        requestID = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         IOWarfareType = IOActionIOWarfareType.unmarshalEnum(byteBuffer);
-        // attribute IOSimulationSource marked as not serialized
         IOSimulationSource = IOActionIOSimulationSource.unmarshalEnum(byteBuffer);
-        // attribute IOActionType marked as not serialized
         IOActionType = IOActionIOActionType.unmarshalEnum(byteBuffer);
-        // attribute IOActionPhase marked as not serialized
         IOActionPhase = IOActionIOActionPhase.unmarshalEnum(byteBuffer);
-        // attribute padding1 marked as not serialized
-        padding1 = byteBuffer.getInt();
-        // attribute ioAttackerID marked as not serialized
+        padding1 = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         ioAttackerID.unmarshal(byteBuffer);
-        // attribute ioPrimaryTargetID marked as not serialized
         ioPrimaryTargetID.unmarshal(byteBuffer);
-        // attribute padding2 marked as not serialized
-        padding2 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute numberOfIORecords marked as not serialized
-        numberOfIORecords = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute ioRecords marked as not serialized
-        for (int idx = 0; idx < numberOfIORecords; idx++)
+        padding2 = Short.toUnsignedInt(byteBuffer.getShort());
+        numberOfIORecords = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) numberOfIORecords).intValue(); idx++)
         {
-        IORecord anX = new IORecord();
-        anX.unmarshal(byteBuffer);
-        ioRecords.add(anX);
+            IORecord anX = new IORecord();
+            anX.unmarshal(byteBuffer);
+            ioRecords.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = InformationOperationsFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("receivingSimID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("requestID", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("IOWarfareType", IOActionIOWarfareType.unmarshalEnum(byteBuffer).getValue());
+    map.put("IOSimulationSource", IOActionIOSimulationSource.unmarshalEnum(byteBuffer).getValue());
+    map.put("IOActionType", IOActionIOActionType.unmarshalEnum(byteBuffer).getValue());
+    map.put("IOActionPhase", IOActionIOActionPhase.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding1", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("ioAttackerID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("ioPrimaryTargetID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("numberOfIORecords", Short.toUnsignedInt(byteBuffer.getShort()));
+    List ioRecords = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfIORecords")).intValue(); idx++)
+    {
+        ioRecords.add(IORecord.fromBufferToMap(byteBuffer));
+    }
+    map.put("ioRecords", ioRecords);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    InformationOperationsFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("receivingSimID"), byteBuffer);
+    byteBuffer.putInt(((Number) map.get("requestID")).intValue());
+    IOActionIOWarfareType.getEnumForValue(((Number) map.get("IOWarfareType")).intValue()).marshal(byteBuffer);
+    IOActionIOSimulationSource.getEnumForValue(((Number) map.get("IOSimulationSource")).intValue()).marshal(byteBuffer);
+    IOActionIOActionType.getEnumForValue(((Number) map.get("IOActionType")).intValue()).marshal(byteBuffer);
+    IOActionIOActionPhase.getEnumForValue(((Number) map.get("IOActionPhase")).intValue()).marshal(byteBuffer);
+    byteBuffer.putInt(((Number) map.get("padding1")).intValue());
+    EntityID.fromMapToBuffer((PduMap) map.get("ioAttackerID"), byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("ioPrimaryTargetID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+    byteBuffer.putShort(((Number) map.get("numberOfIORecords")).shortValue());
+
+    List ioRecords = (List) map.get("ioRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfIORecords")).intValue(); idx++)
+    {
+        IORecord.fromMapToBuffer((PduMap) ioRecords.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += InformationOperationsFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("receivingSimID"));
+    marshalSize += 4;  // requestID
+    marshalSize += IOActionIOWarfareType.getEnumForValue(((Number) map.get("IOWarfareType")).intValue()).getMarshalledSize();
+    marshalSize += IOActionIOSimulationSource.getEnumForValue(((Number) map.get("IOSimulationSource")).intValue()).getMarshalledSize();
+    marshalSize += IOActionIOActionType.getEnumForValue(((Number) map.get("IOActionType")).intValue()).getMarshalledSize();
+    marshalSize += IOActionIOActionPhase.getEnumForValue(((Number) map.get("IOActionPhase")).intValue()).getMarshalledSize();
+    marshalSize += 4;  // padding1
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("ioAttackerID"));
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("ioPrimaryTargetID"));
+    marshalSize += 2;  // padding2
+    marshalSize += 2;  // numberOfIORecords
+    List ioRecords = (List) map.get("ioRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfIORecords")).intValue(); idx++)
+        marshalSize += IORecord.getMarshalledSize((PduMap) ioRecords.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -559,7 +630,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" receivingSimID:").append(receivingSimID); // writeOneToString
     sb.append(" requestID:").append(requestID); // writeOneToString
     sb.append(" IOWarfareType:").append(IOWarfareType); // writeOneToString

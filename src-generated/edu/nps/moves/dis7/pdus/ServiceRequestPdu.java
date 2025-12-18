@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -33,11 +35,13 @@ public class ServiceRequestPdu extends LogisticsFamilyPdu implements Serializabl
    /** Type of service requested, Section 7.4.2 uid 63 */
    protected ServiceRequestServiceTypeRequested serviceTypeRequested = ServiceRequestServiceTypeRequested.values()[0];
 
-   /** How many requested, Section 7.4.2 */
-   protected byte numberOfSupplyTypes;
+   /** How many requested, Section 7.4.2 
+   Value space: uint8 */
+   protected int numberOfSupplyTypes;
 
-   /** padding1 is an undescribed parameter... */
-   protected short padding1 = (short)0;
+   /** padding1 is an undescribed parameter...
+   Value space: uint16 */
+   protected int padding1 = (int) 0;
 
    /** supplies is an undescribed parameter... */
    protected List< SupplyQuantity > supplies = new ArrayList<>();
@@ -189,23 +193,18 @@ public ServiceRequestServiceTypeRequested getServiceTypeRequested()
 }
 
 /** Setter for {@link ServiceRequestPdu#padding1}
-  * @param pPadding1 new value of interest
+  * @param pPadding1 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized ServiceRequestPdu setPadding1(short pPadding1)
+public synchronized ServiceRequestPdu setPadding1(int pPadding1)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 65535, "Value outside valid value space");
     padding1 = pPadding1;
-    return this;
-}
-/** Utility setter for {@link ServiceRequestPdu#padding1}
-  * @param pPadding1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ServiceRequestPdu setPadding1(int pPadding1){
-    padding1 = (short) pPadding1;
     return this;
 }
 /** Getter for {@link ServiceRequestPdu#padding1}
   * @return value of interest */
-public short getPadding1()
+public int getPadding1()
 {
     return padding1; 
 }
@@ -235,13 +234,13 @@ public List<SupplyQuantity> getSupplies()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        requestingEntityID.marshal(dos);
        servicingEntityID.marshal(dos);
        serviceTypeRequested.marshal(dos);
        dos.writeByte(supplies.size());
-       dos.writeShort(padding1);
+       dos.writeShort((short) padding1);
 
        for (int idx = 0; idx < supplies.size(); idx++)
        {
@@ -249,10 +248,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aSupplyQuantity.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -270,27 +265,23 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += requestingEntityID.unmarshal(dis);
         uPosition += servicingEntityID.unmarshal(dis);
         serviceTypeRequested = ServiceRequestServiceTypeRequested.unmarshalEnum(dis);
         uPosition += serviceTypeRequested.getMarshalledSize();
-        numberOfSupplyTypes = (byte)dis.readUnsignedByte();
+        numberOfSupplyTypes = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding1 = (short)dis.readUnsignedShort();
+        padding1 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < numberOfSupplyTypes; idx++)
+        for (int idx = 0; idx < ((Number) numberOfSupplyTypes).intValue(); idx++)
         {
             SupplyQuantity anX = new SupplyQuantity();
             uPosition += anX.unmarshal(dis);
             supplies.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -311,7 +302,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    servicingEntityID.marshal(byteBuffer);
    serviceTypeRequested.marshal(byteBuffer);
    byteBuffer.put( (byte)supplies.size());
-   byteBuffer.putShort( (short)padding1);
+   byteBuffer.putShort((short) padding1);
 
    for (int idx = 0; idx < supplies.size(); idx++)
    {
@@ -335,32 +326,98 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute requestingEntityID marked as not serialized
         requestingEntityID.unmarshal(byteBuffer);
-        // attribute servicingEntityID marked as not serialized
         servicingEntityID.unmarshal(byteBuffer);
-        // attribute serviceTypeRequested marked as not serialized
         serviceTypeRequested = ServiceRequestServiceTypeRequested.unmarshalEnum(byteBuffer);
-        // attribute numberOfSupplyTypes marked as not serialized
-        numberOfSupplyTypes = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding1 marked as not serialized
-        padding1 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute supplies marked as not serialized
-        for (int idx = 0; idx < numberOfSupplyTypes; idx++)
+        numberOfSupplyTypes = Byte.toUnsignedInt(byteBuffer.get());
+        padding1 = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) numberOfSupplyTypes).intValue(); idx++)
         {
-        SupplyQuantity anX = new SupplyQuantity();
-        anX.unmarshal(byteBuffer);
-        supplies.add(anX);
+            SupplyQuantity anX = new SupplyQuantity();
+            anX.unmarshal(byteBuffer);
+            supplies.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = LogisticsFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("requestingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("servicingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("serviceTypeRequested", ServiceRequestServiceTypeRequested.unmarshalEnum(byteBuffer).getValue());
+    map.put("numberOfSupplyTypes", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding1", Short.toUnsignedInt(byteBuffer.getShort()));
+    List supplies = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfSupplyTypes")).intValue(); idx++)
+    {
+        supplies.add(SupplyQuantity.fromBufferToMap(byteBuffer));
+    }
+    map.put("supplies", supplies);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    LogisticsFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("requestingEntityID"), byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("servicingEntityID"), byteBuffer);
+    ServiceRequestServiceTypeRequested.getEnumForValue(((Number) map.get("serviceTypeRequested")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("numberOfSupplyTypes")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding1")).shortValue());
+
+    List supplies = (List) map.get("supplies");
+    for (int idx = 0; idx < ((Number) map.get("numberOfSupplyTypes")).intValue(); idx++)
+    {
+        SupplyQuantity.fromMapToBuffer((PduMap) supplies.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += LogisticsFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("requestingEntityID"));
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("servicingEntityID"));
+    marshalSize += ServiceRequestServiceTypeRequested.getEnumForValue(((Number) map.get("serviceTypeRequested")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // numberOfSupplyTypes
+    marshalSize += 2;  // padding1
+    List supplies = (List) map.get("supplies");
+    for (int idx = 0; idx < ((Number) map.get("numberOfSupplyTypes")).intValue(); idx++)
+        marshalSize += SupplyQuantity.getMarshalledSize((PduMap) supplies.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -399,7 +456,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" requestingEntityID:").append(requestingEntityID); // writeOneToString
     sb.append(" servicingEntityID:").append(servicingEntityID); // writeOneToString
     sb.append(" serviceTypeRequested:").append(serviceTypeRequested); // writeOneToString

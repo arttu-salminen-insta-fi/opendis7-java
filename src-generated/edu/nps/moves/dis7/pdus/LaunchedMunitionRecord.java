@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Identity of a communications node. Section 6.2.50
@@ -22,20 +24,23 @@ public class LaunchedMunitionRecord extends Object implements Serializable, Mars
    /** fireEventID is an undescribed parameter... */
    protected EventIdentifier  fireEventID = new EventIdentifier(); 
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding;
 
    /** firingEntityID is an undescribed parameter... */
    protected EntityID  firingEntityID = new EntityID(); 
 
-   /** padding2 is an undescribed parameter... */
-   protected short padding2;
+   /** padding2 is an undescribed parameter...
+   Value space: uint16 */
+   protected int padding2;
 
    /** targetEntityID is an undescribed parameter... */
    protected EntityID  targetEntityID = new EntityID(); 
 
-   /** padding3 is an undescribed parameter... */
-   protected short padding3;
+   /** padding3 is an undescribed parameter...
+   Value space: uint16 */
+   protected int padding3;
 
    /** targetLocation is an undescribed parameter... */
    protected Vector3Double  targetLocation = new Vector3Double(); 
@@ -89,23 +94,18 @@ public EventIdentifier getFireEventID()
 
 
 /** Setter for {@link LaunchedMunitionRecord#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LaunchedMunitionRecord setPadding(short pPadding)
+public synchronized LaunchedMunitionRecord setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link LaunchedMunitionRecord#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LaunchedMunitionRecord setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link LaunchedMunitionRecord#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -127,23 +127,18 @@ public EntityID getFiringEntityID()
 
 
 /** Setter for {@link LaunchedMunitionRecord#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LaunchedMunitionRecord setPadding2(short pPadding2)
+public synchronized LaunchedMunitionRecord setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 65535, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link LaunchedMunitionRecord#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LaunchedMunitionRecord setPadding2(int pPadding2){
-    padding2 = (short) pPadding2;
     return this;
 }
 /** Getter for {@link LaunchedMunitionRecord#padding2}
   * @return value of interest */
-public short getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
@@ -165,23 +160,18 @@ public EntityID getTargetEntityID()
 
 
 /** Setter for {@link LaunchedMunitionRecord#padding3}
-  * @param pPadding3 new value of interest
+  * @param pPadding3 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LaunchedMunitionRecord setPadding3(short pPadding3)
+public synchronized LaunchedMunitionRecord setPadding3(int pPadding3)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding3 >= 0 && pPadding3 <= 65535, "Value outside valid value space");
     padding3 = pPadding3;
-    return this;
-}
-/** Utility setter for {@link LaunchedMunitionRecord#padding3}
-  * @param pPadding3 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LaunchedMunitionRecord setPadding3(int pPadding3){
-    padding3 = (short) pPadding3;
     return this;
 }
 /** Getter for {@link LaunchedMunitionRecord#padding3}
   * @return value of interest */
-public short getPadding3()
+public int getPadding3()
 {
     return padding3; 
 }
@@ -211,19 +201,15 @@ public Vector3Double getTargetLocation()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        fireEventID.marshal(dos);
-       dos.writeShort(padding);
+       dos.writeShort((short) padding);
        firingEntityID.marshal(dos);
-       dos.writeShort(padding2);
+       dos.writeShort((short) padding2);
        targetEntityID.marshal(dos);
-       dos.writeShort(padding3);
+       dos.writeShort((short) padding3);
        targetLocation.marshal(dos);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -239,22 +225,18 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         uPosition += fireEventID.unmarshal(dis);
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += firingEntityID.unmarshal(dis);
-        padding2 = (short)dis.readUnsignedShort();
+        padding2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += targetEntityID.unmarshal(dis);
-        padding3 = (short)dis.readUnsignedShort();
+        padding3 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += targetLocation.unmarshal(dis);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -271,11 +253,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    fireEventID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)padding);
+   byteBuffer.putShort((short) padding);
    firingEntityID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)padding2);
+   byteBuffer.putShort((short) padding2);
    targetEntityID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)padding3);
+   byteBuffer.putShort((short) padding3);
    targetLocation.marshal(byteBuffer);
 }
 
@@ -291,28 +273,80 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute fireEventID marked as not serialized
         fireEventID.unmarshal(byteBuffer);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute firingEntityID marked as not serialized
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
         firingEntityID.unmarshal(byteBuffer);
-        // attribute padding2 marked as not serialized
-        padding2 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute targetEntityID marked as not serialized
+        padding2 = Short.toUnsignedInt(byteBuffer.getShort());
         targetEntityID.unmarshal(byteBuffer);
-        // attribute padding3 marked as not serialized
-        padding3 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute targetLocation marked as not serialized
+        padding3 = Short.toUnsignedInt(byteBuffer.getShort());
         targetLocation.unmarshal(byteBuffer);
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("fireEventID", EventIdentifier.fromBufferToMap(byteBuffer));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("firingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("targetEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("padding3", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("targetLocation", Vector3Double.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EventIdentifier.fromMapToBuffer((PduMap) map.get("fireEventID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+    EntityID.fromMapToBuffer((PduMap) map.get("firingEntityID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+    EntityID.fromMapToBuffer((PduMap) map.get("targetEntityID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("padding3")).shortValue());
+    Vector3Double.fromMapToBuffer((PduMap) map.get("targetLocation"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EventIdentifier.getMarshalledSize((PduMap) map.get("fireEventID"));
+    marshalSize += 2;  // padding
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("firingEntityID"));
+    marshalSize += 2;  // padding2
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("targetEntityID"));
+    marshalSize += 2;  // padding3
+    marshalSize += Vector3Double.getMarshalledSize((PduMap) map.get("targetLocation"));
+
+    return marshalSize;
 }
 
  /*

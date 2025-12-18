@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -27,20 +29,25 @@ public class SEESPdu extends DistributedEmissionsRegenerationFamilyPdu implement
    /** Originating entity ID provides a unique identifier */
    protected EntityID  orginatingEntityID = new EntityID(); 
 
-   /** IR Signature representation index */
-   protected short infraredSignatureRepresentationIndex;
+   /** IR Signature representation index 
+   Value space: uint16 */
+   protected int infraredSignatureRepresentationIndex;
 
-   /** acoustic Signature representation index */
-   protected short acousticSignatureRepresentationIndex;
+   /** acoustic Signature representation index 
+   Value space: uint16 */
+   protected int acousticSignatureRepresentationIndex;
 
-   /** radar cross section representation index */
-   protected short radarCrossSectionSignatureRepresentationIndex;
+   /** radar cross section representation index 
+   Value space: uint16 */
+   protected int radarCrossSectionSignatureRepresentationIndex;
 
-   /** how many propulsion systems */
-   protected short numberOfPropulsionSystems;
+   /** how many propulsion systems 
+   Value space: uint16 */
+   protected int numberOfPropulsionSystems;
 
-   /** how many vectoring nozzle systems */
-   protected short numberOfVectoringNozzleSystems;
+   /** how many vectoring nozzle systems 
+   Value space: uint16 */
+   protected int numberOfVectoringNozzleSystems;
 
    /** variable length list of propulsion system data */
    protected List< PropulsionSystemData > propulsionSystemData = new ArrayList<>();
@@ -169,67 +176,52 @@ public EntityID getOrginatingEntityID()
 
 
 /** Setter for {@link SEESPdu#infraredSignatureRepresentationIndex}
-  * @param pInfraredSignatureRepresentationIndex new value of interest
+  * @param pInfraredSignatureRepresentationIndex new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized SEESPdu setInfraredSignatureRepresentationIndex(short pInfraredSignatureRepresentationIndex)
+public synchronized SEESPdu setInfraredSignatureRepresentationIndex(int pInfraredSignatureRepresentationIndex)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pInfraredSignatureRepresentationIndex >= 0 && pInfraredSignatureRepresentationIndex <= 65535, "Value outside valid value space");
     infraredSignatureRepresentationIndex = pInfraredSignatureRepresentationIndex;
-    return this;
-}
-/** Utility setter for {@link SEESPdu#infraredSignatureRepresentationIndex}
-  * @param pInfraredSignatureRepresentationIndex new value of interest
-  * @return same object to permit progressive setters */
-public synchronized SEESPdu setInfraredSignatureRepresentationIndex(int pInfraredSignatureRepresentationIndex){
-    infraredSignatureRepresentationIndex = (short) pInfraredSignatureRepresentationIndex;
     return this;
 }
 /** Getter for {@link SEESPdu#infraredSignatureRepresentationIndex}
   * @return value of interest */
-public short getInfraredSignatureRepresentationIndex()
+public int getInfraredSignatureRepresentationIndex()
 {
     return infraredSignatureRepresentationIndex; 
 }
 
 /** Setter for {@link SEESPdu#acousticSignatureRepresentationIndex}
-  * @param pAcousticSignatureRepresentationIndex new value of interest
+  * @param pAcousticSignatureRepresentationIndex new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized SEESPdu setAcousticSignatureRepresentationIndex(short pAcousticSignatureRepresentationIndex)
+public synchronized SEESPdu setAcousticSignatureRepresentationIndex(int pAcousticSignatureRepresentationIndex)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pAcousticSignatureRepresentationIndex >= 0 && pAcousticSignatureRepresentationIndex <= 65535, "Value outside valid value space");
     acousticSignatureRepresentationIndex = pAcousticSignatureRepresentationIndex;
-    return this;
-}
-/** Utility setter for {@link SEESPdu#acousticSignatureRepresentationIndex}
-  * @param pAcousticSignatureRepresentationIndex new value of interest
-  * @return same object to permit progressive setters */
-public synchronized SEESPdu setAcousticSignatureRepresentationIndex(int pAcousticSignatureRepresentationIndex){
-    acousticSignatureRepresentationIndex = (short) pAcousticSignatureRepresentationIndex;
     return this;
 }
 /** Getter for {@link SEESPdu#acousticSignatureRepresentationIndex}
   * @return value of interest */
-public short getAcousticSignatureRepresentationIndex()
+public int getAcousticSignatureRepresentationIndex()
 {
     return acousticSignatureRepresentationIndex; 
 }
 
 /** Setter for {@link SEESPdu#radarCrossSectionSignatureRepresentationIndex}
-  * @param pRadarCrossSectionSignatureRepresentationIndex new value of interest
+  * @param pRadarCrossSectionSignatureRepresentationIndex new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized SEESPdu setRadarCrossSectionSignatureRepresentationIndex(short pRadarCrossSectionSignatureRepresentationIndex)
+public synchronized SEESPdu setRadarCrossSectionSignatureRepresentationIndex(int pRadarCrossSectionSignatureRepresentationIndex)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pRadarCrossSectionSignatureRepresentationIndex >= 0 && pRadarCrossSectionSignatureRepresentationIndex <= 65535, "Value outside valid value space");
     radarCrossSectionSignatureRepresentationIndex = pRadarCrossSectionSignatureRepresentationIndex;
-    return this;
-}
-/** Utility setter for {@link SEESPdu#radarCrossSectionSignatureRepresentationIndex}
-  * @param pRadarCrossSectionSignatureRepresentationIndex new value of interest
-  * @return same object to permit progressive setters */
-public synchronized SEESPdu setRadarCrossSectionSignatureRepresentationIndex(int pRadarCrossSectionSignatureRepresentationIndex){
-    radarCrossSectionSignatureRepresentationIndex = (short) pRadarCrossSectionSignatureRepresentationIndex;
     return this;
 }
 /** Getter for {@link SEESPdu#radarCrossSectionSignatureRepresentationIndex}
   * @return value of interest */
-public short getRadarCrossSectionSignatureRepresentationIndex()
+public int getRadarCrossSectionSignatureRepresentationIndex()
 {
     return radarCrossSectionSignatureRepresentationIndex; 
 }
@@ -274,12 +266,12 @@ public List<VectoringNozzleSystem> getVectoringSystemData()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        orginatingEntityID.marshal(dos);
-       dos.writeShort(infraredSignatureRepresentationIndex);
-       dos.writeShort(acousticSignatureRepresentationIndex);
-       dos.writeShort(radarCrossSectionSignatureRepresentationIndex);
+       dos.writeShort((short) infraredSignatureRepresentationIndex);
+       dos.writeShort((short) acousticSignatureRepresentationIndex);
+       dos.writeShort((short) radarCrossSectionSignatureRepresentationIndex);
        dos.writeShort(propulsionSystemData.size());
        dos.writeShort(vectoringSystemData.size());
 
@@ -297,10 +289,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        }
 
     }
-    catch(Exception e)
-    {
-      System.err.println(e);
-    }
 }
 
 /**
@@ -317,37 +305,33 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += orginatingEntityID.unmarshal(dis);
-        infraredSignatureRepresentationIndex = (short)dis.readUnsignedShort();
+        infraredSignatureRepresentationIndex = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        acousticSignatureRepresentationIndex = (short)dis.readUnsignedShort();
+        acousticSignatureRepresentationIndex = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        radarCrossSectionSignatureRepresentationIndex = (short)dis.readUnsignedShort();
+        radarCrossSectionSignatureRepresentationIndex = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        numberOfPropulsionSystems = (short)dis.readUnsignedShort();
+        numberOfPropulsionSystems = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        numberOfVectoringNozzleSystems = (short)dis.readUnsignedShort();
+        numberOfVectoringNozzleSystems = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < numberOfPropulsionSystems; idx++)
+        for (int idx = 0; idx < ((Number) numberOfPropulsionSystems).intValue(); idx++)
         {
             PropulsionSystemData anX = new PropulsionSystemData();
             uPosition += anX.unmarshal(dis);
             propulsionSystemData.add(anX);
         }
 
-        for (int idx = 0; idx < numberOfVectoringNozzleSystems; idx++)
+        for (int idx = 0; idx < ((Number) numberOfVectoringNozzleSystems).intValue(); idx++)
         {
             VectoringNozzleSystem anX = new VectoringNozzleSystem();
             uPosition += anX.unmarshal(dis);
             vectoringSystemData.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -365,9 +349,9 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    orginatingEntityID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)infraredSignatureRepresentationIndex);
-   byteBuffer.putShort( (short)acousticSignatureRepresentationIndex);
-   byteBuffer.putShort( (short)radarCrossSectionSignatureRepresentationIndex);
+   byteBuffer.putShort((short) infraredSignatureRepresentationIndex);
+   byteBuffer.putShort((short) acousticSignatureRepresentationIndex);
+   byteBuffer.putShort((short) radarCrossSectionSignatureRepresentationIndex);
    byteBuffer.putShort( (short)propulsionSystemData.size());
    byteBuffer.putShort( (short)vectoringSystemData.size());
 
@@ -400,42 +384,126 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute orginatingEntityID marked as not serialized
         orginatingEntityID.unmarshal(byteBuffer);
-        // attribute infraredSignatureRepresentationIndex marked as not serialized
-        infraredSignatureRepresentationIndex = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute acousticSignatureRepresentationIndex marked as not serialized
-        acousticSignatureRepresentationIndex = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute radarCrossSectionSignatureRepresentationIndex marked as not serialized
-        radarCrossSectionSignatureRepresentationIndex = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute numberOfPropulsionSystems marked as not serialized
-        numberOfPropulsionSystems = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute numberOfVectoringNozzleSystems marked as not serialized
-        numberOfVectoringNozzleSystems = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute propulsionSystemData marked as not serialized
-        for (int idx = 0; idx < numberOfPropulsionSystems; idx++)
+        infraredSignatureRepresentationIndex = Short.toUnsignedInt(byteBuffer.getShort());
+        acousticSignatureRepresentationIndex = Short.toUnsignedInt(byteBuffer.getShort());
+        radarCrossSectionSignatureRepresentationIndex = Short.toUnsignedInt(byteBuffer.getShort());
+        numberOfPropulsionSystems = Short.toUnsignedInt(byteBuffer.getShort());
+        numberOfVectoringNozzleSystems = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) numberOfPropulsionSystems).intValue(); idx++)
         {
-        PropulsionSystemData anX = new PropulsionSystemData();
-        anX.unmarshal(byteBuffer);
-        propulsionSystemData.add(anX);
+            PropulsionSystemData anX = new PropulsionSystemData();
+            anX.unmarshal(byteBuffer);
+            propulsionSystemData.add(anX);
         }
 
-        // attribute vectoringSystemData marked as not serialized
-        for (int idx = 0; idx < numberOfVectoringNozzleSystems; idx++)
+        for (int idx = 0; idx < ((Number) numberOfVectoringNozzleSystems).intValue(); idx++)
         {
-        VectoringNozzleSystem anX = new VectoringNozzleSystem();
-        anX.unmarshal(byteBuffer);
-        vectoringSystemData.add(anX);
+            VectoringNozzleSystem anX = new VectoringNozzleSystem();
+            anX.unmarshal(byteBuffer);
+            vectoringSystemData.add(anX);
         }
 
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = DistributedEmissionsRegenerationFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("orginatingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("infraredSignatureRepresentationIndex", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("acousticSignatureRepresentationIndex", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("radarCrossSectionSignatureRepresentationIndex", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("numberOfPropulsionSystems", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("numberOfVectoringNozzleSystems", Short.toUnsignedInt(byteBuffer.getShort()));
+    List propulsionSystemData = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfPropulsionSystems")).intValue(); idx++)
+    {
+        propulsionSystemData.add(PropulsionSystemData.fromBufferToMap(byteBuffer));
+    }
+    map.put("propulsionSystemData", propulsionSystemData);
+
+    List vectoringSystemData = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfVectoringNozzleSystems")).intValue(); idx++)
+    {
+        vectoringSystemData.add(VectoringNozzleSystem.fromBufferToMap(byteBuffer));
+    }
+    map.put("vectoringSystemData", vectoringSystemData);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    DistributedEmissionsRegenerationFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("orginatingEntityID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("infraredSignatureRepresentationIndex")).shortValue());
+    byteBuffer.putShort(((Number) map.get("acousticSignatureRepresentationIndex")).shortValue());
+    byteBuffer.putShort(((Number) map.get("radarCrossSectionSignatureRepresentationIndex")).shortValue());
+    byteBuffer.putShort(((Number) map.get("numberOfPropulsionSystems")).shortValue());
+    byteBuffer.putShort(((Number) map.get("numberOfVectoringNozzleSystems")).shortValue());
+
+    List propulsionSystemData = (List) map.get("propulsionSystemData");
+    for (int idx = 0; idx < ((Number) map.get("numberOfPropulsionSystems")).intValue(); idx++)
+    {
+        PropulsionSystemData.fromMapToBuffer((PduMap) propulsionSystemData.get(idx), byteBuffer);
+    }
+
+
+    List vectoringSystemData = (List) map.get("vectoringSystemData");
+    for (int idx = 0; idx < ((Number) map.get("numberOfVectoringNozzleSystems")).intValue(); idx++)
+    {
+        VectoringNozzleSystem.fromMapToBuffer((PduMap) vectoringSystemData.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += DistributedEmissionsRegenerationFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("orginatingEntityID"));
+    marshalSize += 2;  // infraredSignatureRepresentationIndex
+    marshalSize += 2;  // acousticSignatureRepresentationIndex
+    marshalSize += 2;  // radarCrossSectionSignatureRepresentationIndex
+    marshalSize += 2;  // numberOfPropulsionSystems
+    marshalSize += 2;  // numberOfVectoringNozzleSystems
+    List propulsionSystemData = (List) map.get("propulsionSystemData");
+    for (int idx = 0; idx < ((Number) map.get("numberOfPropulsionSystems")).intValue(); idx++)
+        marshalSize += PropulsionSystemData.getMarshalledSize((PduMap) propulsionSystemData.get(idx));
+    List vectoringSystemData = (List) map.get("vectoringSystemData");
+    for (int idx = 0; idx < ((Number) map.get("numberOfVectoringNozzleSystems")).intValue(); idx++)
+        marshalSize += VectoringNozzleSystem.getMarshalledSize((PduMap) vectoringSystemData.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -475,7 +543,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" orginatingEntityID:").append(orginatingEntityID); // writeOneToString
     sb.append(" infraredSignatureRepresentationIndex:").append(infraredSignatureRepresentationIndex); // writeOneToString
     sb.append(" acousticSignatureRepresentationIndex:").append(acousticSignatureRepresentationIndex); // writeOneToString

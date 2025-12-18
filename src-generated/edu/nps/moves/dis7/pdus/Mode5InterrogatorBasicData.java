@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * B.2.26. Mode 5 interrogator basic data
@@ -19,23 +21,28 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class Mode5InterrogatorBasicData extends Object implements Serializable, Marshaller
 {
-   /** Mode 5 interrogator status, part of Mode 5 interrogator basic data fields */
-   protected byte mode5InterrogatorStatus;
+   /** Mode 5 interrogator status, part of Mode 5 interrogator basic data fields 
+   Value space: uint8 */
+   protected int mode5InterrogatorStatus;
 
-   /** Padding, part of Mode 5 interrogator basic data fields */
-   protected byte padding;
+   /** Padding, part of Mode 5 interrogator basic data fields 
+   Value space: uint8 */
+   protected int padding;
 
-   /** Padding, part of Mode 5 interrogator basic data fields */
-   protected short padding2;
+   /** Padding, part of Mode 5 interrogator basic data fields 
+   Value space: uint16 */
+   protected int padding2;
 
-   /** Mode 5 Message Formats Present, part of Mode 5 interrogator basic data fields */
-   protected int mode5MessageFormatsPresent;
+   /** Mode 5 Message Formats Present, part of Mode 5 interrogator basic data fields 
+   Value space: uint32 */
+   protected UnsignedInteger mode5MessageFormatsPresent = UnsignedInteger.ZERO;
 
    /** Interrogated entity ID, part of Mode 5 interrogator basic data fields */
    protected EntityID  entityID = new EntityID(); 
 
-   /** Padding, part of Mode 5 interrogator basic data fields */
-   protected short padding3;
+   /** Padding, part of Mode 5 interrogator basic data fields 
+   Value space: uint16 */
+   protected int padding3;
 
 
 /** Constructor creates and configures a new instance object */
@@ -66,82 +73,67 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link Mode5InterrogatorBasicData#mode5InterrogatorStatus}
-  * @param pMode5InterrogatorStatus new value of interest
+  * @param pMode5InterrogatorStatus new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized Mode5InterrogatorBasicData setMode5InterrogatorStatus(byte pMode5InterrogatorStatus)
+public synchronized Mode5InterrogatorBasicData setMode5InterrogatorStatus(int pMode5InterrogatorStatus)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pMode5InterrogatorStatus >= 0 && pMode5InterrogatorStatus <= 255, "Value outside valid value space");
     mode5InterrogatorStatus = pMode5InterrogatorStatus;
-    return this;
-}
-/** Utility setter for {@link Mode5InterrogatorBasicData#mode5InterrogatorStatus}
-  * @param pMode5InterrogatorStatus new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Mode5InterrogatorBasicData setMode5InterrogatorStatus(int pMode5InterrogatorStatus){
-    mode5InterrogatorStatus = (byte) pMode5InterrogatorStatus;
     return this;
 }
 /** Getter for {@link Mode5InterrogatorBasicData#mode5InterrogatorStatus}
   * @return value of interest */
-public byte getMode5InterrogatorStatus()
+public int getMode5InterrogatorStatus()
 {
     return mode5InterrogatorStatus; 
 }
 
 /** Setter for {@link Mode5InterrogatorBasicData#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized Mode5InterrogatorBasicData setPadding(byte pPadding)
+public synchronized Mode5InterrogatorBasicData setPadding(int pPadding)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 255, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link Mode5InterrogatorBasicData#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Mode5InterrogatorBasicData setPadding(int pPadding){
-    padding = (byte) pPadding;
     return this;
 }
 /** Getter for {@link Mode5InterrogatorBasicData#padding}
   * @return value of interest */
-public byte getPadding()
+public int getPadding()
 {
     return padding; 
 }
 
 /** Setter for {@link Mode5InterrogatorBasicData#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized Mode5InterrogatorBasicData setPadding2(short pPadding2)
+public synchronized Mode5InterrogatorBasicData setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 65535, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link Mode5InterrogatorBasicData#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Mode5InterrogatorBasicData setPadding2(int pPadding2){
-    padding2 = (short) pPadding2;
     return this;
 }
 /** Getter for {@link Mode5InterrogatorBasicData#padding2}
   * @return value of interest */
-public short getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
 
 /** Setter for {@link Mode5InterrogatorBasicData#mode5MessageFormatsPresent}
-  * @param pMode5MessageFormatsPresent new value of interest
+  * @param pMode5MessageFormatsPresent new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized Mode5InterrogatorBasicData setMode5MessageFormatsPresent(int pMode5MessageFormatsPresent)
+public synchronized Mode5InterrogatorBasicData setMode5MessageFormatsPresent(UnsignedInteger pMode5MessageFormatsPresent)
 {
     mode5MessageFormatsPresent = pMode5MessageFormatsPresent;
     return this;
 }
 /** Getter for {@link Mode5InterrogatorBasicData#mode5MessageFormatsPresent}
   * @return value of interest */
-public int getMode5MessageFormatsPresent()
+public UnsignedInteger getMode5MessageFormatsPresent()
 {
     return mode5MessageFormatsPresent; 
 }
@@ -163,23 +155,18 @@ public EntityID getEntityID()
 
 
 /** Setter for {@link Mode5InterrogatorBasicData#padding3}
-  * @param pPadding3 new value of interest
+  * @param pPadding3 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized Mode5InterrogatorBasicData setPadding3(short pPadding3)
+public synchronized Mode5InterrogatorBasicData setPadding3(int pPadding3)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding3 >= 0 && pPadding3 <= 65535, "Value outside valid value space");
     padding3 = pPadding3;
-    return this;
-}
-/** Utility setter for {@link Mode5InterrogatorBasicData#padding3}
-  * @param pPadding3 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Mode5InterrogatorBasicData setPadding3(int pPadding3){
-    padding3 = (short) pPadding3;
     return this;
 }
 /** Getter for {@link Mode5InterrogatorBasicData#padding3}
   * @return value of interest */
-public short getPadding3()
+public int getPadding3()
 {
     return padding3; 
 }
@@ -193,18 +180,14 @@ public short getPadding3()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeByte(mode5InterrogatorStatus);
-       dos.writeByte(padding);
-       dos.writeShort(padding2);
-       dos.writeInt(mode5MessageFormatsPresent);
+       dos.writeByte((byte) mode5InterrogatorStatus);
+       dos.writeByte((byte) padding);
+       dos.writeShort((short) padding2);
+       dos.writeInt(mode5MessageFormatsPresent.intValue());
        entityID.marshal(dos);
-       dos.writeShort(padding3);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) padding3);
     }
 }
 
@@ -220,23 +203,19 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        mode5InterrogatorStatus = (byte)dis.readUnsignedByte();
+        mode5InterrogatorStatus = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding = (byte)dis.readUnsignedByte();
+        padding = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding2 = (short)dis.readUnsignedShort();
+        padding2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        mode5MessageFormatsPresent = dis.readInt();
+        mode5MessageFormatsPresent = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         uPosition += entityID.unmarshal(dis);
-        padding3 = (short)dis.readUnsignedShort();
+        padding3 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -252,12 +231,12 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.put( (byte)mode5InterrogatorStatus);
-   byteBuffer.put( (byte)padding);
-   byteBuffer.putShort( (short)padding2);
-   byteBuffer.putInt( (int)mode5MessageFormatsPresent);
+   byteBuffer.put((byte) mode5InterrogatorStatus);
+   byteBuffer.put((byte) padding);
+   byteBuffer.putShort((short) padding2);
+   byteBuffer.putInt(mode5MessageFormatsPresent.intValue());
    entityID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)padding3);
+   byteBuffer.putShort((short) padding3);
 }
 
 /**
@@ -272,26 +251,76 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute mode5InterrogatorStatus marked as not serialized
-        mode5InterrogatorStatus = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding marked as not serialized
-        padding = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding2 marked as not serialized
-        padding2 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute mode5MessageFormatsPresent marked as not serialized
-        mode5MessageFormatsPresent = byteBuffer.getInt();
-        // attribute entityID marked as not serialized
+        mode5InterrogatorStatus = Byte.toUnsignedInt(byteBuffer.get());
+        padding = Byte.toUnsignedInt(byteBuffer.get());
+        padding2 = Short.toUnsignedInt(byteBuffer.getShort());
+        mode5MessageFormatsPresent = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         entityID.unmarshal(byteBuffer);
-        // attribute padding3 marked as not serialized
-        padding3 = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding3 = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("mode5InterrogatorStatus", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("mode5MessageFormatsPresent", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("entityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("padding3", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.put(((Number) map.get("mode5InterrogatorStatus")).byteValue());
+    byteBuffer.put(((Number) map.get("padding")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+    byteBuffer.putInt(((Number) map.get("mode5MessageFormatsPresent")).intValue());
+    EntityID.fromMapToBuffer((PduMap) map.get("entityID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("padding3")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 1;  // mode5InterrogatorStatus
+    marshalSize += 1;  // padding
+    marshalSize += 2;  // padding2
+    marshalSize += 4;  // mode5MessageFormatsPresent
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("entityID"));
+    marshalSize += 2;  // padding3
+
+    return marshalSize;
 }
 
  /*

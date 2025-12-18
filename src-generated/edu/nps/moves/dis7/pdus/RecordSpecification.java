@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * This record shall specify the number of record sets contained in the Record Specification record and the record details. Section 6.2.73.
@@ -19,8 +21,9 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class RecordSpecification extends Object implements Serializable, Marshaller
 {
-   /** The number of record sets */
-   protected int numberOfRecordSets;
+   /** The number of record sets 
+   Value space: uint32 */
+   protected UnsignedInteger numberOfRecordSets = UnsignedInteger.ZERO;
 
    /** variable length list record specifications. */
    protected List< RecordSpecificationElement > recordSets = new ArrayList<>();
@@ -77,7 +80,7 @@ public List<RecordSpecificationElement> getRecordSets()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        dos.writeInt(recordSets.size());
 
@@ -87,10 +90,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aRecordSpecificationElement.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -106,21 +105,17 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        numberOfRecordSets = dis.readInt();
+        numberOfRecordSets = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        for (int idx = 0; idx < numberOfRecordSets; idx++)
+        for (int idx = 0; idx < ((Number) numberOfRecordSets).intValue(); idx++)
         {
             RecordSpecificationElement anX = new RecordSpecificationElement();
             uPosition += anX.unmarshal(dis);
             recordSets.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -158,24 +153,80 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute numberOfRecordSets marked as not serialized
-        numberOfRecordSets = byteBuffer.getInt();
-        // attribute recordSets marked as not serialized
-        for (int idx = 0; idx < numberOfRecordSets; idx++)
+        numberOfRecordSets = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        for (int idx = 0; idx < ((Number) numberOfRecordSets).intValue(); idx++)
         {
-        RecordSpecificationElement anX = new RecordSpecificationElement();
-        anX.unmarshal(byteBuffer);
-        recordSets.add(anX);
+            RecordSpecificationElement anX = new RecordSpecificationElement();
+            anX.unmarshal(byteBuffer);
+            recordSets.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("numberOfRecordSets", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    List recordSets = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfRecordSets")).intValue(); idx++)
+    {
+        recordSets.add(RecordSpecificationElement.fromBufferToMap(byteBuffer));
+    }
+    map.put("recordSets", recordSets);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putInt(((Number) map.get("numberOfRecordSets")).intValue());
+
+    List recordSets = (List) map.get("recordSets");
+    for (int idx = 0; idx < ((Number) map.get("numberOfRecordSets")).intValue(); idx++)
+    {
+        RecordSpecificationElement.fromMapToBuffer((PduMap) recordSets.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // numberOfRecordSets
+    List recordSets = (List) map.get("recordSets");
+    for (int idx = 0; idx < ((Number) map.get("numberOfRecordSets")).intValue(); idx++)
+        marshalSize += RecordSpecificationElement.getMarshalledSize((PduMap) recordSets.get(idx));
+
+    return marshalSize;
 }
 
  /*

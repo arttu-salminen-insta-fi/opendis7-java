@@ -11,394 +11,413 @@ package edu.nps.moves.dis7.pdus;
 
 import java.util.*;
 import java.io.*;
+
+import com.google.common.base.Preconditions;
+import com.google.common.primitives.*;
 import edu.nps.moves.dis7.enumerations.*;
 
 /**
  * Synthetic record, made up from section 6.2.73. This is used to achieve a repeating variable list element.<p>recordLength, recordCount and recordValues must be set by hand so the.
- * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
+ * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a>
  */
 public class RecordSpecificationElement extends Object implements Serializable, Marshaller
 {
-   /** The data structure used to convey the parameter values of the record for each record. 32-bit enumeration. uid = 66 */
-   protected VariableRecordType recordID = VariableRecordType.values()[0];
+    /** The data structure used to convey the parameter values of the record for each record. 32-bit enumeration. uid = 66 */
+    protected VariableRecordType recordID = VariableRecordType.values()[0];
 
-   /** The serial number of the first record in the block of records */
-   protected int recordSetSerialNumber;
+    /** The serial number of the first record in the block of records */
+    protected UnsignedInteger recordSetSerialNumber;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected int padding;
+    /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
+    protected UnsignedInteger padding1;
 
-   /**  the length, in bits, of the record. Note, bits, not bytes. */
-   protected short recordLength;
+    /**  the length, in bits, of the record. Note, bits, not bytes. */
+    protected int recordLength;
 
-   /**  the number of records included in the record set  */
-   protected short recordCount;
+    /**  the number of records included in the record set  */
+    protected int recordCount;
 
-   /** The concatenated records of the format specified by the Record ID field. The length of this field is the Record Length multiplied by the Record Count, in units of bits. */
-   protected byte[]  recordValues = new byte[0]; 
+    /** The concatenated records of the format specified by the Record ID field. The length of this field is the Record Length multiplied by the Record Count, in units of bits. */
+    protected byte[]  recordValues = new byte[0];
 
-   /** used if required to make entire record size an even multiple of 8 bytes */
-   protected byte[]  padTo64 = new byte[0]; 
+    /** pad to 64-bit boundary */
 
-
-/** Constructor creates and configures a new instance object */
- public RecordSpecificationElement()
- {
- }
-
-  /**
-   * Returns size of this serialized (marshalled) object in bytes
-   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
-   * @return serialized size in bytes
-   */
-@Override
-public synchronized int getMarshalledSize()
-{
-   int marshalSize = 0; 
-
-   if (recordID != null)
-       marshalSize += recordID.getMarshalledSize();
-   marshalSize += 4;  // recordSetSerialNumber
-   marshalSize += 4;  // padding
-   marshalSize += 2;  // recordLength
-   marshalSize += 2;  // recordCount
-   if (recordValues != null)
-       marshalSize += recordValues.length * 1;
-   if (padTo64 != null)
-       marshalSize += padTo64.length * 1;
-
-   return marshalSize;
-}
+    private byte[] padding2 = new byte[0];
 
 
-/** Setter for {@link RecordSpecificationElement#recordID}
-  * @param pRecordID new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RecordSpecificationElement setRecordID(VariableRecordType pRecordID)
-{
-    recordID = pRecordID;
-    return this;
-}
-/** Getter for {@link RecordSpecificationElement#recordID}
-  * @return value of interest */
-public VariableRecordType getRecordID()
-{
-    return recordID; 
-}
-
-/** Setter for {@link RecordSpecificationElement#recordSetSerialNumber}
-  * @param pRecordSetSerialNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RecordSpecificationElement setRecordSetSerialNumber(int pRecordSetSerialNumber)
-{
-    recordSetSerialNumber = pRecordSetSerialNumber;
-    return this;
-}
-/** Getter for {@link RecordSpecificationElement#recordSetSerialNumber}
-  * @return value of interest */
-public int getRecordSetSerialNumber()
-{
-    return recordSetSerialNumber; 
-}
-
-/** Setter for {@link RecordSpecificationElement#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RecordSpecificationElement setPadding(int pPadding)
-{
-    padding = pPadding;
-    return this;
-}
-/** Getter for {@link RecordSpecificationElement#padding}
-  * @return value of interest */
-public int getPadding()
-{
-    return padding; 
-}
-
-/** Setter for {@link RecordSpecificationElement#recordLength}
-  * @param pRecordLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RecordSpecificationElement setRecordLength(short pRecordLength)
-{
-    recordLength = pRecordLength;
-    return this;
-}
-/** Utility setter for {@link RecordSpecificationElement#recordLength}
-  * @param pRecordLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RecordSpecificationElement setRecordLength(int pRecordLength){
-    recordLength = (short) pRecordLength;
-    return this;
-}
-/** Getter for {@link RecordSpecificationElement#recordLength}
-  * @return value of interest */
-public short getRecordLength()
-{
-    return recordLength; 
-}
-
-/** Setter for {@link RecordSpecificationElement#recordCount}
-  * @param pRecordCount new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RecordSpecificationElement setRecordCount(short pRecordCount)
-{
-    recordCount = pRecordCount;
-    return this;
-}
-/** Utility setter for {@link RecordSpecificationElement#recordCount}
-  * @param pRecordCount new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RecordSpecificationElement setRecordCount(int pRecordCount){
-    recordCount = (short) pRecordCount;
-    return this;
-}
-/** Getter for {@link RecordSpecificationElement#recordCount}
-  * @return value of interest */
-public short getRecordCount()
-{
-    return recordCount; 
-}
-
-/** Setter for {@link RecordSpecificationElement#recordValues}
-  * @param pRecordValues new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RecordSpecificationElement setRecordValues(byte[] pRecordValues)
-{
-    recordValues = pRecordValues;
-    return this;
-}
-/** Getter for {@link RecordSpecificationElement#recordValues}
-  * @return value of interest */
-public byte[] getRecordValues()
-{
-    return recordValues; 
-}
-
-/** Setter for {@link RecordSpecificationElement#padTo64}
-  * @param pPadTo64 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RecordSpecificationElement setPadTo64(byte[] pPadTo64)
-{
-    padTo64 = pPadTo64;
-    return this;
-}
-/** Getter for {@link RecordSpecificationElement#padTo64}
-  * @return value of interest */
-public byte[] getPadTo64()
-{
-    return padTo64; 
-}
-
-/**
- * Serializes an object to a DataOutputStream.
- * @throws java.lang.Exception if something goes wrong
- * @see java.io.DataOutputStream
- * @param dos the OutputStream
- */
-@Override
-public synchronized void marshal(DataOutputStream dos) throws Exception
-{
-    try 
+    /** Constructor creates and configures a new instance object */
+    public RecordSpecificationElement()
     {
-       recordID.marshal(dos);
-       dos.writeInt(recordSetSerialNumber);
-       dos.writeInt(padding);
-       dos.writeShort(recordLength);
-       dos.writeShort(recordCount);
-
-       for (int idx = 0; idx < recordValues.length; idx++)
-           dos.writeByte(recordValues[idx]);
-
-
-       for (int idx = 0; idx < padTo64.length; idx++)
-           dos.writeByte(padTo64[idx]);
-
     }
-    catch(Exception e)
-    {
-      System.err.println(e);
-    }
-}
 
-/**
- * Deserializes an object from a DataInputStream.
- * @throws java.lang.Exception if something goes wrong
- * @see java.io.DataInputStream
- * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
- * @param dis the InputStream
- * @return marshalled serialized size in bytes
- */
-@Override
-public synchronized int unmarshal(DataInputStream dis) throws Exception
-{
-    int uPosition = 0;
-    try 
+    /**
+     * Returns size of this serialized (marshalled) object in bytes
+     * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+     * @return serialized size in bytes
+     */
+    @Override
+    public synchronized int getMarshalledSize()
     {
-        recordID = VariableRecordType.unmarshalEnum(dis);
-        uPosition += recordID.getMarshalledSize();
-        recordSetSerialNumber = dis.readInt();
-        uPosition += 4;
-        padding = dis.readInt();
-        uPosition += 4;
-        recordLength = (short)dis.readUnsignedShort();
-        uPosition += 2;
-        recordCount = (short)dis.readUnsignedShort();
-        uPosition += 2;
+        int marshalSize = 0;
+
+        if (recordID != null)
+            marshalSize += recordID.getMarshalledSize();
+        marshalSize += 4;  // recordSetSerialNumber
+        marshalSize += 4;  // padding1
+        marshalSize += 2;  // recordLength
+        marshalSize += 2;  // recordCount
+        if (recordValues != null)
+            marshalSize += recordValues.length * 1;
+        if (padding2 != null)
+            marshalSize += padding2.length;
+
+        return marshalSize;
+    }
+
+
+    /** Setter for {@link RecordSpecificationElement#recordID}
+     * @param pRecordID new value of interest
+     * @return same object to permit progressive setters */
+    public synchronized RecordSpecificationElement setRecordID(VariableRecordType pRecordID)
+    {
+        recordID = pRecordID;
+        return this;
+    }
+    /** Getter for {@link RecordSpecificationElement#recordID}
+     * @return value of interest */
+    public VariableRecordType getRecordID()
+    {
+        return recordID;
+    }
+
+    /** Setter for {@link RecordSpecificationElement#recordSetSerialNumber}
+     * @param pRecordSetSerialNumber new value of interest
+     * @return same object to permit progressive setters */
+    public synchronized RecordSpecificationElement setRecordSetSerialNumber(UnsignedInteger pRecordSetSerialNumber)
+    {
+        recordSetSerialNumber = pRecordSetSerialNumber;
+        return this;
+    }
+    /** Getter for {@link RecordSpecificationElement#recordSetSerialNumber}
+     * @return value of interest */
+    public UnsignedInteger getRecordSetSerialNumber()
+    {
+        return recordSetSerialNumber;
+    }
+
+    /** Setter for {@link RecordSpecificationElement#padding1}
+     * @param pPadding1 new value of interest
+     * @return same object to permit progressive setters */
+    public synchronized RecordSpecificationElement setPadding1(UnsignedInteger pPadding1)
+    {
+        padding1 = pPadding1;
+        return this;
+    }
+    /** Getter for {@link RecordSpecificationElement#padding1}
+     * @return value of interest */
+    public UnsignedInteger getPadding1()
+    {
+        return padding1;
+    }
+
+    /** Utility setter for {@link RecordSpecificationElement#recordLength}
+     * @param pRecordLength new value of interest. Value space uint16
+     * @return same object to permit progressive setters */
+    public synchronized RecordSpecificationElement setRecordLength(int pRecordLength){
+        // Checking value is in value space uint16
+        Preconditions.checkArgument(pRecordLength >= 0 && pRecordLength <= 65535, "value outside valid value space");
+        recordLength = pRecordLength;
+        return this;
+    }
+    /** Getter for {@link RecordSpecificationElement#recordLength}
+     * @return value of interest */
+    public int getRecordLength()
+    {
+        return recordLength;
+    }
+
+    /** Utility setter for {@link RecordSpecificationElement#recordCount}
+     * @param pRecordCount new value of interest. Value space uint16
+     * @return same object to permit progressive setters */
+    public synchronized RecordSpecificationElement setRecordCount(int pRecordCount){
+        // Checking value is in value space uint16
+        Preconditions.checkArgument(pRecordCount >= 0 && pRecordCount <= 65535, "value outside valid value space");
+        recordCount = pRecordCount;
+        return this;
+    }
+    /** Getter for {@link RecordSpecificationElement#recordCount}
+     * @return value of interest */
+    public int getRecordCount()
+    {
+        return recordCount;
+    }
+
+    /** Setter for {@link RecordSpecificationElement#recordValues}
+     * @param pRecordValues new value of interest
+     * @return same object to permit progressive setters */
+    public synchronized RecordSpecificationElement setRecordValues(byte[] pRecordValues)
+    {
+        recordValues = pRecordValues;
+        return this;
+    }
+    /** Getter for {@link RecordSpecificationElement#recordValues}
+     * @return value of interest */
+    public byte[] getRecordValues()
+    {
+        return recordValues;
+    }
+
+    /**
+     * Serializes an object to a DataOutputStream.
+     * @throws java.lang.Exception if something goes wrong
+     * @see java.io.DataOutputStream
+     * @param dos the OutputStream
+     */
+    @Override
+    public synchronized void marshal(DataOutputStream dos) throws Exception
+    {
+
+        {
+            recordID.marshal(dos);
+            dos.writeInt(recordSetSerialNumber.intValue());
+            dos.writeInt(padding1.intValue());
+            dos.writeShort((short) recordLength);
+            dos.writeShort((short) recordValues.length);
+
+            for (int idx = 0; idx < recordValues.length; idx++)
+                dos.writeByte(recordValues[idx]);
+
+            padding2 = new byte[Align.to64bits(dos)];
+        }
+    }
+
+    /**
+     * Deserializes an object from a DataInputStream.
+     * @throws java.lang.Exception if something goes wrong
+     * @see java.io.DataInputStream
+     * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+     * @param dis the InputStream
+     * @return marshalled serialized size in bytes
+     */
+    @Override
+    public synchronized int unmarshal(DataInputStream dis) throws Exception
+    {
+        int uPosition = 0;
+
+        {
+            recordID = VariableRecordType.unmarshalEnum(dis);
+            uPosition += recordID.getMarshalledSize();
+            recordSetSerialNumber = UnsignedInteger.fromIntBits(dis.readInt());
+            uPosition += 4;
+            padding1 = UnsignedInteger.fromIntBits(dis.readInt());
+            uPosition += 4;
+            recordLength = Short.toUnsignedInt(dis.readShort());
+            uPosition += 2;
+            recordCount = Short.toUnsignedInt(dis.readShort());
+            uPosition += 2;
+            int bits = recordCount * recordLength;
+            recordValues = new byte[(bits + 7) / 8];
+            for (int idx = 0; idx < (bits + 7) / 8; idx++)
+                recordValues[idx] = dis.readByte();
+            uPosition += (recordValues.length * 1);
+            padding2 = new byte[Align.from64bits(uPosition,dis)];
+            uPosition += padding2.length;
+        }
+        return getMarshalledSize();
+    }
+
+    /**
+     * Packs an object into the ByteBuffer.
+     * @throws java.nio.BufferOverflowException if byteBuffer is too small
+     * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+     * @see java.nio.ByteBuffer
+     * @param byteBuffer The ByteBuffer at the position to begin writing
+     * @throws Exception ByteBuffer-generated exception
+     */
+    @Override
+    public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
+    {
+        recordID.marshal(byteBuffer);
+        byteBuffer.putInt(recordSetSerialNumber.intValue());
+        byteBuffer.putInt(padding1.intValue());
+        byteBuffer.putShort((short) recordLength);
+        byteBuffer.putShort((short) recordValues.length);
+
         for (int idx = 0; idx < recordValues.length; idx++)
-            recordValues[idx] = dis.readByte();
-        uPosition += (recordValues.length * 1);
-        for (int idx = 0; idx < padTo64.length; idx++)
-            padTo64[idx] = dis.readByte();
-        uPosition += (padTo64.length * 1);
+            byteBuffer.put((byte)recordValues[idx]);
+
+        padding2 = new byte[Align.to64bits(byteBuffer)];
     }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
-    }
-    return getMarshalledSize();
-}
 
-/**
- * Packs an object into the ByteBuffer.
- * @throws java.nio.BufferOverflowException if byteBuffer is too small
- * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
- * @see java.nio.ByteBuffer
- * @param byteBuffer The ByteBuffer at the position to begin writing
- * @throws Exception ByteBuffer-generated exception
- */
-@Override
-public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
-{
-   recordID.marshal(byteBuffer);
-   byteBuffer.putInt( (int)recordSetSerialNumber);
-   byteBuffer.putInt( (int)padding);
-   byteBuffer.putShort( (short)recordLength);
-   byteBuffer.putShort( (short)recordCount);
-
-   for (int idx = 0; idx < recordValues.length; idx++)
-       byteBuffer.put((byte)recordValues[idx]);
-
-
-   for (int idx = 0; idx < padTo64.length; idx++)
-       byteBuffer.put((byte)padTo64[idx]);
-
-}
-
-/**
- * Unpacks a Pdu from the underlying data.
- * @throws java.nio.BufferUnderflowException if byteBuffer is too small
- * @see java.nio.ByteBuffer
- * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
- * @param byteBuffer The ByteBuffer at the position to begin reading
- * @return marshalled serialized size in bytes
- * @throws Exception ByteBuffer-generated exception
- */
-@Override
-public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
-{
-    try
+    /**
+     * Unpacks a Pdu from the underlying data.
+     * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+     * @see java.nio.ByteBuffer
+     * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+     * @param byteBuffer The ByteBuffer at the position to begin reading
+     * @return marshalled serialized size in bytes
+     * @throws Exception ByteBuffer-generated exception
+     */
+    @Override
+    public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
     {
-        // attribute recordID marked as not serialized
-        recordID = VariableRecordType.unmarshalEnum(byteBuffer);
-        // attribute recordSetSerialNumber marked as not serialized
-        recordSetSerialNumber = byteBuffer.getInt();
-        // attribute padding marked as not serialized
-        padding = byteBuffer.getInt();
-        // attribute recordLength marked as not serialized
-        recordLength = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute recordCount marked as not serialized
-        recordCount = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute recordValues marked as not serialized
-        for (int idx = 0; idx < recordValues.length; idx++)
-            recordValues[idx] = byteBuffer.get();
-        // attribute padTo64 marked as not serialized
-        for (int idx = 0; idx < padTo64.length; idx++)
-            padTo64[idx] = byteBuffer.get();
+        {
+            recordID = VariableRecordType.unmarshalEnum(byteBuffer);
+            recordSetSerialNumber = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+            padding1 = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+            recordLength = Short.toUnsignedInt(byteBuffer.getShort());
+            recordCount = Short.toUnsignedInt(byteBuffer.getShort());
+            int bits = recordCount * recordLength;
+            recordValues = new byte[(bits + 7) / 8];
+            for (int idx = 0; idx < (bits + 7) / 8; idx++)
+                recordValues[idx] = byteBuffer.get();
+            padding2 = new byte[Align.from64bits(byteBuffer)];
+        }
+        return getMarshalledSize();
     }
-    catch (java.nio.BufferUnderflowException bue)
+
+
+    /**
+     * Unpacks a Pdu into a map from the underlying data.
+     * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+     * @see java.nio.ByteBuffer
+     * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+     * @param byteBuffer The ByteBuffer at the position to begin reading
+     * @return marshalled serialized size in bytes
+     * @throws Exception ByteBuffer-generated exception
+     */
+    public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
     {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        PduMap map;
+        map = new PduMap();
+
+        {
+            map.put("recordID", VariableRecordType.unmarshalEnum(byteBuffer));
+            map.put("recordSetSerialNumber", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+            map.put("padding1", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+            map.put("recordLength", Short.toUnsignedInt(byteBuffer.getShort()));
+            map.put("recordCount", Short.toUnsignedInt(byteBuffer.getShort()));
+            int bits = ((Number) map.get("recordCount")).intValue() * ((Number) map.get("recordLength")).intValue();
+            for (int idx = 0; idx < (bits + 7) / 8; idx++)
+                map.put("recordValues" + String.valueOf(idx), byteBuffer.get());
+            map.put("padding2", new byte[Align.from64bits(byteBuffer)]);
+        }
+        return map;
     }
-    return getMarshalledSize();
-}
 
- /*
-  * Override of default equals method.  Calls equalsImpl() for content comparison.
-  */
-@Override
- public synchronized boolean equals(Object obj)
- {
-    if(this == obj)
-      return true;
+    /**
+     * Packs a Pdu represented in map into the ByteBuffer.
+     * @throws java.nio.BufferOverflowException if byteBuffer is too small
+     * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+     * @see java.nio.ByteBuffer
+     * @param byteBuffer The ByteBuffer at the position to begin writing
+     * @throws Exception ByteBuffer-generated exception
+     */
+    public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+    {
+        ((VariableRecordType) map.get("recordID")).marshal(byteBuffer);
+        byteBuffer.putInt(((Number) map.get("recordSetSerialNumber")).intValue());
+        byteBuffer.putInt(((Number) map.get("padding1")).intValue());
+        byteBuffer.putShort(((Number) map.get("recordLength")).shortValue());
+        byteBuffer.putShort(((Number) map.get("recordCount")).shortValue());
+        int bits = ((Number) map.get("recordCount")).intValue() * ((Number) map.get("recordLength")).intValue();
+        for (int idx = 0; idx < (bits + 7) / 8; idx++)
+            byteBuffer.put(((Number) map.get("recordValues" + String.valueOf(idx))).byteValue());
 
-    if(obj == null)
-       return false;
+        byte[] padding2 = new byte[Align.to64bits(byteBuffer)];
+    }
 
-    if(!getClass().isAssignableFrom(obj.getClass())) //if(getClass() != obj.getClass())
-        return false;
+    /**
+     * Returns size of this serialized (marshalled) object in bytes
+     * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+     * @return serialized size in bytes
+     * @throws Exception   */
+    public static int getMarshalledSize(PduMap map) throws Exception
+    {
+        int marshalSize = 0;
 
-    return equalsImpl(obj);
- }
+        marshalSize += ((VariableRecordType) map.get("recordID")).getMarshalledSize();
+        marshalSize += 4;  // recordSetSerialNumber
+        marshalSize += 4;  // padding1
+        marshalSize += 2;  // recordLength
+        marshalSize += 2;  // recordCount
+        int bits = ((Number) map.get("recordCount")).intValue() * ((Number) map.get("recordLength")).intValue();
+        for (int idx = 0; idx < (bits + 7) / 8; idx++)
+            marshalSize += 1;
+        marshalSize += ((byte[]) map.get("padding2")).length;
 
- /**
-  * Compare all fields that contribute to the state, ignoring
-  * transient and static fields, for <code>this</code> and the supplied object
-  * @param obj the object to compare to
-  * @return true if the objects are equal, false otherwise.
-  */
- public synchronized boolean equalsImpl(Object obj)
- {
-     final RecordSpecificationElement rhs = (RecordSpecificationElement)obj;
+        return marshalSize;
+    }
 
-     if( ! (recordID == rhs.recordID)) return false;
-     if( ! (recordSetSerialNumber == rhs.recordSetSerialNumber)) return false;
-     if( ! (padding == rhs.padding)) return false;
-     if( ! (recordLength == rhs.recordLength)) return false;
-     if( ! (recordCount == rhs.recordCount)) return false;
+    /*
+     * Override of default equals method.  Calls equalsImpl() for content comparison.
+     */
+    @Override
+    public synchronized boolean equals(Object obj)
+    {
+        if(this == obj)
+            return true;
 
-     for (int idx = 0; idx < 0; idx++)
-     {
-          if(!(recordValues[idx] == rhs.recordValues[idx])) return false;
-     }
+        if(obj == null)
+            return false;
 
+        if(!getClass().isAssignableFrom(obj.getClass())) //if(getClass() != obj.getClass())
+            return false;
 
-     for (int idx = 0; idx < 0; idx++)
-     {
-          if(!(padTo64[idx] == rhs.padTo64[idx])) return false;
-     }
+        return equalsImpl(obj);
+    }
 
-    return true;
- }
+    /**
+     * Compare all fields that contribute to the state, ignoring
+     * transient and static fields, for <code>this</code> and the supplied object
+     * @param obj the object to compare to
+     * @return true if the objects are equal, false otherwise.
+     */
+    public synchronized boolean equalsImpl(Object obj)
+    {
+        final RecordSpecificationElement rhs = (RecordSpecificationElement)obj;
 
- @Override
- public synchronized String toString()
- {
-    StringBuilder sb  = new StringBuilder();
-    StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
-    sb.append(" recordID:").append(recordID); // writeOneToString
-    sb.append(" recordSetSerialNumber:").append(recordSetSerialNumber); // writeOneToString
-    sb.append(" padding:").append(padding); // writeOneToString
-    sb.append(" recordLength:").append(recordLength); // writeOneToString
-    sb.append(" recordCount:").append(recordCount); // writeOneToString
-    sb.append(" recordValues:");
-    sb.append(Arrays.toString(recordValues)); // writePrimitiveList
-    sb.append(" padTo64:");
-    sb.append(Arrays.toString(padTo64)); // writePrimitiveList
+        if( ! (recordID == rhs.recordID)) return false;
+        if( ! (recordSetSerialNumber == rhs.recordSetSerialNumber)) return false;
+        if( ! (padding1 == rhs.padding1)) return false;
+        if( ! (recordLength == rhs.recordLength)) return false;
+        if( ! (recordCount == rhs.recordCount)) return false;
 
-   return sb.toString();
- }
+        for (int idx = 0; idx < 0; idx++)
+        {
+            if(!(recordValues[idx] == rhs.recordValues[idx])) return false;
+        }
 
- @Override
- public int hashCode()
- {
-	 return Objects.hash(this.recordID,
-	                     this.recordSetSerialNumber,
-	                     this.padding,
-	                     this.recordLength,
-	                     this.recordCount,
-	                     this.recordValues,
-	                     this.padTo64);
- }
+        return true;
+    }
+
+    @Override
+    public synchronized String toString()
+    {
+        StringBuilder sb  = new StringBuilder();
+        StringBuilder sb2 = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append(" recordID:").append(recordID); // writeOneToString
+        sb.append(" recordSetSerialNumber:").append(recordSetSerialNumber); // writeOneToString
+        sb.append(" padding1:").append(padding1); // writeOneToString
+        sb.append(" recordLength:").append(recordLength); // writeOneToString
+        sb.append(" recordCount:").append(recordCount); // writeOneToString
+        sb.append(" recordValues:");
+        sb.append(Arrays.toString(recordValues)); // writePrimitiveList
+        sb.append(" padding2:").append(padding2); // writeOneToString
+
+        return sb.toString();
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(this.recordID,
+                this.recordSetSerialNumber,
+                this.padding1,
+                this.recordLength,
+                this.recordCount,
+                this.recordValues,
+                this.padding2);
+    }
 } // end of RecordSpecificationElement

@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * A device that is able to discharge detectable electromagnetic energy.
@@ -19,14 +21,17 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class ElectronicEmitter extends Object implements Serializable, Marshaller
 {
-   /**  this field shall specify the length of this emitter system's data in 32-bit words. */
-   protected byte systemDataLength;
+   /**  this field shall specify the length of this emitter system's data in 32-bit words. 
+   Value space: uint8 */
+   protected int systemDataLength;
 
-   /** the number of beams being described in the current PDU for the emitter system being described.  */
-   protected byte numberOfBeams;
+   /** the number of beams being described in the current PDU for the emitter system being described.  
+   Value space: uint8 */
+   protected int numberOfBeams;
 
-   /** padding */
-   protected short padding;
+   /** padding 
+   Value space: uint16 */
+   protected int padding;
 
    /**  information about a particular emitter system and shall be represented by an Emitter System record (see 6.2.23). */
    protected EmitterSystem  emitterSystem = new EmitterSystem(); 
@@ -72,45 +77,35 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link ElectronicEmitter#systemDataLength}
-  * @param pSystemDataLength new value of interest
+  * @param pSystemDataLength new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized ElectronicEmitter setSystemDataLength(byte pSystemDataLength)
+public synchronized ElectronicEmitter setSystemDataLength(int pSystemDataLength)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSystemDataLength >= 0 && pSystemDataLength <= 255, "Value outside valid value space");
     systemDataLength = pSystemDataLength;
-    return this;
-}
-/** Utility setter for {@link ElectronicEmitter#systemDataLength}
-  * @param pSystemDataLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ElectronicEmitter setSystemDataLength(int pSystemDataLength){
-    systemDataLength = (byte) pSystemDataLength;
     return this;
 }
 /** Getter for {@link ElectronicEmitter#systemDataLength}
   * @return value of interest */
-public byte getSystemDataLength()
+public int getSystemDataLength()
 {
     return systemDataLength; 
 }
 
 /** Setter for {@link ElectronicEmitter#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized ElectronicEmitter setPadding(short pPadding)
+public synchronized ElectronicEmitter setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link ElectronicEmitter#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ElectronicEmitter setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link ElectronicEmitter#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -171,11 +166,11 @@ public List<EmitterBeam> getBeams()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeByte(systemDataLength);
+       dos.writeByte((byte) systemDataLength);
        dos.writeByte(beams.size());
-       dos.writeShort(padding);
+       dos.writeShort((short) padding);
        emitterSystem.marshal(dos);
        location.marshal(dos);
 
@@ -185,10 +180,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aEmitterBeam.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -204,27 +195,23 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        systemDataLength = (byte)dis.readUnsignedByte();
+        systemDataLength = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfBeams = (byte)dis.readUnsignedByte();
+        numberOfBeams = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += emitterSystem.unmarshal(dis);
         uPosition += location.unmarshal(dis);
-        for (int idx = 0; idx < numberOfBeams; idx++)
+        for (int idx = 0; idx < ((Number) numberOfBeams).intValue(); idx++)
         {
             EmitterBeam anX = new EmitterBeam();
             uPosition += anX.unmarshal(dis);
             beams.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -240,9 +227,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.put( (byte)systemDataLength);
+   byteBuffer.put((byte) systemDataLength);
    byteBuffer.put( (byte)beams.size());
-   byteBuffer.putShort( (short)padding);
+   byteBuffer.putShort((short) padding);
    emitterSystem.marshal(byteBuffer);
    location.marshal(byteBuffer);
 
@@ -266,32 +253,96 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute systemDataLength marked as not serialized
-        systemDataLength = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfBeams marked as not serialized
-        numberOfBeams = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute emitterSystem marked as not serialized
+        systemDataLength = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfBeams = Byte.toUnsignedInt(byteBuffer.get());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
         emitterSystem.unmarshal(byteBuffer);
-        // attribute location marked as not serialized
         location.unmarshal(byteBuffer);
-        // attribute beams marked as not serialized
-        for (int idx = 0; idx < numberOfBeams; idx++)
+        for (int idx = 0; idx < ((Number) numberOfBeams).intValue(); idx++)
         {
-        EmitterBeam anX = new EmitterBeam();
-        anX.unmarshal(byteBuffer);
-        beams.add(anX);
+            EmitterBeam anX = new EmitterBeam();
+            anX.unmarshal(byteBuffer);
+            beams.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("systemDataLength", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfBeams", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("emitterSystem", EmitterSystem.fromBufferToMap(byteBuffer));
+    map.put("location", Vector3Float.fromBufferToMap(byteBuffer));
+    List beams = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfBeams")).intValue(); idx++)
+    {
+        beams.add(EmitterBeam.fromBufferToMap(byteBuffer));
+    }
+    map.put("beams", beams);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.put(((Number) map.get("systemDataLength")).byteValue());
+    byteBuffer.put(((Number) map.get("numberOfBeams")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+    EmitterSystem.fromMapToBuffer((PduMap) map.get("emitterSystem"), byteBuffer);
+    Vector3Float.fromMapToBuffer((PduMap) map.get("location"), byteBuffer);
+
+    List beams = (List) map.get("beams");
+    for (int idx = 0; idx < ((Number) map.get("numberOfBeams")).intValue(); idx++)
+    {
+        EmitterBeam.fromMapToBuffer((PduMap) beams.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 1;  // systemDataLength
+    marshalSize += 1;  // numberOfBeams
+    marshalSize += 2;  // padding
+    marshalSize += EmitterSystem.getMarshalledSize((PduMap) map.get("emitterSystem"));
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("location"));
+    List beams = (List) map.get("beams");
+    for (int idx = 0; idx < ((Number) map.get("numberOfBeams")).intValue(); idx++)
+        marshalSize += EmitterBeam.getMarshalledSize((PduMap) beams.get(idx));
+
+    return marshalSize;
 }
 
  /*

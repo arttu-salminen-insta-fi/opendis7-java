@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -36,11 +38,13 @@ public class IFFPdu extends DistributedEmissionsRegenerationFamilyPdu implements
    /** System ID information. Part of Layer 1 basic system data 7.6.5.2. */
    protected SystemIdentifier  systemID = new SystemIdentifier(); 
 
-   /** Part of Layer 1 basic system data 7.6.5.2. */
-   protected byte systemDesignator;
+   /** Part of Layer 1 basic system data 7.6.5.2. 
+   Value space: uint8 */
+   protected int systemDesignator;
 
-   /** Part of Layer 1 basic system data 7.6.5.2. */
-   protected byte systemSpecificData;
+   /** Part of Layer 1 basic system data 7.6.5.2. 
+   Value space: uint8 */
+   protected int systemSpecificData;
 
    /** Fundamental parameters. Part of Layer 1 basic system data 7.6.5.2. */
    protected FundamentalOperationalData  fundamentalParameters = new FundamentalOperationalData(); 
@@ -246,45 +250,35 @@ public SystemIdentifier getSystemID()
 
 
 /** Setter for {@link IFFPdu#systemDesignator}
-  * @param pSystemDesignator new value of interest
+  * @param pSystemDesignator new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized IFFPdu setSystemDesignator(byte pSystemDesignator)
+public synchronized IFFPdu setSystemDesignator(int pSystemDesignator)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSystemDesignator >= 0 && pSystemDesignator <= 255, "Value outside valid value space");
     systemDesignator = pSystemDesignator;
-    return this;
-}
-/** Utility setter for {@link IFFPdu#systemDesignator}
-  * @param pSystemDesignator new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IFFPdu setSystemDesignator(int pSystemDesignator){
-    systemDesignator = (byte) pSystemDesignator;
     return this;
 }
 /** Getter for {@link IFFPdu#systemDesignator}
   * @return value of interest */
-public byte getSystemDesignator()
+public int getSystemDesignator()
 {
     return systemDesignator; 
 }
 
 /** Setter for {@link IFFPdu#systemSpecificData}
-  * @param pSystemSpecificData new value of interest
+  * @param pSystemSpecificData new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized IFFPdu setSystemSpecificData(byte pSystemSpecificData)
+public synchronized IFFPdu setSystemSpecificData(int pSystemSpecificData)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSystemSpecificData >= 0 && pSystemSpecificData <= 255, "Value outside valid value space");
     systemSpecificData = pSystemSpecificData;
-    return this;
-}
-/** Utility setter for {@link IFFPdu#systemSpecificData}
-  * @param pSystemSpecificData new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IFFPdu setSystemSpecificData(int pSystemSpecificData){
-    systemSpecificData = (byte) pSystemSpecificData;
     return this;
 }
 /** Getter for {@link IFFPdu#systemSpecificData}
   * @return value of interest */
-public byte getSystemSpecificData()
+public int getSystemSpecificData()
 {
     return systemSpecificData; 
 }
@@ -411,14 +405,14 @@ public IFFPduLayer5Data getIFFPduLayer5Data()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        emittingEntityId.marshal(dos);
        eventID.marshal(dos);
        location.marshal(dos);
        systemID.marshal(dos);
-       dos.writeByte(systemDesignator);
-       dos.writeByte(systemSpecificData);
+       dos.writeByte((byte) systemDesignator);
+       dos.writeByte((byte) systemSpecificData);
        fundamentalParameters.marshal(dos);
        if (iFFPduLayer2Data != null)
            iFFPduLayer2Data.marshal(dos);
@@ -432,10 +426,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
            iFFPduLayer4TransponderFormatData.marshal(dos);
        if (iFFPduLayer5Data != null)
            iFFPduLayer5Data.marshal(dos);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -453,15 +443,15 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += emittingEntityId.unmarshal(dis);
         uPosition += eventID.unmarshal(dis);
         uPosition += location.unmarshal(dis);
         uPosition += systemID.unmarshal(dis);
-        systemDesignator = (byte)dis.readUnsignedByte();
+        systemDesignator = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        systemSpecificData = (byte)dis.readUnsignedByte();
+        systemSpecificData = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += fundamentalParameters.unmarshal(dis);
         if (fundamentalParameters.getInformationLayers() != 0)
@@ -478,10 +468,6 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
             uPosition += iFFPduLayer4TransponderFormatData.unmarshal(dis);
         if (iFFPduLayer5Data != null)
             uPosition += iFFPduLayer5Data.unmarshal(dis);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -502,8 +488,8 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    eventID.marshal(byteBuffer);
    location.marshal(byteBuffer);
    systemID.marshal(byteBuffer);
-   byteBuffer.put( (byte)systemDesignator);
-   byteBuffer.put( (byte)systemSpecificData);
+   byteBuffer.put((byte) systemDesignator);
+   byteBuffer.put((byte) systemSpecificData);
    fundamentalParameters.marshal(byteBuffer);
    if (iFFPduLayer2Data != null)
        iFFPduLayer2Data.marshal(byteBuffer);
@@ -533,48 +519,134 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute emittingEntityId marked as not serialized
         emittingEntityId.unmarshal(byteBuffer);
-        // attribute eventID marked as not serialized
         eventID.unmarshal(byteBuffer);
-        // attribute location marked as not serialized
         location.unmarshal(byteBuffer);
-        // attribute systemID marked as not serialized
         systemID.unmarshal(byteBuffer);
-        // attribute systemDesignator marked as not serialized
-        systemDesignator = (byte)(byteBuffer.get() & 0xFF);
-        // attribute systemSpecificData marked as not serialized
-        systemSpecificData = (byte)(byteBuffer.get() & 0xFF);
-        // attribute fundamentalParameters marked as not serialized
+        systemDesignator = Byte.toUnsignedInt(byteBuffer.get());
+        systemSpecificData = Byte.toUnsignedInt(byteBuffer.get());
         fundamentalParameters.unmarshal(byteBuffer);
         if (fundamentalParameters.getInformationLayers() != 0)
         	checkWhichLayersNeedsUnmarshaling();
-        // attribute iFFPduLayer2Data marked as not serialized
         if (iFFPduLayer2Data != null)
             iFFPduLayer2Data.unmarshal(byteBuffer);
-        // attribute iFFPduLayer3TransponderFormatData marked as not serialized
         if (iFFPduLayer3TransponderFormatData != null)
             iFFPduLayer3TransponderFormatData.unmarshal(byteBuffer);
-        // attribute iFFPduLayer3InterrogatorFormatData marked as not serialized
         if (iFFPduLayer3InterrogatorFormatData != null)
             iFFPduLayer3InterrogatorFormatData.unmarshal(byteBuffer);
-        // attribute iFFPduLayer4InterrogatorFormatData marked as not serialized
         if (iFFPduLayer4InterrogatorFormatData != null)
             iFFPduLayer4InterrogatorFormatData.unmarshal(byteBuffer);
-        // attribute iFFPduLayer4TransponderFormatData marked as not serialized
         if (iFFPduLayer4TransponderFormatData != null)
             iFFPduLayer4TransponderFormatData.unmarshal(byteBuffer);
-        // attribute iFFPduLayer5Data marked as not serialized
         if (iFFPduLayer5Data != null)
             iFFPduLayer5Data.unmarshal(byteBuffer);
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = DistributedEmissionsRegenerationFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("emittingEntityId", EntityID.fromBufferToMap(byteBuffer));
+    map.put("eventID", EventIdentifier.fromBufferToMap(byteBuffer));
+    map.put("location", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("systemID", SystemIdentifier.fromBufferToMap(byteBuffer));
+    map.put("systemDesignator", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("systemSpecificData", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("fundamentalParameters", FundamentalOperationalData.fromBufferToMap(byteBuffer));
+    if (((Number) ((PduMap) map.get("fundamentalParameters")).get("informationLayers")).byteValue() != 0)
+        initLayerKeys(map);
+    if (map.containsKey("iFFPduLayer2Data"))
+        map.put("iFFPduLayer2Data", IFFPduLayer2Data.fromBufferToMap(byteBuffer));
+    if (map.containsKey("iFFPduLayer3TransponderFormatData"))
+        map.put("iFFPduLayer3TransponderFormatData", IFFPduLayer3TransponderFormatData.fromBufferToMap(byteBuffer));
+    if (map.containsKey("iFFPduLayer3InterrogatorFormatData"))
+        map.put("iFFPduLayer3InterrogatorFormatData", IFFPduLayer3InterrogatorFormatData.fromBufferToMap(byteBuffer));
+    if (map.containsKey("iFFPduLayer4InterrogatorFormatData"))
+        map.put("iFFPduLayer4InterrogatorFormatData", IFFPduLayer4InterrogatorFormatData.fromBufferToMap(byteBuffer));
+    if (map.containsKey("iFFPduLayer4TransponderFormatData"))
+        map.put("iFFPduLayer4TransponderFormatData", IFFPduLayer4TransponderFormatData.fromBufferToMap(byteBuffer));
+    if (map.containsKey("iFFPduLayer5Data"))
+        map.put("iFFPduLayer5Data", IFFPduLayer5Data.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    DistributedEmissionsRegenerationFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("emittingEntityId"), byteBuffer);
+    EventIdentifier.fromMapToBuffer((PduMap) map.get("eventID"), byteBuffer);
+    Vector3Float.fromMapToBuffer((PduMap) map.get("location"), byteBuffer);
+    SystemIdentifier.fromMapToBuffer((PduMap) map.get("systemID"), byteBuffer);
+    byteBuffer.put(((Number) map.get("systemDesignator")).byteValue());
+    byteBuffer.put(((Number) map.get("systemSpecificData")).byteValue());
+    FundamentalOperationalData.fromMapToBuffer((PduMap) map.get("fundamentalParameters"), byteBuffer);
+    if (map.containsKey("iFFPduLayer2Data"))
+       IFFPduLayer2Data.fromMapToBuffer((PduMap) map.get("iFFPduLayer2Data"), byteBuffer);
+    if (map.containsKey("iFFPduLayer3TransponderFormatData"))
+       IFFPduLayer3TransponderFormatData.fromMapToBuffer((PduMap) map.get("iFFPduLayer3TransponderFormatData"), byteBuffer);
+    if (map.containsKey("iFFPduLayer3InterrogatorFormatData"))
+       IFFPduLayer3InterrogatorFormatData.fromMapToBuffer((PduMap) map.get("iFFPduLayer3InterrogatorFormatData"), byteBuffer);
+    if (map.containsKey("iFFPduLayer4InterrogatorFormatData"))
+       IFFPduLayer4InterrogatorFormatData.fromMapToBuffer((PduMap) map.get("iFFPduLayer4InterrogatorFormatData"), byteBuffer);
+    if (map.containsKey("iFFPduLayer4TransponderFormatData"))
+       IFFPduLayer4TransponderFormatData.fromMapToBuffer((PduMap) map.get("iFFPduLayer4TransponderFormatData"), byteBuffer);
+    if (map.containsKey("iFFPduLayer5Data"))
+       IFFPduLayer5Data.fromMapToBuffer((PduMap) map.get("iFFPduLayer5Data"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += DistributedEmissionsRegenerationFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("emittingEntityId"));
+    marshalSize += EventIdentifier.getMarshalledSize((PduMap) map.get("eventID"));
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("location"));
+    marshalSize += SystemIdentifier.getMarshalledSize((PduMap) map.get("systemID"));
+    marshalSize += 1;  // systemDesignator
+    marshalSize += 1;  // systemSpecificData
+    marshalSize += FundamentalOperationalData.getMarshalledSize((PduMap) map.get("fundamentalParameters"));
+    if (map.containsKey("iFFPduLayer2Data"))
+        marshalSize += IFFPduLayer2Data.getMarshalledSize((PduMap) map.get("iFFPduLayer2Data"));
+    if (map.containsKey("iFFPduLayer3TransponderFormatData"))
+        marshalSize += IFFPduLayer3TransponderFormatData.getMarshalledSize((PduMap) map.get("iFFPduLayer3TransponderFormatData"));
+    if (map.containsKey("iFFPduLayer3InterrogatorFormatData"))
+        marshalSize += IFFPduLayer3InterrogatorFormatData.getMarshalledSize((PduMap) map.get("iFFPduLayer3InterrogatorFormatData"));
+    if (map.containsKey("iFFPduLayer4InterrogatorFormatData"))
+        marshalSize += IFFPduLayer4InterrogatorFormatData.getMarshalledSize((PduMap) map.get("iFFPduLayer4InterrogatorFormatData"));
+    if (map.containsKey("iFFPduLayer4TransponderFormatData"))
+        marshalSize += IFFPduLayer4TransponderFormatData.getMarshalledSize((PduMap) map.get("iFFPduLayer4TransponderFormatData"));
+    if (map.containsKey("iFFPduLayer5Data"))
+        marshalSize += IFFPduLayer5Data.getMarshalledSize((PduMap) map.get("iFFPduLayer5Data"));
+
+    return marshalSize;
 }
 
  /*
@@ -621,7 +693,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" emittingEntityId:").append(emittingEntityId); // writeOneToString
     sb.append(" eventID:").append(eventID); // writeOneToString
     sb.append(" location:").append(location); // writeOneToString
@@ -659,7 +731,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 
  /** Does not initialize iFFPduLayerFormatDatas if systemID.getSystemType contains both transponder and interrogator, you need to choose one.*/
  private void checkWhichLayersNeedsUnmarshaling() {
-	 byte informationLayers = fundamentalParameters.getInformationLayers();
+	 int informationLayers = fundamentalParameters.getInformationLayers();
 
 	 if (((informationLayers & 1 << LAYER_DATA_2_BIT_INDEX) > 0)) {
 	 		iFFPduLayer2Data = new IFFPduLayer2Data();
@@ -682,6 +754,34 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	 }
 	 if (((informationLayers & 1 << LAYER_DATA_5_BIT_INDEX) > 0)) {
 	 		iFFPduLayer5Data = new IFFPduLayer5Data();
+	 }
+ }
+ /** Does not initialize iFFPduLayerFormatDatas if systemID.getSystemType contains both transponder and interrogator, you need to choose one.*/
+ private static void initLayerKeys(PduMap map) {
+	 byte informationLayers = ((Number) ((PduMap) map.get("fundamentalParameters")).get("informationLayers")).byteValue();
+     IFFSystemType iffSystemType = (IFFSystemType) ((PduMap) map.get("systemID")).get("systemType");
+
+	 if (((informationLayers & 1 << LAYER_DATA_2_BIT_INDEX) > 0)) {
+	 		map.put("iFFPduLayer2Data", null);
+	 }
+	 if (((informationLayers & 1 << LAYER_DATA_3_BIT_INDEX) > 0)) {
+		 if (iffSystemType.toString().contains(TRANSPONDER)) {
+	 			map.put("iFFPduLayer3TransponderFormatData", null);
+	 	 }
+	 	 else if (iffSystemType.toString().contains(INTERROGATOR)) {
+	 			map.put("iFFPduLayer3InterrogatorFormatData", null);
+	 	 }
+	 }
+	 if (((informationLayers & 1 << LAYER_DATA_4_BIT_INDEX) > 0)) {
+		 if (iffSystemType.toString().contains(TRANSPONDER)) {
+	 			map.put("iFFPduLayer4TransponderFormatData", null);
+	 	 }
+	 	 else if (iffSystemType.toString().contains(INTERROGATOR)) {
+	 			map.put("iFFPduLayer4InterrogatorFormatData", null);
+	 	 }
+	 }
+	 if (((informationLayers & 1 << LAYER_DATA_5_BIT_INDEX) > 0)) {
+	 		map.put("iFFPduLayer5Data", null);
 	 }
  }
 } // end of IFFPdu

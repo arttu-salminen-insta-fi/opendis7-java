@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * identify which of the optional data fields are contained in the Minefield Data PDU or requested in the Minefield Query PDU. This is a 32-bit record. For each field, true denotes that the data is requested or present and false denotes that the data is neither requested nor present. Section 6.2.16
@@ -19,31 +21,32 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class DataFilterRecord extends Object implements Serializable, Marshaller
 {
-   /** Bitflags field */
-   protected int bitFlags;
+   /** Bitflags field 
+   Value space: uint32 */
+   protected UnsignedInteger bitFlags = UnsignedInteger.ZERO;
 
    /** Default static instance variable */
-   public static int  GROUND_BURIAL_DEPTH_OFFSET_BIT = 0;
+   public static UnsignedInteger  GROUND_BURIAL_DEPTH_OFFSET_BIT = UnsignedInteger.valueOf(0);
    /** Default static instance variable */
-   public static int  WATER_BURIAL_DEPTH_OFFSET_BIT = 1;
+   public static UnsignedInteger  WATER_BURIAL_DEPTH_OFFSET_BIT = UnsignedInteger.valueOf(1);
    /** Default static instance variable */
-   public static int  SNOW_BURIAL_DEPTH_OFFSET_BIT = 2;
+   public static UnsignedInteger  SNOW_BURIAL_DEPTH_OFFSET_BIT = UnsignedInteger.valueOf(2);
    /** Default static instance variable */
-   public static int  MINE_ORIENTATION_BIT = 3;
+   public static UnsignedInteger  MINE_ORIENTATION_BIT = UnsignedInteger.valueOf(3);
    /** Default static instance variable */
-   public static int  THERMAL_CONSTRAST_BIT = 4;
+   public static UnsignedInteger  THERMAL_CONSTRAST_BIT = UnsignedInteger.valueOf(4);
    /** Default static instance variable */
-   public static int  REFLECTANCE_BIT = 5;
+   public static UnsignedInteger  REFLECTANCE_BIT = UnsignedInteger.valueOf(5);
    /** Default static instance variable */
-   public static int  MINE_EMPLACEMENT_TIME_BIT = 6;
+   public static UnsignedInteger  MINE_EMPLACEMENT_TIME_BIT = UnsignedInteger.valueOf(6);
    /** Default static instance variable */
-   public static int  TRIP_DETONATION_WIRE_BIT = 7;
+   public static UnsignedInteger  TRIP_DETONATION_WIRE_BIT = UnsignedInteger.valueOf(7);
    /** Default static instance variable */
-   public static int  FUSING_BIT = 8;
+   public static UnsignedInteger  FUSING_BIT = UnsignedInteger.valueOf(8);
    /** Default static instance variable */
-   public static int  SCALAR_DETECTION_COEFFICIENT_BIT = 9;
+   public static UnsignedInteger  SCALAR_DETECTION_COEFFICIENT_BIT = UnsignedInteger.valueOf(9);
    /** Default static instance variable */
-   public static int  PAINT_SCHEME_BIT = 10;
+   public static UnsignedInteger  PAINT_SCHEME_BIT = UnsignedInteger.valueOf(10);
 
 /** Constructor creates and configures a new instance object */
  public DataFilterRecord()
@@ -67,16 +70,16 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link DataFilterRecord#bitFlags}
-  * @param pBitFlags new value of interest
+  * @param pBitFlags new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized DataFilterRecord setBitFlags(int pBitFlags)
+public synchronized DataFilterRecord setBitFlags(UnsignedInteger pBitFlags)
 {
     bitFlags = pBitFlags;
     return this;
 }
 /** Getter for {@link DataFilterRecord#bitFlags}
   * @return value of interest */
-public int getBitFlags()
+public UnsignedInteger getBitFlags()
 {
     return bitFlags; 
 }
@@ -90,13 +93,9 @@ public int getBitFlags()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeInt(bitFlags);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeInt(bitFlags.intValue());
     }
 }
 
@@ -112,14 +111,10 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        bitFlags = dis.readInt();
+        bitFlags = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -135,7 +130,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putInt( (int)bitFlags);
+   byteBuffer.putInt(bitFlags.intValue());
 }
 
 /**
@@ -150,27 +145,56 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute bitFlags marked as not serialized
-        bitFlags = byteBuffer.getInt();
-        // attribute GROUND_BURIAL_DEPTH_OFFSET_BIT marked as not serialized
-        // attribute WATER_BURIAL_DEPTH_OFFSET_BIT marked as not serialized
-        // attribute SNOW_BURIAL_DEPTH_OFFSET_BIT marked as not serialized
-        // attribute MINE_ORIENTATION_BIT marked as not serialized
-        // attribute THERMAL_CONSTRAST_BIT marked as not serialized
-        // attribute REFLECTANCE_BIT marked as not serialized
-        // attribute MINE_EMPLACEMENT_TIME_BIT marked as not serialized
-        // attribute TRIP_DETONATION_WIRE_BIT marked as not serialized
-        // attribute FUSING_BIT marked as not serialized
-        // attribute SCALAR_DETECTION_COEFFICIENT_BIT marked as not serialized
-        // attribute PAINT_SCHEME_BIT marked as not serialized
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        bitFlags = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("bitFlags", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putInt(((Number) map.get("bitFlags")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // bitFlags
+
+    return marshalSize;
 }
 
  /*
