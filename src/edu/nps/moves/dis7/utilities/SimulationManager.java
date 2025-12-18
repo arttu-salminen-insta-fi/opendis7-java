@@ -5,6 +5,7 @@
  */
 package edu.nps.moves.dis7.utilities;
 
+import com.google.common.primitives.UnsignedInteger;
 import edu.nps.moves.dis7.pdus.CreateEntityPdu;
 import edu.nps.moves.dis7.pdus.EntityID;
 import edu.nps.moves.dis7.pdus.RemoveEntityPdu;
@@ -105,7 +106,7 @@ public class SimulationManager
                 // TODO: set record parameters
                 createEntityPdu = pduFactory.makeCreateEntityPdu();
                 createEntityPdu.setExerciseID(entity.getId());
-                createEntityPdu.setTimestamp(DisTime.getCurrentDisTimestamp());
+                createEntityPdu.setTimestamp(UnsignedInteger.fromIntBits(DisTime.getCurrentDisTimestamp()));
                 disThreadedNetworkInterface.sendPDU(createEntityPdu);
             }
         }

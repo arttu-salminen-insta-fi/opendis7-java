@@ -109,7 +109,7 @@ public class DetonationPduTest extends PduTest {
      assertEquals (createdDetonationPdu.getVelocity(),                  receivedDetonationPdu.getVelocity(),                  "mismatched  Velocity");
      assertEquals (createdDetonationPdu.getDescriptor(),                receivedDetonationPdu.getDescriptor(),                "mismatched  Descripter");
      assertEquals (createdDetonationPdu.getDetonationResult(),          receivedDetonationPdu.getDetonationResult(),          "mismatched  MunitionDetonationResult");
-     assertEquals (createdDetonationPdu.getPad(),                       receivedDetonationPdu.getPad(),                       "mismatched  Pad");
+     assertEquals (createdDetonationPdu.getPadding(),                       receivedDetonationPdu.getPadding(),                       "mismatched  Pad");
      
      testPduCommonFields(createdPdu); // shared tests in superclass
   }

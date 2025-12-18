@@ -4,6 +4,7 @@
  */
 package edu.nps.moves.dis7.test;
 
+import com.google.common.primitives.UnsignedInteger;
 import edu.nps.moves.dis7.pdus.IntercomSignalPdu;
 import edu.nps.moves.dis7.pdus.Pdu;
 import edu.nps.moves.dis7.pdus.SignalPdu;
@@ -61,7 +62,7 @@ public class SignalPdusTest
 
         pdu = pduFactory.makeSignalPdu(); // recreate new pdu
         ((SignalPdu) pdu).setEncodingScheme((short) 0x1111);
-        ((SignalPdu) pdu).setSampleRate(0x22222222);
+        ((SignalPdu) pdu).setSampleRate(UnsignedInteger.fromIntBits(0x22222222));
         ((SignalPdu) pdu).setSamples((short) 0x3333);
         ((SignalPdu) pdu).setData("SignalPdu-testdata".getBytes());
         pdu.setLength(pdu.getMarshalledSize());
@@ -72,7 +73,7 @@ public class SignalPdusTest
 
         pdu = pduFactory.makeIntercomSignalPdu(); // recreate new pdu
         ((IntercomSignalPdu) pdu).setEncodingScheme((short) 0x1111);
-        ((IntercomSignalPdu) pdu).setSampleRate(0x22222222);
+        ((IntercomSignalPdu) pdu).setSampleRate(UnsignedInteger.fromIntBits(0x22222222));
         ((IntercomSignalPdu) pdu).setSamples((short) 0x3333);
         ((IntercomSignalPdu) pdu).setData("IntercomSignalPdu-testdata".getBytes());
         pdu.setLength(pdu.getMarshalledSize());

@@ -4,6 +4,7 @@
  */
 package edu.nps.moves.dis7.examples;
 
+import com.google.common.primitives.UnsignedInteger;
 import edu.nps.moves.dis7.pdus.EntityID;
 import edu.nps.moves.dis7.pdus.EntityStatePdu;
 import edu.nps.moves.dis7.pdus.EulerAngles;
@@ -73,9 +74,9 @@ public class PduSenderNIO
           // arrived out of order) or non-increasing timestamp (dupe packet).
           // The time should be slaved to clock time, so we can determine the time
           // between packets, but this is the minimum for testing.
-          int timestamp = espdu.getTimestamp();
+          int timestamp = espdu.getTimestamp().intValue();
           timestamp++;
-          espdu.setTimestamp(timestamp);
+          espdu.setTimestamp(UnsignedInteger.fromIntBits(timestamp));
 
           // Modify the x-axis position of the object
           location = espdu.getEntityLocation();
