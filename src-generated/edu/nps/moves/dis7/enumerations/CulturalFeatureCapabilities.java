@@ -117,4 +117,31 @@ public class CulturalFeatureCapabilities extends DisBitSet implements EntityCapa
   {
       return "CulturalFeatureCapabilities: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         CulturalFeatureCapabilities bitset = new CulturalFeatureCapabilities();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling CulturalFeatureCapabilities data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((CulturalFeatureCapabilities) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((CulturalFeatureCapabilities) map.get("bitset")).getMarshalledSize();
+  }
+
 }

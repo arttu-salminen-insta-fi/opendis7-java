@@ -131,4 +131,31 @@ public class SpacePlatformCapabilities extends DisBitSet implements EntityCapabi
   {
       return "SpacePlatformCapabilities: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         SpacePlatformCapabilities bitset = new SpacePlatformCapabilities();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling SpacePlatformCapabilities data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((SpacePlatformCapabilities) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((SpacePlatformCapabilities) map.get("bitset")).getMarshalledSize();
+  }
+
 }

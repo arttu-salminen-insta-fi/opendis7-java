@@ -110,4 +110,31 @@ public class PointObjectAppearanceTree extends DisBitSet
   {
       return "PointObjectAppearanceTree: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         PointObjectAppearanceTree bitset = new PointObjectAppearanceTree();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling PointObjectAppearanceTree data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((PointObjectAppearanceTree) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((PointObjectAppearanceTree) map.get("bitset")).getMarshalledSize();
+  }
+
 }

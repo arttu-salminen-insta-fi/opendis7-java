@@ -117,4 +117,31 @@ public class LinearObjectAppearanceSpeedBump extends DisBitSet
   {
       return "LinearObjectAppearanceSpeedBump: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         LinearObjectAppearanceSpeedBump bitset = new LinearObjectAppearanceSpeedBump();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling LinearObjectAppearanceSpeedBump data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((LinearObjectAppearanceSpeedBump) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((LinearObjectAppearanceSpeedBump) map.get("bitset")).getMarshalledSize();
+  }
+
 }

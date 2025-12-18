@@ -131,4 +131,31 @@ public class SupplyCapabilities extends DisBitSet implements EntityCapabilities
   {
       return "SupplyCapabilities: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         SupplyCapabilities bitset = new SupplyCapabilities();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling SupplyCapabilities data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((SupplyCapabilities) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((SupplyCapabilities) map.get("bitset")).getMarshalledSize();
+  }
+
 }

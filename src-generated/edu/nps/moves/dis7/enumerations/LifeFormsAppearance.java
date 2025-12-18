@@ -229,4 +229,31 @@ public class LifeFormsAppearance extends DisBitSet
   {
       return "LifeFormsAppearance: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         LifeFormsAppearance bitset = new LifeFormsAppearance();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling LifeFormsAppearance data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((LifeFormsAppearance) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((LifeFormsAppearance) map.get("bitset")).getMarshalledSize();
+  }
+
 }

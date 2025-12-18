@@ -124,4 +124,31 @@ public class EnvironmentalAppearance extends DisBitSet
   {
       return "EnvironmentalAppearance: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         EnvironmentalAppearance bitset = new EnvironmentalAppearance();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling EnvironmentalAppearance data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((EnvironmentalAppearance) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((EnvironmentalAppearance) map.get("bitset")).getMarshalledSize();
+  }
+
 }

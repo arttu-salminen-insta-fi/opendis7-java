@@ -103,4 +103,31 @@ public class PointObjectAppearanceRibbonBridge extends DisBitSet
   {
       return "PointObjectAppearanceRibbonBridge: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         PointObjectAppearanceRibbonBridge bitset = new PointObjectAppearanceRibbonBridge();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling PointObjectAppearanceRibbonBridge data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((PointObjectAppearanceRibbonBridge) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((PointObjectAppearanceRibbonBridge) map.get("bitset")).getMarshalledSize();
+  }
+
 }

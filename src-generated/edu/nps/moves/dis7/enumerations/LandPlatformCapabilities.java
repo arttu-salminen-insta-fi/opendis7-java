@@ -152,4 +152,31 @@ public class LandPlatformCapabilities extends DisBitSet implements EntityCapabil
   {
       return "LandPlatformCapabilities: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         LandPlatformCapabilities bitset = new LandPlatformCapabilities();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling LandPlatformCapabilities data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((LandPlatformCapabilities) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((LandPlatformCapabilities) map.get("bitset")).getMarshalledSize();
+  }
+
 }

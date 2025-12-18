@@ -131,4 +131,31 @@ public class PointObjectAppearanceAirGroundBurst extends DisBitSet
   {
       return "PointObjectAppearanceAirGroundBurst: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         PointObjectAppearanceAirGroundBurst bitset = new PointObjectAppearanceAirGroundBurst();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling PointObjectAppearanceAirGroundBurst data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((PointObjectAppearanceAirGroundBurst) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((PointObjectAppearanceAirGroundBurst) map.get("bitset")).getMarshalledSize();
+  }
+
 }

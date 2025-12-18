@@ -222,4 +222,31 @@ public class SensorEmitterAppearance extends DisBitSet
   {
       return "SensorEmitterAppearance: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         SensorEmitterAppearance bitset = new SensorEmitterAppearance();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling SensorEmitterAppearance data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((SensorEmitterAppearance) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((SensorEmitterAppearance) map.get("bitset")).getMarshalledSize();
+  }
+
 }

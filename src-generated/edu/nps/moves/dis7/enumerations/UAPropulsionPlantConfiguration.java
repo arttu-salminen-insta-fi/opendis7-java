@@ -110,4 +110,31 @@ public class UAPropulsionPlantConfiguration extends DisBitSet
   {
       return "UAPropulsionPlantConfiguration: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         UAPropulsionPlantConfiguration bitset = new UAPropulsionPlantConfiguration();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling UAPropulsionPlantConfiguration data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((UAPropulsionPlantConfiguration) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((UAPropulsionPlantConfiguration) map.get("bitset")).getMarshalledSize();
+  }
+
 }

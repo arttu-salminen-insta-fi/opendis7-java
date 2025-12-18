@@ -152,4 +152,31 @@ public class SurfacePlatformCapabilities extends DisBitSet implements EntityCapa
   {
       return "SurfacePlatformCapabilities: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         SurfacePlatformCapabilities bitset = new SurfacePlatformCapabilities();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling SurfacePlatformCapabilities data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((SurfacePlatformCapabilities) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((SurfacePlatformCapabilities) map.get("bitset")).getMarshalledSize();
+  }
+
 }

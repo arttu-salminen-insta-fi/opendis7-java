@@ -117,4 +117,31 @@ public class LinearObjectAppearanceExhaustSmoke extends DisBitSet
   {
       return "LinearObjectAppearanceExhaustSmoke: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         LinearObjectAppearanceExhaustSmoke bitset = new LinearObjectAppearanceExhaustSmoke();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling LinearObjectAppearanceExhaustSmoke data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((LinearObjectAppearanceExhaustSmoke) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((LinearObjectAppearanceExhaustSmoke) map.get("bitset")).getMarshalledSize();
+  }
+
 }

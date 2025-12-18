@@ -103,4 +103,31 @@ public class LinearObjectAppearanceMinefieldLaneMarker extends DisBitSet
   {
       return "LinearObjectAppearanceMinefieldLaneMarker: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         LinearObjectAppearanceMinefieldLaneMarker bitset = new LinearObjectAppearanceMinefieldLaneMarker();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling LinearObjectAppearanceMinefieldLaneMarker data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((LinearObjectAppearanceMinefieldLaneMarker) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((LinearObjectAppearanceMinefieldLaneMarker) map.get("bitset")).getMarshalledSize();
+  }
+
 }

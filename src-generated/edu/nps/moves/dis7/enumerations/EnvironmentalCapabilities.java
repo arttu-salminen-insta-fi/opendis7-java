@@ -110,4 +110,31 @@ public class EnvironmentalCapabilities extends DisBitSet implements EntityCapabi
   {
       return "EnvironmentalCapabilities: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         EnvironmentalCapabilities bitset = new EnvironmentalCapabilities();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling EnvironmentalCapabilities data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((EnvironmentalCapabilities) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((EnvironmentalCapabilities) map.get("bitset")).getMarshalledSize();
+  }
+
 }

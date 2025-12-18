@@ -117,4 +117,31 @@ public class PointObjectAppearanceBuildingStructure extends DisBitSet
   {
       return "PointObjectAppearanceBuildingStructure: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         PointObjectAppearanceBuildingStructure bitset = new PointObjectAppearanceBuildingStructure();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling PointObjectAppearanceBuildingStructure data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((PointObjectAppearanceBuildingStructure) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((PointObjectAppearanceBuildingStructure) map.get("bitset")).getMarshalledSize();
+  }
+
 }

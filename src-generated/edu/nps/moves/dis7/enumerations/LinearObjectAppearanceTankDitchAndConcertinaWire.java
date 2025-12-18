@@ -117,4 +117,31 @@ public class LinearObjectAppearanceTankDitchAndConcertinaWire extends DisBitSet
   {
       return "LinearObjectAppearanceTankDitchAndConcertinaWire: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         LinearObjectAppearanceTankDitchAndConcertinaWire bitset = new LinearObjectAppearanceTankDitchAndConcertinaWire();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling LinearObjectAppearanceTankDitchAndConcertinaWire data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((LinearObjectAppearanceTankDitchAndConcertinaWire) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((LinearObjectAppearanceTankDitchAndConcertinaWire) map.get("bitset")).getMarshalledSize();
+  }
+
 }

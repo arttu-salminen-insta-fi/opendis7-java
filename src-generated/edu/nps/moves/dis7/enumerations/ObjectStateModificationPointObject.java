@@ -110,4 +110,31 @@ public class ObjectStateModificationPointObject extends DisBitSet
   {
       return "ObjectStateModificationPointObject: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         ObjectStateModificationPointObject bitset = new ObjectStateModificationPointObject();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling ObjectStateModificationPointObject data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((ObjectStateModificationPointObject) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((ObjectStateModificationPointObject) map.get("bitset")).getMarshalledSize();
+  }
+
 }

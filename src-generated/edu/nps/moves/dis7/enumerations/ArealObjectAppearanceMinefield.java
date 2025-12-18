@@ -110,4 +110,31 @@ public class ArealObjectAppearanceMinefield extends DisBitSet
   {
       return "ArealObjectAppearanceMinefield: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         ArealObjectAppearanceMinefield bitset = new ArealObjectAppearanceMinefield();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling ArealObjectAppearanceMinefield data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((ArealObjectAppearanceMinefield) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((ArealObjectAppearanceMinefield) map.get("bitset")).getMarshalledSize();
+  }
+
 }

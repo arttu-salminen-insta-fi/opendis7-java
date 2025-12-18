@@ -110,4 +110,31 @@ public class PointObjectAppearancePothole extends DisBitSet
   {
       return "PointObjectAppearancePothole: " + super.toString();
   }
+
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      PduMap map = new PduMap();
+      try
+      {
+         PointObjectAppearancePothole bitset = new PointObjectAppearancePothole();
+         bitset.unmarshal(byteBuffer);
+         map.put("bitset", bitset);
+      }
+      catch (java.nio.BufferUnderflowException bue)
+      {
+          System.err.println("*** buffer underflow error while unmarshalling PointObjectAppearancePothole data.");
+      }
+      return map;
+  }
+
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+      ((PointObjectAppearancePothole) map.get("bitset")).marshal(byteBuffer);
+  }
+
+  public static int getMarshalledSize(PduMap map)
+  {
+      return ((PointObjectAppearancePothole) map.get("bitset")).getMarshalledSize();
+  }
+
 }
