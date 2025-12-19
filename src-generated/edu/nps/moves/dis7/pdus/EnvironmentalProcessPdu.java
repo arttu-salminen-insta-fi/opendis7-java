@@ -385,7 +385,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     map.put("environementalProcessID", ObjectIdentifier.fromBufferToMap(byteBuffer));
     map.put("environmentType", EntityType.fromBufferToMap(byteBuffer));
     map.put("modelType", EnvironmentalProcessModelType.unmarshalEnum(byteBuffer).getValue());
-    map.put("environmentStatus", EnvironmentalProcessEnvironmentStatus.fromBufferToMap(byteBuffer));
+    map.put("environmentStatus", EnvironmentalProcessEnvironmentStatus.unmarshallRawValue(byteBuffer));
     map.put("numberOfEnvironmentRecords", Short.toUnsignedInt(byteBuffer.getShort()));
     map.put("sequenceNumber", Short.toUnsignedInt(byteBuffer.getShort()));
     List environmentRecords = new ArrayList<>();
@@ -412,7 +412,7 @@ public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) t
     ObjectIdentifier.fromMapToBuffer((PduMap) map.get("environementalProcessID"), byteBuffer);
     EntityType.fromMapToBuffer((PduMap) map.get("environmentType"), byteBuffer);
     EnvironmentalProcessModelType.getEnumForValue(((Number) map.get("modelType")).intValue()).marshal(byteBuffer);
-    EnvironmentalProcessEnvironmentStatus.fromMapToBuffer((PduMap) map.get("environmentStatus"), byteBuffer);
+    EnvironmentalProcessEnvironmentStatus.marshallRawValue(((Number) map.get("environmentStatus")).intValue(), byteBuffer);
     byteBuffer.putShort(((Number) map.get("numberOfEnvironmentRecords")).shortValue());
     byteBuffer.putShort(((Number) map.get("sequenceNumber")).shortValue());
 
@@ -437,7 +437,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
     marshalSize += ObjectIdentifier.getMarshalledSize((PduMap) map.get("environementalProcessID"));
     marshalSize += EntityType.getMarshalledSize((PduMap) map.get("environmentType"));
     marshalSize += EnvironmentalProcessModelType.getEnumForValue(((Number) map.get("modelType")).intValue()).getMarshalledSize();
-    marshalSize += EnvironmentalProcessEnvironmentStatus.getMarshalledSize((PduMap) map.get("environmentStatus"));
+    marshalSize += EnvironmentalProcessEnvironmentStatus.getByteLength();
     marshalSize += 2;  // numberOfEnvironmentRecords
     marshalSize += 2;  // sequenceNumber
     List environmentRecords = (List) map.get("environmentRecords");

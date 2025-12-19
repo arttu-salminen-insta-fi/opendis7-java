@@ -1184,7 +1184,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     List fusing = new ArrayList<>();
     for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
     {
-        fusing.add(MinefieldDataFusing.fromBufferToMap(byteBuffer));
+        fusing.add(MinefieldDataFusing.unmarshallRawValue(byteBuffer));
     }
     map.put("fusing", fusing);
 
@@ -1196,7 +1196,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     List paintScheme = new ArrayList<>();
     for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
     {
-        paintScheme.add(MinefieldDataPaintScheme.fromBufferToMap(byteBuffer));
+        paintScheme.add(MinefieldDataPaintScheme.unmarshallRawValue(byteBuffer));
     }
     map.put("paintScheme", paintScheme);
 
@@ -1300,7 +1300,7 @@ public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) t
     List fusing = (List) map.get("fusing");
     for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
     {
-        MinefieldDataFusing.fromMapToBuffer((PduMap) fusing.get(idx), byteBuffer);
+        MinefieldDataFusing.marshallRawValue(((Number) fusing.get(idx)).intValue(), byteBuffer);
     }
 
 
@@ -1312,7 +1312,7 @@ public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) t
     List paintScheme = (List) map.get("paintScheme");
     for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
     {
-        MinefieldDataPaintScheme.fromMapToBuffer((PduMap) paintScheme.get(idx), byteBuffer);
+        MinefieldDataPaintScheme.marshallRawValue(((Number) paintScheme.get(idx)).intValue(), byteBuffer);
     }
 
     byte[] padding3 = new byte[Align.to32bits(byteBuffer)];
@@ -1383,13 +1383,13 @@ public static int getMarshalledSize(PduMap map) throws Exception
         marshalSize += 2;
     List fusing = (List) map.get("fusing");
     for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
-        marshalSize += MinefieldDataFusing.getMarshalledSize((PduMap) fusing.get(idx));
+        marshalSize += MinefieldDataFusing.getByteLength();
     byte[] scalarDetectionCoefficient = (byte[]) map.get("scalarDetectionCoefficient");
     for (int idx = 0; idx < scalarDetectionCoefficient.length; idx++)
         marshalSize += 1;
     List paintScheme = (List) map.get("paintScheme");
     for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
-        marshalSize += MinefieldDataPaintScheme.getMarshalledSize((PduMap) paintScheme.get(idx));
+        marshalSize += MinefieldDataPaintScheme.getByteLength();
     marshalSize += ((byte[]) map.get("padding3")).length;
     byte[] numberOfTripDetonationWires = (byte[]) map.get("numberOfTripDetonationWires");
     for (int idx = 0; idx < numberOfTripDetonationWires.length; idx++)

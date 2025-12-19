@@ -395,8 +395,8 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     map = new PduMap();
 
     map.put("segmentNumber", Byte.toUnsignedInt(byteBuffer.get()));
-    map.put("segmentModification", ObjectStateModificationLinearObject.fromBufferToMap(byteBuffer));
-    map.put("generalSegmentAppearance", ObjectStateAppearanceGeneral.fromBufferToMap(byteBuffer));
+    map.put("segmentModification", ObjectStateModificationLinearObject.unmarshallRawValue(byteBuffer));
+    map.put("generalSegmentAppearance", ObjectStateAppearanceGeneral.unmarshallRawValue(byteBuffer));
     map.put("specificSegmentAppearance", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
     map.put("segmentLocation", Vector3Double.fromBufferToMap(byteBuffer));
     map.put("segmentOrientation", EulerAngles.fromBufferToMap(byteBuffer));
@@ -419,8 +419,8 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
 public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
 {
     byteBuffer.put(((Number) map.get("segmentNumber")).byteValue());
-    ObjectStateModificationLinearObject.fromMapToBuffer((PduMap) map.get("segmentModification"), byteBuffer);
-    ObjectStateAppearanceGeneral.fromMapToBuffer((PduMap) map.get("generalSegmentAppearance"), byteBuffer);
+    ObjectStateModificationLinearObject.marshallRawValue(((Number) map.get("segmentModification")).intValue(), byteBuffer);
+    ObjectStateAppearanceGeneral.marshallRawValue(((Number) map.get("generalSegmentAppearance")).intValue(), byteBuffer);
     byteBuffer.putInt(((Number) map.get("specificSegmentAppearance")).intValue());
     Vector3Double.fromMapToBuffer((PduMap) map.get("segmentLocation"), byteBuffer);
     EulerAngles.fromMapToBuffer((PduMap) map.get("segmentOrientation"), byteBuffer);
@@ -441,8 +441,8 @@ public static int getMarshalledSize(PduMap map) throws Exception
     int marshalSize = 0; 
 
     marshalSize += 1;  // segmentNumber
-    marshalSize += ObjectStateModificationLinearObject.getMarshalledSize((PduMap) map.get("segmentModification"));
-    marshalSize += ObjectStateAppearanceGeneral.getMarshalledSize((PduMap) map.get("generalSegmentAppearance"));
+    marshalSize += ObjectStateModificationLinearObject.getByteLength();
+    marshalSize += ObjectStateAppearanceGeneral.getByteLength();
     marshalSize += 4;  // specificSegmentAppearance
     marshalSize += Vector3Double.getMarshalledSize((PduMap) map.get("segmentLocation"));
     marshalSize += EulerAngles.getMarshalledSize((PduMap) map.get("segmentOrientation"));

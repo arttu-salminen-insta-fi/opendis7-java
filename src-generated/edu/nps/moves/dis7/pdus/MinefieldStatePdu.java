@@ -527,7 +527,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     map.put("numberOfMineTypes", Short.toUnsignedInt(byteBuffer.getShort()));
     map.put("minefieldLocation", Vector3Double.fromBufferToMap(byteBuffer));
     map.put("minefieldOrientation", EulerAngles.fromBufferToMap(byteBuffer));
-    map.put("appearance", MinefieldStateAppearanceBitMap.fromBufferToMap(byteBuffer));
+    map.put("appearance", MinefieldStateAppearanceBitMap.unmarshallRawValue(byteBuffer));
     map.put("protocolMode", ProtocolMode.fromBufferToMap(byteBuffer));
     List perimeterPoints = new ArrayList<>();
     for (int idx = 0; idx < ((Number) map.get("numberOfPerimeterPoints")).intValue(); idx++)
@@ -565,7 +565,7 @@ public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) t
     byteBuffer.putShort(((Number) map.get("numberOfMineTypes")).shortValue());
     Vector3Double.fromMapToBuffer((PduMap) map.get("minefieldLocation"), byteBuffer);
     EulerAngles.fromMapToBuffer((PduMap) map.get("minefieldOrientation"), byteBuffer);
-    MinefieldStateAppearanceBitMap.fromMapToBuffer((PduMap) map.get("appearance"), byteBuffer);
+    MinefieldStateAppearanceBitMap.marshallRawValue(((Number) map.get("appearance")).intValue(), byteBuffer);
     ProtocolMode.fromMapToBuffer((PduMap) map.get("protocolMode"), byteBuffer);
 
     List perimeterPoints = (List) map.get("perimeterPoints");
@@ -601,7 +601,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
     marshalSize += 2;  // numberOfMineTypes
     marshalSize += Vector3Double.getMarshalledSize((PduMap) map.get("minefieldLocation"));
     marshalSize += EulerAngles.getMarshalledSize((PduMap) map.get("minefieldOrientation"));
-    marshalSize += MinefieldStateAppearanceBitMap.getMarshalledSize((PduMap) map.get("appearance"));
+    marshalSize += MinefieldStateAppearanceBitMap.getByteLength();
     marshalSize += ProtocolMode.getMarshalledSize((PduMap) map.get("protocolMode"));
     List perimeterPoints = (List) map.get("perimeterPoints");
     for (int idx = 0; idx < ((Number) map.get("numberOfPerimeterPoints")).intValue(); idx++)

@@ -3,6 +3,8 @@
 package edu.nps.moves.dis7.enumerations;
 
 import edu.nps.moves.dis7.pdus.*;
+import java.nio.ByteBuffer;
+
 
 /**
  * Generated from XML,
@@ -47,10 +49,13 @@ public class ExpendableCapabilities extends DisBitSet implements EntityCapabilit
     }
   }
 
+  private static int BIT_LENGTH = 32; // length from bitfield element
+  private static int BYTE_LENGTH = (BIT_LENGTH + Byte.SIZE - 1) / Byte.SIZE;
+
   /** Default constructor */
   public ExpendableCapabilities()
   {
-    super(32); // length from bitfield element
+    super(BIT_LENGTH);
   }
 
   /** Default constructor with parameters
@@ -104,30 +109,30 @@ public class ExpendableCapabilities extends DisBitSet implements EntityCapabilit
       return "ExpendableCapabilities: " + super.toString();
   }
 
-  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  /**
+   * Unmarshall raw value from byteBuffer. Unmarshalled number of bytes depends on bit set implementation.
+   */
+  public static int unmarshallRawValue(ByteBuffer byteBuffer) throws Exception
   {
-      PduMap map = new PduMap();
-      try
-      {
-         ExpendableCapabilities bitset = new ExpendableCapabilities();
-         bitset.unmarshal(byteBuffer);
-         map.put("bitset", bitset);
-      }
-      catch (java.nio.BufferUnderflowException bue)
-      {
-          System.err.println("*** buffer underflow error while unmarshalling ExpendableCapabilities data.");
-      }
-      return map;
+      byte[] bytes = new byte[BYTE_LENGTH];
+      byteBuffer.get(bytes);
+      return bytesToInt(bytes);
   }
 
-  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  /**
+   * Marshall raw value to byteBuffer. Marshalled number of bytes depends on bit set implementation.
+   */
+  public static void marshallRawValue(int rawValue, ByteBuffer byteBuffer) throws Exception
   {
-      ((ExpendableCapabilities) map.get("bitset")).marshal(byteBuffer);
+      byte[] bytes = intToBytes(rawValue, BYTE_LENGTH);
+      byteBuffer.put(bytes);
   }
 
-  public static int getMarshalledSize(PduMap map)
-  {
-      return ((ExpendableCapabilities) map.get("bitset")).getMarshalledSize();
+  /**
+   * Get length of this bit set in bytes.
+   */
+  public static int getByteLength() {
+      return BYTE_LENGTH;
   }
 
 }

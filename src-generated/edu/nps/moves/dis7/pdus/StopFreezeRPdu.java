@@ -347,7 +347,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
 
     map.put("realWorldTime", ClockTime.fromBufferToMap(byteBuffer));
     map.put("reason", StopFreezeReason.unmarshalEnum(byteBuffer).getValue());
-    map.put("frozenBehavior", StopFreezeFrozenBehavior.fromBufferToMap(byteBuffer));
+    map.put("frozenBehavior", StopFreezeFrozenBehavior.unmarshallRawValue(byteBuffer));
     map.put("requiredReliabilityService", RequiredReliabilityService.unmarshalEnum(byteBuffer).getValue());
     map.put("padding1", Byte.toUnsignedInt(byteBuffer.get()));
     map.put("requestID", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
@@ -367,7 +367,7 @@ public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) t
     SimulationManagementWithReliabilityFamilyPdu.fromMapToBuffer(map, byteBuffer);
     ClockTime.fromMapToBuffer((PduMap) map.get("realWorldTime"), byteBuffer);
     StopFreezeReason.getEnumForValue(((Number) map.get("reason")).intValue()).marshal(byteBuffer);
-    StopFreezeFrozenBehavior.fromMapToBuffer((PduMap) map.get("frozenBehavior"), byteBuffer);
+    StopFreezeFrozenBehavior.marshallRawValue(((Number) map.get("frozenBehavior")).intValue(), byteBuffer);
     RequiredReliabilityService.getEnumForValue(((Number) map.get("requiredReliabilityService")).intValue()).marshal(byteBuffer);
     byteBuffer.put(((Number) map.get("padding1")).byteValue());
     byteBuffer.putInt(((Number) map.get("requestID")).intValue());
@@ -385,7 +385,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
     marshalSize += SimulationManagementWithReliabilityFamilyPdu.getMarshalledSize(map);
     marshalSize += ClockTime.getMarshalledSize((PduMap) map.get("realWorldTime"));
     marshalSize += StopFreezeReason.getEnumForValue(((Number) map.get("reason")).intValue()).getMarshalledSize();
-    marshalSize += StopFreezeFrozenBehavior.getMarshalledSize((PduMap) map.get("frozenBehavior"));
+    marshalSize += StopFreezeFrozenBehavior.getByteLength();
     marshalSize += RequiredReliabilityService.getEnumForValue(((Number) map.get("requiredReliabilityService")).intValue()).getMarshalledSize();
     marshalSize += 1;  // padding1
     marshalSize += 4;  // requestID

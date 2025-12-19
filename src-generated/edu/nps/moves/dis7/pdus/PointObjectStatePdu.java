@@ -548,12 +548,12 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     map.put("referencedObjectID", ObjectIdentifier.fromBufferToMap(byteBuffer));
     map.put("updateNumber", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
     map.put("forceID", ForceID.unmarshalEnum(byteBuffer).getValue());
-    map.put("modifications", ObjectStateModificationPointObject.fromBufferToMap(byteBuffer));
+    map.put("modifications", ObjectStateModificationPointObject.unmarshallRawValue(byteBuffer));
     map.put("objectType", ObjectType.fromBufferToMap(byteBuffer));
     map.put("objectLocation", Vector3Double.fromBufferToMap(byteBuffer));
     map.put("objectOrientation", EulerAngles.fromBufferToMap(byteBuffer));
     map.put("specificObjectAppearance", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
-    map.put("generObjectAppearance", ObjectStateAppearanceGeneral.fromBufferToMap(byteBuffer));
+    map.put("generObjectAppearance", ObjectStateAppearanceGeneral.unmarshallRawValue(byteBuffer));
     map.put("padding1", Short.toUnsignedInt(byteBuffer.getShort()));
     map.put("requesterID", SimulationAddress.fromBufferToMap(byteBuffer));
     map.put("receivingID", SimulationAddress.fromBufferToMap(byteBuffer));
@@ -576,12 +576,12 @@ public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) t
     ObjectIdentifier.fromMapToBuffer((PduMap) map.get("referencedObjectID"), byteBuffer);
     byteBuffer.putInt(((Number) map.get("updateNumber")).intValue());
     ForceID.getEnumForValue(((Number) map.get("forceID")).intValue()).marshal(byteBuffer);
-    ObjectStateModificationPointObject.fromMapToBuffer((PduMap) map.get("modifications"), byteBuffer);
+    ObjectStateModificationPointObject.marshallRawValue(((Number) map.get("modifications")).intValue(), byteBuffer);
     ObjectType.fromMapToBuffer((PduMap) map.get("objectType"), byteBuffer);
     Vector3Double.fromMapToBuffer((PduMap) map.get("objectLocation"), byteBuffer);
     EulerAngles.fromMapToBuffer((PduMap) map.get("objectOrientation"), byteBuffer);
     byteBuffer.putInt(((Number) map.get("specificObjectAppearance")).intValue());
-    ObjectStateAppearanceGeneral.fromMapToBuffer((PduMap) map.get("generObjectAppearance"), byteBuffer);
+    ObjectStateAppearanceGeneral.marshallRawValue(((Number) map.get("generObjectAppearance")).intValue(), byteBuffer);
     byteBuffer.putShort(((Number) map.get("padding1")).shortValue());
     SimulationAddress.fromMapToBuffer((PduMap) map.get("requesterID"), byteBuffer);
     SimulationAddress.fromMapToBuffer((PduMap) map.get("receivingID"), byteBuffer);
@@ -602,12 +602,12 @@ public static int getMarshalledSize(PduMap map) throws Exception
     marshalSize += ObjectIdentifier.getMarshalledSize((PduMap) map.get("referencedObjectID"));
     marshalSize += 4;  // updateNumber
     marshalSize += ForceID.getEnumForValue(((Number) map.get("forceID")).intValue()).getMarshalledSize();
-    marshalSize += ObjectStateModificationPointObject.getMarshalledSize((PduMap) map.get("modifications"));
+    marshalSize += ObjectStateModificationPointObject.getByteLength();
     marshalSize += ObjectType.getMarshalledSize((PduMap) map.get("objectType"));
     marshalSize += Vector3Double.getMarshalledSize((PduMap) map.get("objectLocation"));
     marshalSize += EulerAngles.getMarshalledSize((PduMap) map.get("objectOrientation"));
     marshalSize += 4;  // specificObjectAppearance
-    marshalSize += ObjectStateAppearanceGeneral.getMarshalledSize((PduMap) map.get("generObjectAppearance"));
+    marshalSize += ObjectStateAppearanceGeneral.getByteLength();
     marshalSize += 2;  // padding1
     marshalSize += SimulationAddress.getMarshalledSize((PduMap) map.get("requesterID"));
     marshalSize += SimulationAddress.getMarshalledSize((PduMap) map.get("receivingID"));

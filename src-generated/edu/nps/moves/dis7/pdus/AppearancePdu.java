@@ -401,7 +401,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     map.put("entityType", EntityType.fromBufferToMap(byteBuffer));
     map.put("alternateEntityType", EntityType.fromBufferToMap(byteBuffer));
     map.put("entityMarking", EntityMarking.fromBufferToMap(byteBuffer));
-    map.put("capabilities", EntityCapabilities.fromBufferToMap(byteBuffer));
+    map.put("capabilities", EntityCapabilities.unmarshallRawValue(byteBuffer));
     map.put("appearanceFields", Appearance.fromBufferToMap(byteBuffer));
     return map;
 }
@@ -423,7 +423,7 @@ public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) t
     EntityType.fromMapToBuffer((PduMap) map.get("entityType"), byteBuffer);
     EntityType.fromMapToBuffer((PduMap) map.get("alternateEntityType"), byteBuffer);
     EntityMarking.fromMapToBuffer((PduMap) map.get("entityMarking"), byteBuffer);
-    EntityCapabilities.fromMapToBuffer((PduMap) map.get("capabilities"), byteBuffer);
+    EntityCapabilities.marshallRawValue(((Number) map.get("capabilities")).intValue(), byteBuffer);
     Appearance.fromMapToBuffer((PduMap) map.get("appearanceFields"), byteBuffer);
 }
 
@@ -443,7 +443,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
     marshalSize += EntityType.getMarshalledSize((PduMap) map.get("entityType"));
     marshalSize += EntityType.getMarshalledSize((PduMap) map.get("alternateEntityType"));
     marshalSize += EntityMarking.getMarshalledSize((PduMap) map.get("entityMarking"));
-    marshalSize += EntityCapabilities.getMarshalledSize((PduMap) map.get("capabilities"));
+    marshalSize += EntityCapabilities.getByteLength();
     marshalSize += Appearance.getMarshalledSize((PduMap) map.get("appearanceFields"));
 
     return marshalSize;

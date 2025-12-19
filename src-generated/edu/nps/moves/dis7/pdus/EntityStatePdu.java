@@ -541,7 +541,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     map.put("entityAppearance", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
     map.put("deadReckoningParameters", DeadReckoningParameters.fromBufferToMap(byteBuffer));
     map.put("marking", EntityMarking.fromBufferToMap(byteBuffer));
-    map.put("capabilities", EntityCapabilities.fromBufferToMap(byteBuffer));
+    map.put("capabilities", EntityCapabilities.unmarshallRawValue(byteBuffer));
     List variableParameters = new ArrayList<>();
     for (int idx = 0; idx < ((Number) map.get("numberOfVariableParameters")).intValue(); idx++)
     {
@@ -574,7 +574,7 @@ public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) t
     byteBuffer.putInt(((Number) map.get("entityAppearance")).intValue());
     DeadReckoningParameters.fromMapToBuffer((PduMap) map.get("deadReckoningParameters"), byteBuffer);
     EntityMarking.fromMapToBuffer((PduMap) map.get("marking"), byteBuffer);
-    EntityCapabilities.fromMapToBuffer((PduMap) map.get("capabilities"), byteBuffer);
+    EntityCapabilities.marshallRawValue(((Number) map.get("capabilities")).intValue(), byteBuffer);
 
     List variableParameters = (List) map.get("variableParameters");
     for (int idx = 0; idx < ((Number) map.get("numberOfVariableParameters")).intValue(); idx++)
@@ -605,7 +605,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
     marshalSize += 4;  // entityAppearance
     marshalSize += DeadReckoningParameters.getMarshalledSize((PduMap) map.get("deadReckoningParameters"));
     marshalSize += EntityMarking.getMarshalledSize((PduMap) map.get("marking"));
-    marshalSize += EntityCapabilities.getMarshalledSize((PduMap) map.get("capabilities"));
+    marshalSize += EntityCapabilities.getByteLength();
     List variableParameters = (List) map.get("variableParameters");
     for (int idx = 0; idx < ((Number) map.get("numberOfVariableParameters")).intValue(); idx++)
         marshalSize += VariableParameter.getMarshalledSize((PduMap) variableParameters.get(idx));

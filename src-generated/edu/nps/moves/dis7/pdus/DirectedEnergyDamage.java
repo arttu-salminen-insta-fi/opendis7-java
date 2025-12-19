@@ -432,7 +432,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     map.put("temperature", (float) byteBuffer.getFloat());
     map.put("componentIdentification", EntityDamageStatusComponentIdentification.unmarshalEnum(byteBuffer).getValue());
     map.put("componentDamageStatus", DEDamageDescriptionComponentDamageStatus.unmarshalEnum(byteBuffer).getValue());
-    map.put("componentVisualDamageStatus", DEDamageDescriptionComponentVisualDamageStatus.fromBufferToMap(byteBuffer));
+    map.put("componentVisualDamageStatus", DEDamageDescriptionComponentVisualDamageStatus.unmarshallRawValue(byteBuffer));
     map.put("componentVisualSmokeColor", DEDamageDescriptionComponentVisualSmokeColor.unmarshalEnum(byteBuffer).getValue());
     map.put("fireEventID", EventIdentifier.fromBufferToMap(byteBuffer));
     map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
@@ -457,7 +457,7 @@ public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) t
     byteBuffer.putFloat(((Number) map.get("temperature")).floatValue());
     EntityDamageStatusComponentIdentification.getEnumForValue(((Number) map.get("componentIdentification")).intValue()).marshal(byteBuffer);
     DEDamageDescriptionComponentDamageStatus.getEnumForValue(((Number) map.get("componentDamageStatus")).intValue()).marshal(byteBuffer);
-    DEDamageDescriptionComponentVisualDamageStatus.fromMapToBuffer((PduMap) map.get("componentVisualDamageStatus"), byteBuffer);
+    DEDamageDescriptionComponentVisualDamageStatus.marshallRawValue(((Number) map.get("componentVisualDamageStatus")).intValue(), byteBuffer);
     DEDamageDescriptionComponentVisualSmokeColor.getEnumForValue(((Number) map.get("componentVisualSmokeColor")).intValue()).marshal(byteBuffer);
     EventIdentifier.fromMapToBuffer((PduMap) map.get("fireEventID"), byteBuffer);
     byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
@@ -480,7 +480,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
     marshalSize += 4;  // temperature
     marshalSize += EntityDamageStatusComponentIdentification.getEnumForValue(((Number) map.get("componentIdentification")).intValue()).getMarshalledSize();
     marshalSize += DEDamageDescriptionComponentDamageStatus.getEnumForValue(((Number) map.get("componentDamageStatus")).intValue()).getMarshalledSize();
-    marshalSize += DEDamageDescriptionComponentVisualDamageStatus.getMarshalledSize((PduMap) map.get("componentVisualDamageStatus"));
+    marshalSize += DEDamageDescriptionComponentVisualDamageStatus.getByteLength();
     marshalSize += DEDamageDescriptionComponentVisualSmokeColor.getEnumForValue(((Number) map.get("componentVisualSmokeColor")).intValue()).getMarshalledSize();
     marshalSize += EventIdentifier.getMarshalledSize((PduMap) map.get("fireEventID"));
     marshalSize += 2;  // padding2

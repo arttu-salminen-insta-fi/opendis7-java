@@ -513,7 +513,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     map.put("referencedObjectID", ObjectIdentifier.fromBufferToMap(byteBuffer));
     map.put("updateNumber", Short.toUnsignedInt(byteBuffer.getShort()));
     map.put("forceID", ForceID.unmarshalEnum(byteBuffer).getValue());
-    map.put("modifications", ObjectStateModificationArealObject.fromBufferToMap(byteBuffer));
+    map.put("modifications", ObjectStateModificationArealObject.unmarshallRawValue(byteBuffer));
     map.put("objectType", ObjectType.fromBufferToMap(byteBuffer));
     map.put("specificObjectAppearance", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
     map.put("generalObjectAppearance", Short.toUnsignedInt(byteBuffer.getShort()));
@@ -545,7 +545,7 @@ public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) t
     ObjectIdentifier.fromMapToBuffer((PduMap) map.get("referencedObjectID"), byteBuffer);
     byteBuffer.putShort(((Number) map.get("updateNumber")).shortValue());
     ForceID.getEnumForValue(((Number) map.get("forceID")).intValue()).marshal(byteBuffer);
-    ObjectStateModificationArealObject.fromMapToBuffer((PduMap) map.get("modifications"), byteBuffer);
+    ObjectStateModificationArealObject.marshallRawValue(((Number) map.get("modifications")).intValue(), byteBuffer);
     ObjectType.fromMapToBuffer((PduMap) map.get("objectType"), byteBuffer);
     byteBuffer.putInt(((Number) map.get("specificObjectAppearance")).intValue());
     byteBuffer.putShort(((Number) map.get("generalObjectAppearance")).shortValue());
@@ -575,7 +575,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
     marshalSize += ObjectIdentifier.getMarshalledSize((PduMap) map.get("referencedObjectID"));
     marshalSize += 2;  // updateNumber
     marshalSize += ForceID.getEnumForValue(((Number) map.get("forceID")).intValue()).getMarshalledSize();
-    marshalSize += ObjectStateModificationArealObject.getMarshalledSize((PduMap) map.get("modifications"));
+    marshalSize += ObjectStateModificationArealObject.getByteLength();
     marshalSize += ObjectType.getMarshalledSize((PduMap) map.get("objectType"));
     marshalSize += 4;  // specificObjectAppearance
     marshalSize += 2;  // generalObjectAppearance

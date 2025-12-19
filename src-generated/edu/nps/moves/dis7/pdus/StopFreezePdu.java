@@ -322,7 +322,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
 
     map.put("realWorldTime", ClockTime.fromBufferToMap(byteBuffer));
     map.put("reason", StopFreezeReason.unmarshalEnum(byteBuffer).getValue());
-    map.put("frozenBehavior", StopFreezeFrozenBehavior.fromBufferToMap(byteBuffer));
+    map.put("frozenBehavior", StopFreezeFrozenBehavior.unmarshallRawValue(byteBuffer));
     map.put("padding1", Short.toUnsignedInt(byteBuffer.getShort()));
     map.put("requestID", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
     return map;
@@ -341,7 +341,7 @@ public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) t
     SimulationManagementFamilyPdu.fromMapToBuffer(map, byteBuffer);
     ClockTime.fromMapToBuffer((PduMap) map.get("realWorldTime"), byteBuffer);
     StopFreezeReason.getEnumForValue(((Number) map.get("reason")).intValue()).marshal(byteBuffer);
-    StopFreezeFrozenBehavior.fromMapToBuffer((PduMap) map.get("frozenBehavior"), byteBuffer);
+    StopFreezeFrozenBehavior.marshallRawValue(((Number) map.get("frozenBehavior")).intValue(), byteBuffer);
     byteBuffer.putShort(((Number) map.get("padding1")).shortValue());
     byteBuffer.putInt(((Number) map.get("requestID")).intValue());
 }
@@ -358,7 +358,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
     marshalSize += SimulationManagementFamilyPdu.getMarshalledSize(map);
     marshalSize += ClockTime.getMarshalledSize((PduMap) map.get("realWorldTime"));
     marshalSize += StopFreezeReason.getEnumForValue(((Number) map.get("reason")).intValue()).getMarshalledSize();
-    marshalSize += StopFreezeFrozenBehavior.getMarshalledSize((PduMap) map.get("frozenBehavior"));
+    marshalSize += StopFreezeFrozenBehavior.getByteLength();
     marshalSize += 2;  // padding1
     marshalSize += 4;  // requestID
 

@@ -633,7 +633,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     map.put("padding1", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
     map.put("pulseRepititionFrequency", (float) byteBuffer.getFloat());
     map.put("pulseWidth", (float) byteBuffer.getFloat());
-    map.put("flags", DEFireFlags.fromBufferToMap(byteBuffer));
+    map.put("flags", DEFireFlags.unmarshallRawValue(byteBuffer));
     map.put("pulseShape", DEFirePulseShape.unmarshalEnum(byteBuffer).getValue());
     map.put("padding2", Byte.toUnsignedInt(byteBuffer.get()));
     map.put("padding3", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
@@ -664,7 +664,7 @@ public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) t
     byteBuffer.putInt(((Number) map.get("padding1")).intValue());
     byteBuffer.putFloat(((Number) map.get("pulseRepititionFrequency")).floatValue());
     byteBuffer.putFloat(((Number) map.get("pulseWidth")).floatValue());
-    DEFireFlags.fromMapToBuffer((PduMap) map.get("flags"), byteBuffer);
+    DEFireFlags.marshallRawValue(((Number) map.get("flags")).intValue(), byteBuffer);
     DEFirePulseShape.getEnumForValue(((Number) map.get("pulseShape")).intValue()).marshal(byteBuffer);
     byteBuffer.put(((Number) map.get("padding2")).byteValue());
     byteBuffer.putInt(((Number) map.get("padding3")).intValue());
@@ -693,7 +693,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
     marshalSize += 4;  // padding1
     marshalSize += 4;  // pulseRepititionFrequency
     marshalSize += 4;  // pulseWidth
-    marshalSize += DEFireFlags.getMarshalledSize((PduMap) map.get("flags"));
+    marshalSize += DEFireFlags.getByteLength();
     marshalSize += DEFirePulseShape.getEnumForValue(((Number) map.get("pulseShape")).intValue()).getMarshalledSize();
     marshalSize += 1;  // padding2
     marshalSize += 4;  // padding3
