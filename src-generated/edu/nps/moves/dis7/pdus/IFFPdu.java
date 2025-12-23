@@ -759,7 +759,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  /** Does not initialize iFFPduLayerFormatDatas if systemID.getSystemType contains both transponder and interrogator, you need to choose one.*/
  private static void initLayerKeys(PduMap map) {
 	 byte informationLayers = ((Number) ((PduMap) map.get("fundamentalParameters")).get("informationLayers")).byteValue();
-     IFFSystemType iffSystemType = (IFFSystemType) ((PduMap) map.get("systemID")).get("systemType");
+     IFFSystemType iffSystemType = IFFSystemType.getEnumForValue(((Number) ((PduMap) map.get("systemID")).get("systemType")).intValue());
 
 	 if (((informationLayers & 1 << LAYER_DATA_2_BIT_INDEX) > 0)) {
 	 		map.put("iFFPduLayer2Data", null);

@@ -1,6 +1,7 @@
 package edu.nps.moves.dis7.test;
 
 
+import edu.nps.moves.dis7.enumerations.IFFSystemType;
 import edu.nps.moves.dis7.pdus.*;
 import org.junit.jupiter.api.*;
 
@@ -57,6 +58,9 @@ public class PduMapTest {
     @Test
     public void IFFPdu() throws Exception {
         IFFPdu pdu = new IFFPdu();
+        pdu.setIFFPduLayer3TransponderFormatData(new IFFPduLayer3TransponderFormatData());
+        pdu.getFundamentalParameters().setInformationLayers(1 << 3);
+        pdu.getSystemID().setSystemType(IFFSystemType.MODE_5_TRANSPONDER);
         PduMap map = IFFPdu.fromBufferToMap(processToBuffer(pdu));
         recursivePrint(0, map);
 
