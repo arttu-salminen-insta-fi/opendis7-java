@@ -261,7 +261,7 @@ abstract public class PduTest
             assertEquals (         createdPdu.getPduType(),                 receivedPdu.getPduType(),         "mismatched PduType");
             assertEquals (         createdPdu.getProtocolFamily(),          receivedPdu.getProtocolFamily(),  "mismatched ProtocolFamily"); // derived from PduType
             assertEquals(((PduBase)createdPdu).getPduStatus(),    ((PduBase)receivedPdu).getPduStatus(),      "mismatched PduStatus");
-            assertEquals(((PduBase)createdPdu).getPadding(),      ((PduBase)receivedPdu).getPadding(),        "mismatched header padding");
+            assertEquals(((PduBase)createdPdu).getPaddingHeader(),      ((PduBase)receivedPdu).getPaddingHeader(),        "mismatched header padding");
      
             assertTrue((createdPdu != receivedPdu), "Exact match found between createdPdu and receivedPdu object references indicates improper test configuration");
 
@@ -271,7 +271,7 @@ abstract public class PduTest
             assertEquals (         createdPdu.getPduType(),                 receivedPdu.getPduType(),         "mismatched PduType");
             assertEquals (         createdPdu.getProtocolFamily(),          receivedPdu.getProtocolFamily(),  "mismatched ProtocolFamily"); // derived from PduType
             assertEquals(((PduBase)createdPdu).getPduStatus(),    ((PduBase)receivedPdu).getPduStatus(),      "mismatched PduStatus");
-            assertEquals(((PduBase)createdPdu).getPadding(),      ((PduBase)receivedPdu).getPadding(),        "mismatched header padding");
+            assertEquals(((PduBase)createdPdu).getPaddingHeader(),      ((PduBase)receivedPdu).getPaddingHeader(),        "mismatched header padding");
             // TODO HDR length
             assertEquals (createdPdu.getTimestamp(),                        receivedPdu.getTimestamp(),       "mismatched Timestamp");
 

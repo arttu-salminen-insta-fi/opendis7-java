@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Used when the antenna pattern type field has a value of 1. Specifies the direction, pattern, and polarization of radiation from an antenna. Section 6.2.9.2
@@ -22,32 +24,40 @@ public class BeamAntennaPattern extends Object implements Serializable, Marshall
    /** The rotation that transforms the reference coordinate sytem into the beam coordinate system. Either world coordinates or entity coordinates may be used as the reference coordinate system, as specified by the reference system field of the antenna pattern record. */
    protected EulerAngles  beamDirection = new EulerAngles(); 
 
-   /** Full width of the beam to the -3dB power density points in the x-y plane of the beam coordinnate system.  Elevation beamwidth is represented by a 32-bit floating point number in units of radians. */
-   protected float azimuthBeamwidth = (float)0;
+   /** Full width of the beam to the -3dB power density points in the x-y plane of the beam coordinnate system.  Elevation beamwidth is represented by a 32-bit floating point number in units of radians. 
+   Value space: float32 */
+   protected float azimuthBeamwidth = (float) 0;
 
-   /** This field shall specify the full width of the beam to the –3 dB power density points in the x-z plane of the beam coordinate system. Elevation beamwidth shall be represented by a 32-bit floating point number in units of radians. */
-   protected float elevationBeamwidth = (float)0;
+   /** This field shall specify the full width of the beam to the –3 dB power density points in the x-z plane of the beam coordinate system. Elevation beamwidth shall be represented by a 32-bit floating point number in units of radians. 
+   Value space: float32 */
+   protected float elevationBeamwidth = (float) 0;
 
    /** The reference coordinate system wrt which beam direction  is specified. This field should not change over the duration of an exercise. World coordindate systemis prefered for exercises. The entity coordinate system should be used only when highly directional antennas must be precisely modeled. uid 168 */
    protected TransmitterAntennaPatternReferenceSystem referenceSystem = TransmitterAntennaPatternReferenceSystem.values()[0];
 
-   /** Padding */
-   protected byte padding1 = (byte)0;
+   /** Padding 
+   Value space: uint8 */
+   protected int padding1 = (int) 0;
 
-   /** Padding */
-   protected short padding2 = (short)0;
+   /** Padding 
+   Value space: uint16 */
+   protected int padding2 = (int) 0;
 
-   /** This field shall specify the magnitude of the Z-component (in beam coordinates) of the Electrical field at some arbitrary single point in the main beam and in the far field of the antenna.  */
-   protected float ez = (float)0.0;
+   /** This field shall specify the magnitude of the Z-component (in beam coordinates) of the Electrical field at some arbitrary single point in the main beam and in the far field of the antenna.  
+   Value space: float32 */
+   protected float ez = (float) 0.0;
 
-   /** This field shall specify the magnitude of the X-component (in beam coordinates) of the Electri- cal field at some arbitrary single point in the main beam and in the far field of the antenna. */
-   protected float ex = (float)0.0;
+   /** This field shall specify the magnitude of the X-component (in beam coordinates) of the Electri- cal field at some arbitrary single point in the main beam and in the far field of the antenna. 
+   Value space: float32 */
+   protected float ex = (float) 0.0;
 
-   /** This field shall specify the phase angle between EZ and EX in radians. If fully omni-direc- tional antenna is modeled using beam pattern type one, the omni-directional antenna shall be repre- sented by beam direction Euler angles psi, theta, and phi of zero, an azimuth beamwidth of 2PI, and an elevation beamwidth of PI */
-   protected float phase = (float)0.0;
+   /** This field shall specify the phase angle between EZ and EX in radians. If fully omni-direc- tional antenna is modeled using beam pattern type one, the omni-directional antenna shall be repre- sented by beam direction Euler angles psi, theta, and phi of zero, an azimuth beamwidth of 2PI, and an elevation beamwidth of PI 
+   Value space: float32 */
+   protected float phase = (float) 0.0;
 
-   /** padding */
-   protected int padding3 = (int)0;
+   /** padding 
+   Value space: uint32 */
+   protected UnsignedInteger padding3 = UnsignedInteger.valueOf(0);
 
 
 /** Constructor creates and configures a new instance object */
@@ -99,7 +109,7 @@ public EulerAngles getBeamDirection()
 
 
 /** Setter for {@link BeamAntennaPattern#azimuthBeamwidth}
-  * @param pAzimuthBeamwidth new value of interest
+  * @param pAzimuthBeamwidth new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BeamAntennaPattern setAzimuthBeamwidth(float pAzimuthBeamwidth)
 {
@@ -114,7 +124,7 @@ public float getAzimuthBeamwidth()
 }
 
 /** Setter for {@link BeamAntennaPattern#elevationBeamwidth}
-  * @param pElevationBeamwidth new value of interest
+  * @param pElevationBeamwidth new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BeamAntennaPattern setElevationBeamwidth(float pElevationBeamwidth)
 {
@@ -144,51 +154,41 @@ public TransmitterAntennaPatternReferenceSystem getReferenceSystem()
 }
 
 /** Setter for {@link BeamAntennaPattern#padding1}
-  * @param pPadding1 new value of interest
+  * @param pPadding1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized BeamAntennaPattern setPadding1(byte pPadding1)
+public synchronized BeamAntennaPattern setPadding1(int pPadding1)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 255, "Value outside valid value space");
     padding1 = pPadding1;
-    return this;
-}
-/** Utility setter for {@link BeamAntennaPattern#padding1}
-  * @param pPadding1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized BeamAntennaPattern setPadding1(int pPadding1){
-    padding1 = (byte) pPadding1;
     return this;
 }
 /** Getter for {@link BeamAntennaPattern#padding1}
   * @return value of interest */
-public byte getPadding1()
+public int getPadding1()
 {
     return padding1; 
 }
 
 /** Setter for {@link BeamAntennaPattern#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized BeamAntennaPattern setPadding2(short pPadding2)
+public synchronized BeamAntennaPattern setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 65535, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link BeamAntennaPattern#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized BeamAntennaPattern setPadding2(int pPadding2){
-    padding2 = (short) pPadding2;
     return this;
 }
 /** Getter for {@link BeamAntennaPattern#padding2}
   * @return value of interest */
-public short getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
 
 /** Setter for {@link BeamAntennaPattern#ez}
-  * @param pEz new value of interest
+  * @param pEz new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BeamAntennaPattern setEz(float pEz)
 {
@@ -203,7 +203,7 @@ public float getEz()
 }
 
 /** Setter for {@link BeamAntennaPattern#ex}
-  * @param pEx new value of interest
+  * @param pEx new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BeamAntennaPattern setEx(float pEx)
 {
@@ -218,7 +218,7 @@ public float getEx()
 }
 
 /** Setter for {@link BeamAntennaPattern#phase}
-  * @param pPhase new value of interest
+  * @param pPhase new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BeamAntennaPattern setPhase(float pPhase)
 {
@@ -233,16 +233,16 @@ public float getPhase()
 }
 
 /** Setter for {@link BeamAntennaPattern#padding3}
-  * @param pPadding3 new value of interest
+  * @param pPadding3 new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized BeamAntennaPattern setPadding3(int pPadding3)
+public synchronized BeamAntennaPattern setPadding3(UnsignedInteger pPadding3)
 {
     padding3 = pPadding3;
     return this;
 }
 /** Getter for {@link BeamAntennaPattern#padding3}
   * @return value of interest */
-public int getPadding3()
+public UnsignedInteger getPadding3()
 {
     return padding3; 
 }
@@ -256,22 +256,18 @@ public int getPadding3()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        beamDirection.marshal(dos);
        dos.writeFloat(azimuthBeamwidth);
        dos.writeFloat(elevationBeamwidth);
        referenceSystem.marshal(dos);
-       dos.writeByte(padding1);
-       dos.writeShort(padding2);
+       dos.writeByte((byte) padding1);
+       dos.writeShort((short) padding2);
        dos.writeFloat(ez);
        dos.writeFloat(ex);
        dos.writeFloat(phase);
-       dos.writeInt(padding3);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeInt(padding3.intValue());
     }
 }
 
@@ -287,31 +283,27 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         uPosition += beamDirection.unmarshal(dis);
-        azimuthBeamwidth = dis.readFloat();
+        azimuthBeamwidth = (float) dis.readFloat();
         uPosition += 4;
-        elevationBeamwidth = dis.readFloat();
+        elevationBeamwidth = (float) dis.readFloat();
         uPosition += 4;
         referenceSystem = TransmitterAntennaPatternReferenceSystem.unmarshalEnum(dis);
         uPosition += referenceSystem.getMarshalledSize();
-        padding1 = (byte)dis.readUnsignedByte();
+        padding1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding2 = (short)dis.readUnsignedShort();
+        padding2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        ez = dis.readFloat();
+        ez = (float) dis.readFloat();
         uPosition += 4;
-        ex = dis.readFloat();
+        ex = (float) dis.readFloat();
         uPosition += 4;
-        phase = dis.readFloat();
+        phase = (float) dis.readFloat();
         uPosition += 4;
-        padding3 = dis.readInt();
+        padding3 = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -328,15 +320,15 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    beamDirection.marshal(byteBuffer);
-   byteBuffer.putFloat( (float)azimuthBeamwidth);
-   byteBuffer.putFloat( (float)elevationBeamwidth);
+   byteBuffer.putFloat(azimuthBeamwidth);
+   byteBuffer.putFloat(elevationBeamwidth);
    referenceSystem.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding1);
-   byteBuffer.putShort( (short)padding2);
-   byteBuffer.putFloat( (float)ez);
-   byteBuffer.putFloat( (float)ex);
-   byteBuffer.putFloat( (float)phase);
-   byteBuffer.putInt( (int)padding3);
+   byteBuffer.put((byte) padding1);
+   byteBuffer.putShort((short) padding2);
+   byteBuffer.putFloat(ez);
+   byteBuffer.putFloat(ex);
+   byteBuffer.putFloat(phase);
+   byteBuffer.putInt(padding3.intValue());
 }
 
 /**
@@ -351,34 +343,92 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute beamDirection marked as not serialized
         beamDirection.unmarshal(byteBuffer);
-        // attribute azimuthBeamwidth marked as not serialized
-        azimuthBeamwidth = byteBuffer.getFloat();
-        // attribute elevationBeamwidth marked as not serialized
-        elevationBeamwidth = byteBuffer.getFloat();
-        // attribute referenceSystem marked as not serialized
+        azimuthBeamwidth = (float) byteBuffer.getFloat();
+        elevationBeamwidth = (float) byteBuffer.getFloat();
         referenceSystem = TransmitterAntennaPatternReferenceSystem.unmarshalEnum(byteBuffer);
-        // attribute padding1 marked as not serialized
-        padding1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding2 marked as not serialized
-        padding2 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute ez marked as not serialized
-        ez = byteBuffer.getFloat();
-        // attribute ex marked as not serialized
-        ex = byteBuffer.getFloat();
-        // attribute phase marked as not serialized
-        phase = byteBuffer.getFloat();
-        // attribute padding3 marked as not serialized
-        padding3 = byteBuffer.getInt();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding1 = Byte.toUnsignedInt(byteBuffer.get());
+        padding2 = Short.toUnsignedInt(byteBuffer.getShort());
+        ez = (float) byteBuffer.getFloat();
+        ex = (float) byteBuffer.getFloat();
+        phase = (float) byteBuffer.getFloat();
+        padding3 = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("beamDirection", EulerAngles.fromBufferToMap(byteBuffer));
+    map.put("azimuthBeamwidth", (float) byteBuffer.getFloat());
+    map.put("elevationBeamwidth", (float) byteBuffer.getFloat());
+    map.put("referenceSystem", TransmitterAntennaPatternReferenceSystem.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("ez", (float) byteBuffer.getFloat());
+    map.put("ex", (float) byteBuffer.getFloat());
+    map.put("phase", (float) byteBuffer.getFloat());
+    map.put("padding3", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EulerAngles.fromMapToBuffer((PduMap) map.get("beamDirection"), byteBuffer);
+    byteBuffer.putFloat(((Number) map.get("azimuthBeamwidth")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("elevationBeamwidth")).floatValue());
+    TransmitterAntennaPatternReferenceSystem.getEnumForValue(((Number) map.get("referenceSystem")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding1")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+    byteBuffer.putFloat(((Number) map.get("ez")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("ex")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("phase")).floatValue());
+    byteBuffer.putInt(((Number) map.get("padding3")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EulerAngles.getMarshalledSize((PduMap) map.get("beamDirection"));
+    marshalSize += 4;  // azimuthBeamwidth
+    marshalSize += 4;  // elevationBeamwidth
+    marshalSize += TransmitterAntennaPatternReferenceSystem.getEnumForValue(((Number) map.get("referenceSystem")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding1
+    marshalSize += 2;  // padding2
+    marshalSize += 4;  // ez
+    marshalSize += 4;  // ex
+    marshalSize += 4;  // phase
+    marshalSize += 4;  // padding3
+
+    return marshalSize;
 }
 
  /*

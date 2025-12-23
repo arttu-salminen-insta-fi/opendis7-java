@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Unique identifier triplet for this entity.  Also referred to as EntityIdentifier
@@ -19,14 +21,17 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class EntityID extends Object implements Serializable, Marshaller
 {
-   /** Site ID values are unique identification number for originating site, often corresponding to an internet address.  Site ID values are agreed upon by individual simulations. */
-   protected short siteID;
+   /** Site ID values are unique identification number for originating site, often corresponding to an internet address.  Site ID values are agreed upon by individual simulations. 
+   Value space: uint16 */
+   protected int siteID;
 
-   /** Application ID values are unique identification number for originating application at a given site.  Application ID values are sssigned by individual sites. */
-   protected short applicationID;
+   /** Application ID values are unique identification number for originating application at a given site.  Application ID values are sssigned by individual sites. 
+   Value space: uint16 */
+   protected int applicationID;
 
-   /** Entity ID values are unique identification number for s givent entity in the originating application at a given site.  Entity ID values are sssigned by individual simulation programs. */
-   protected short entityID;
+   /** Entity ID values are unique identification number for s givent entity in the originating application at a given site.  Entity ID values are sssigned by individual simulation programs. 
+   Value space: uint16 */
+   protected int entityID;
 
 
 /** Constructor creates and configures a new instance object */
@@ -53,67 +58,52 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link EntityID#siteID}
-  * @param pSiteID new value of interest
+  * @param pSiteID new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized EntityID setSiteID(short pSiteID)
+public synchronized EntityID setSiteID(int pSiteID)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pSiteID >= 0 && pSiteID <= 65535, "Value outside valid value space");
     siteID = pSiteID;
-    return this;
-}
-/** Utility setter for {@link EntityID#siteID}
-  * @param pSiteID new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityID setSiteID(int pSiteID){
-    siteID = (short) pSiteID;
     return this;
 }
 /** Getter for {@link EntityID#siteID}
   * @return value of interest */
-public short getSiteID()
+public int getSiteID()
 {
     return siteID; 
 }
 
 /** Setter for {@link EntityID#applicationID}
-  * @param pApplicationID new value of interest
+  * @param pApplicationID new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized EntityID setApplicationID(short pApplicationID)
+public synchronized EntityID setApplicationID(int pApplicationID)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pApplicationID >= 0 && pApplicationID <= 65535, "Value outside valid value space");
     applicationID = pApplicationID;
-    return this;
-}
-/** Utility setter for {@link EntityID#applicationID}
-  * @param pApplicationID new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityID setApplicationID(int pApplicationID){
-    applicationID = (short) pApplicationID;
     return this;
 }
 /** Getter for {@link EntityID#applicationID}
   * @return value of interest */
-public short getApplicationID()
+public int getApplicationID()
 {
     return applicationID; 
 }
 
 /** Setter for {@link EntityID#entityID}
-  * @param pEntityID new value of interest
+  * @param pEntityID new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized EntityID setEntityID(short pEntityID)
+public synchronized EntityID setEntityID(int pEntityID)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pEntityID >= 0 && pEntityID <= 65535, "Value outside valid value space");
     entityID = pEntityID;
-    return this;
-}
-/** Utility setter for {@link EntityID#entityID}
-  * @param pEntityID new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityID setEntityID(int pEntityID){
-    entityID = (short) pEntityID;
     return this;
 }
 /** Getter for {@link EntityID#entityID}
   * @return value of interest */
-public short getEntityID()
+public int getEntityID()
 {
     return entityID; 
 }
@@ -127,15 +117,11 @@ public short getEntityID()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(siteID);
-       dos.writeShort(applicationID);
-       dos.writeShort(entityID);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) siteID);
+       dos.writeShort((short) applicationID);
+       dos.writeShort((short) entityID);
     }
 }
 
@@ -151,18 +137,14 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        siteID = (short)dis.readUnsignedShort();
+        siteID = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        applicationID = (short)dis.readUnsignedShort();
+        applicationID = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        entityID = (short)dis.readUnsignedShort();
+        entityID = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -178,9 +160,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)siteID);
-   byteBuffer.putShort( (short)applicationID);
-   byteBuffer.putShort( (short)entityID);
+   byteBuffer.putShort((short) siteID);
+   byteBuffer.putShort((short) applicationID);
+   byteBuffer.putShort((short) entityID);
 }
 
 /**
@@ -195,20 +177,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute siteID marked as not serialized
-        siteID = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute applicationID marked as not serialized
-        applicationID = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute entityID marked as not serialized
-        entityID = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        siteID = Short.toUnsignedInt(byteBuffer.getShort());
+        applicationID = Short.toUnsignedInt(byteBuffer.getShort());
+        entityID = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("siteID", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("applicationID", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("entityID", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("siteID")).shortValue());
+    byteBuffer.putShort(((Number) map.get("applicationID")).shortValue());
+    byteBuffer.putShort(((Number) map.get("entityID")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // siteID
+    marshalSize += 2;  // applicationID
+    marshalSize += 2;  // entityID
+
+    return marshalSize;
 }
 
  /*

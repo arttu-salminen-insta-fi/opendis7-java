@@ -542,6 +542,7 @@ POSSIBILITY OF SUCH DAMAGE.
                 <include name="edu/nps/moves/dis7/pdus/*"/>
                 <include name="edu/nps/moves/dis7/utilities/*"/>
                 <include name="edu/nps/moves/dis7/utilities/stream/*"/>
+                <include name="edu/nps/moves/dis7/utilities/data/*"/>
                 <include name="edu/nps/moves/legacy/math/*"/>
                 <include name="edu/nps/moves/spatial/*"/>
                 <exclude name="edu/nps/moves/dis7/entities/*"/>

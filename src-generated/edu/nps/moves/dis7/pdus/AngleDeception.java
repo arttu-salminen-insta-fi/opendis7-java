@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * The Angle Deception attribute record may be used to communicate discrete values that are associated with angle deception jamming that cannot be referenced to an emitter mode. The values provided in the record records (provided in the associated Electromagnetic Emission PDU). (The victim radar beams are those that are targeted by the jammer.) Section 6.2.21.2.2
@@ -19,53 +21,68 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class AngleDeception extends Object implements Serializable, Marshaller
 {
-   /** record type */
-   protected int recordType = (int)3501;
+   /** record type 
+   Value space: uint32 */
+   protected UnsignedInteger recordType = UnsignedInteger.valueOf(3501);
 
-   /** The length of the record in octets. */
-   protected short recordLength = (short)48;
+   /** The length of the record in octets. 
+   Value space: uint16 */
+   protected int recordLength = (int) 48;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding = (short)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding = (int) 0;
 
-   /** indicates the emitter system for which the angle deception values are applicable.  */
-   protected byte emitterNumber;
+   /** indicates the emitter system for which the angle deception values are applicable.  
+   Value space: uint8 */
+   protected int emitterNumber;
 
-   /** indicates the jamming beam for which the angle deception values are applicable. */
-   protected byte beamNumber;
+   /** indicates the jamming beam for which the angle deception values are applicable. 
+   Value space: uint8 */
+   protected int beamNumber;
 
    /** This field shall be used to indicate if angle deception data have changed since issuance of the last Angle Deception attribute record for this beam, if the Angle Deception attribute record is part of a heartbeat update to meet periodic update requirements or if the angle deception data for the beam has ceased. uid 300 */
    protected EEAttributeStateIndicator stateIndicator = EEAttributeStateIndicator.values()[0];
 
-   /** padding */
-   protected byte padding2 = (byte)0;
+   /** padding 
+   Value space: uint8 */
+   protected int padding2 = (int) 0;
 
-   /** This field indicates the relative azimuth angle at which the deceptive radar returns are centered. This angle is measured in the X-Y plane of the victim radar's entity coordinate system (see 1.4.3). This angle is measured in radians from the victim radar entity's azimuth for the true jam- mer position to the center of the range of azimuths in which deceptive radar returns are perceived as shown in Figure 43. Positive and negative values indicate that the perceived positions of the jammer are right and left of the true position of the jammer, respectively. The range of permissible values is -PI to PI */
+   /** This field indicates the relative azimuth angle at which the deceptive radar returns are centered. This angle is measured in the X-Y plane of the victim radar's entity coordinate system (see 1.4.3). This angle is measured in radians from the victim radar entity's azimuth for the true jam- mer position to the center of the range of azimuths in which deceptive radar returns are perceived as shown in Figure 43. Positive and negative values indicate that the perceived positions of the jammer are right and left of the true position of the jammer, respectively. The range of permissible values is -PI to PI 
+   Value space: float32 */
    protected float azimuthOffset;
 
-   /** indicates the range of azimuths (in radians) through which the deceptive radar returns are perceived, centered on the azimuth offset as shown in Figure 43. The range of permissible values is 0 to 2PI radians */
+   /** indicates the range of azimuths (in radians) through which the deceptive radar returns are perceived, centered on the azimuth offset as shown in Figure 43. The range of permissible values is 0 to 2PI radians 
+   Value space: float32 */
    protected float azimuthWidth;
 
-   /** This field indicates the rate (in radians per second) at which the Azimuth Offset value is changing. Positive and negative values indicate that the Azimuth Offset is moving to the right or left, respectively. */
+   /** This field indicates the rate (in radians per second) at which the Azimuth Offset value is changing. Positive and negative values indicate that the Azimuth Offset is moving to the right or left, respectively. 
+   Value space: float32 */
    protected float azimuthPullRate;
 
-   /** This field indicates the rate (in radians per second squared) at which the Azimuth Pull Rate value is changing. Azimuth Pull Acceleration is defined as positive to the right and negative to the left. */
+   /** This field indicates the rate (in radians per second squared) at which the Azimuth Pull Rate value is changing. Azimuth Pull Acceleration is defined as positive to the right and negative to the left. 
+   Value space: float32 */
    protected float azimuthPullAcceleration;
 
-   /** This field indicates the relative elevation angle at which the deceptive radar returns begin. This angle is measured as an angle with respect to the X-Y plane of the victim radar's entity coordinate system (see 1.4.3). This angle is measured in radians from the victim radar entity's eleva- tion for the true jammer position to the center of the range of elevations in which deceptive radar returns are perceived as shown in Figure 44. Positive and negative values indicate that the perceived positions of the jammer are above and below the true position of the jammer, respectively. The range of permissible values is -PI/2 to PI/2 */
+   /** This field indicates the relative elevation angle at which the deceptive radar returns begin. This angle is measured as an angle with respect to the X-Y plane of the victim radar's entity coordinate system (see 1.4.3). This angle is measured in radians from the victim radar entity's eleva- tion for the true jammer position to the center of the range of elevations in which deceptive radar returns are perceived as shown in Figure 44. Positive and negative values indicate that the perceived positions of the jammer are above and below the true position of the jammer, respectively. The range of permissible values is -PI/2 to PI/2 
+   Value space: float32 */
    protected float elevationOffset;
 
-   /** This field indicates the range of elevations (in radians) through which the decep- tive radar returns are perceived, centered on the elevation offset as shown in Figure 44. The range of permissible values is 0 to PI radians */
+   /** This field indicates the range of elevations (in radians) through which the decep- tive radar returns are perceived, centered on the elevation offset as shown in Figure 44. The range of permissible values is 0 to PI radians 
+   Value space: float32 */
    protected float elevationWidth;
 
-   /** This field indicates the rate (in radians per second) at which the Elevation Off- set value is changing. Positive and negative values indicate that the Elevation Offset is moving up or down, respectively.  */
+   /** This field indicates the rate (in radians per second) at which the Elevation Off- set value is changing. Positive and negative values indicate that the Elevation Offset is moving up or down, respectively.  
+   Value space: float32 */
    protected float elevationPullRate;
 
-   /** This field indicates the rate (in radians per second squared) at which the Elevation Pull Rate value is changing. Elevation Pull Acceleration is defined as positive to upward and negative downward.  */
+   /** This field indicates the rate (in radians per second squared) at which the Elevation Pull Rate value is changing. Elevation Pull Acceleration is defined as positive to upward and negative downward.  
+   Value space: float32 */
    protected float elevationPullAcceleration;
 
-   /** padding3 is an undescribed parameter... */
-   protected int padding3 = (int)0;
+   /** padding3 is an undescribed parameter...
+   Value space: uint32 */
+   protected UnsignedInteger padding3 = UnsignedInteger.valueOf(0);
 
 
 /** Constructor creates and configures a new instance object */
@@ -106,104 +123,84 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link AngleDeception#recordType}
-  * @param pRecordType new value of interest
+  * @param pRecordType new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized AngleDeception setRecordType(int pRecordType)
+public synchronized AngleDeception setRecordType(UnsignedInteger pRecordType)
 {
     recordType = pRecordType;
     return this;
 }
 /** Getter for {@link AngleDeception#recordType}
   * @return value of interest */
-public int getRecordType()
+public UnsignedInteger getRecordType()
 {
     return recordType; 
 }
 
 /** Setter for {@link AngleDeception#recordLength}
-  * @param pRecordLength new value of interest
+  * @param pRecordLength new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized AngleDeception setRecordLength(short pRecordLength)
+public synchronized AngleDeception setRecordLength(int pRecordLength)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pRecordLength >= 0 && pRecordLength <= 65535, "Value outside valid value space");
     recordLength = pRecordLength;
-    return this;
-}
-/** Utility setter for {@link AngleDeception#recordLength}
-  * @param pRecordLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized AngleDeception setRecordLength(int pRecordLength){
-    recordLength = (short) pRecordLength;
     return this;
 }
 /** Getter for {@link AngleDeception#recordLength}
   * @return value of interest */
-public short getRecordLength()
+public int getRecordLength()
 {
     return recordLength; 
 }
 
 /** Setter for {@link AngleDeception#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized AngleDeception setPadding(short pPadding)
+public synchronized AngleDeception setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link AngleDeception#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized AngleDeception setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link AngleDeception#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
 
 /** Setter for {@link AngleDeception#emitterNumber}
-  * @param pEmitterNumber new value of interest
+  * @param pEmitterNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized AngleDeception setEmitterNumber(byte pEmitterNumber)
+public synchronized AngleDeception setEmitterNumber(int pEmitterNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pEmitterNumber >= 0 && pEmitterNumber <= 255, "Value outside valid value space");
     emitterNumber = pEmitterNumber;
-    return this;
-}
-/** Utility setter for {@link AngleDeception#emitterNumber}
-  * @param pEmitterNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized AngleDeception setEmitterNumber(int pEmitterNumber){
-    emitterNumber = (byte) pEmitterNumber;
     return this;
 }
 /** Getter for {@link AngleDeception#emitterNumber}
   * @return value of interest */
-public byte getEmitterNumber()
+public int getEmitterNumber()
 {
     return emitterNumber; 
 }
 
 /** Setter for {@link AngleDeception#beamNumber}
-  * @param pBeamNumber new value of interest
+  * @param pBeamNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized AngleDeception setBeamNumber(byte pBeamNumber)
+public synchronized AngleDeception setBeamNumber(int pBeamNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pBeamNumber >= 0 && pBeamNumber <= 255, "Value outside valid value space");
     beamNumber = pBeamNumber;
-    return this;
-}
-/** Utility setter for {@link AngleDeception#beamNumber}
-  * @param pBeamNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized AngleDeception setBeamNumber(int pBeamNumber){
-    beamNumber = (byte) pBeamNumber;
     return this;
 }
 /** Getter for {@link AngleDeception#beamNumber}
   * @return value of interest */
-public byte getBeamNumber()
+public int getBeamNumber()
 {
     return beamNumber; 
 }
@@ -224,29 +221,24 @@ public EEAttributeStateIndicator getStateIndicator()
 }
 
 /** Setter for {@link AngleDeception#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized AngleDeception setPadding2(byte pPadding2)
+public synchronized AngleDeception setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 255, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link AngleDeception#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized AngleDeception setPadding2(int pPadding2){
-    padding2 = (byte) pPadding2;
     return this;
 }
 /** Getter for {@link AngleDeception#padding2}
   * @return value of interest */
-public byte getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
 
 /** Setter for {@link AngleDeception#azimuthOffset}
-  * @param pAzimuthOffset new value of interest
+  * @param pAzimuthOffset new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized AngleDeception setAzimuthOffset(float pAzimuthOffset)
 {
@@ -261,7 +253,7 @@ public float getAzimuthOffset()
 }
 
 /** Setter for {@link AngleDeception#azimuthWidth}
-  * @param pAzimuthWidth new value of interest
+  * @param pAzimuthWidth new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized AngleDeception setAzimuthWidth(float pAzimuthWidth)
 {
@@ -276,7 +268,7 @@ public float getAzimuthWidth()
 }
 
 /** Setter for {@link AngleDeception#azimuthPullRate}
-  * @param pAzimuthPullRate new value of interest
+  * @param pAzimuthPullRate new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized AngleDeception setAzimuthPullRate(float pAzimuthPullRate)
 {
@@ -291,7 +283,7 @@ public float getAzimuthPullRate()
 }
 
 /** Setter for {@link AngleDeception#azimuthPullAcceleration}
-  * @param pAzimuthPullAcceleration new value of interest
+  * @param pAzimuthPullAcceleration new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized AngleDeception setAzimuthPullAcceleration(float pAzimuthPullAcceleration)
 {
@@ -306,7 +298,7 @@ public float getAzimuthPullAcceleration()
 }
 
 /** Setter for {@link AngleDeception#elevationOffset}
-  * @param pElevationOffset new value of interest
+  * @param pElevationOffset new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized AngleDeception setElevationOffset(float pElevationOffset)
 {
@@ -321,7 +313,7 @@ public float getElevationOffset()
 }
 
 /** Setter for {@link AngleDeception#elevationWidth}
-  * @param pElevationWidth new value of interest
+  * @param pElevationWidth new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized AngleDeception setElevationWidth(float pElevationWidth)
 {
@@ -336,7 +328,7 @@ public float getElevationWidth()
 }
 
 /** Setter for {@link AngleDeception#elevationPullRate}
-  * @param pElevationPullRate new value of interest
+  * @param pElevationPullRate new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized AngleDeception setElevationPullRate(float pElevationPullRate)
 {
@@ -351,7 +343,7 @@ public float getElevationPullRate()
 }
 
 /** Setter for {@link AngleDeception#elevationPullAcceleration}
-  * @param pElevationPullAcceleration new value of interest
+  * @param pElevationPullAcceleration new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized AngleDeception setElevationPullAcceleration(float pElevationPullAcceleration)
 {
@@ -366,16 +358,16 @@ public float getElevationPullAcceleration()
 }
 
 /** Setter for {@link AngleDeception#padding3}
-  * @param pPadding3 new value of interest
+  * @param pPadding3 new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized AngleDeception setPadding3(int pPadding3)
+public synchronized AngleDeception setPadding3(UnsignedInteger pPadding3)
 {
     padding3 = pPadding3;
     return this;
 }
 /** Getter for {@link AngleDeception#padding3}
   * @return value of interest */
-public int getPadding3()
+public UnsignedInteger getPadding3()
 {
     return padding3; 
 }
@@ -389,15 +381,15 @@ public int getPadding3()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeInt(recordType);
-       dos.writeShort(recordLength);
-       dos.writeShort(padding);
-       dos.writeByte(emitterNumber);
-       dos.writeByte(beamNumber);
+       dos.writeInt(recordType.intValue());
+       dos.writeShort((short) recordLength);
+       dos.writeShort((short) padding);
+       dos.writeByte((byte) emitterNumber);
+       dos.writeByte((byte) beamNumber);
        stateIndicator.marshal(dos);
-       dos.writeByte(padding2);
+       dos.writeByte((byte) padding2);
        dos.writeFloat(azimuthOffset);
        dos.writeFloat(azimuthWidth);
        dos.writeFloat(azimuthPullRate);
@@ -406,11 +398,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        dos.writeFloat(elevationWidth);
        dos.writeFloat(elevationPullRate);
        dos.writeFloat(elevationPullAcceleration);
-       dos.writeInt(padding3);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeInt(padding3.intValue());
     }
 }
 
@@ -426,44 +414,40 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        recordType = dis.readInt();
+        recordType = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        recordLength = (short)dis.readUnsignedShort();
+        recordLength = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        emitterNumber = (byte)dis.readUnsignedByte();
+        emitterNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        beamNumber = (byte)dis.readUnsignedByte();
+        beamNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         stateIndicator = EEAttributeStateIndicator.unmarshalEnum(dis);
         uPosition += stateIndicator.getMarshalledSize();
-        padding2 = (byte)dis.readUnsignedByte();
+        padding2 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        azimuthOffset = dis.readFloat();
+        azimuthOffset = (float) dis.readFloat();
         uPosition += 4;
-        azimuthWidth = dis.readFloat();
+        azimuthWidth = (float) dis.readFloat();
         uPosition += 4;
-        azimuthPullRate = dis.readFloat();
+        azimuthPullRate = (float) dis.readFloat();
         uPosition += 4;
-        azimuthPullAcceleration = dis.readFloat();
+        azimuthPullAcceleration = (float) dis.readFloat();
         uPosition += 4;
-        elevationOffset = dis.readFloat();
+        elevationOffset = (float) dis.readFloat();
         uPosition += 4;
-        elevationWidth = dis.readFloat();
+        elevationWidth = (float) dis.readFloat();
         uPosition += 4;
-        elevationPullRate = dis.readFloat();
+        elevationPullRate = (float) dis.readFloat();
         uPosition += 4;
-        elevationPullAcceleration = dis.readFloat();
+        elevationPullAcceleration = (float) dis.readFloat();
         uPosition += 4;
-        padding3 = dis.readInt();
+        padding3 = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -479,22 +463,22 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putInt( (int)recordType);
-   byteBuffer.putShort( (short)recordLength);
-   byteBuffer.putShort( (short)padding);
-   byteBuffer.put( (byte)emitterNumber);
-   byteBuffer.put( (byte)beamNumber);
+   byteBuffer.putInt(recordType.intValue());
+   byteBuffer.putShort((short) recordLength);
+   byteBuffer.putShort((short) padding);
+   byteBuffer.put((byte) emitterNumber);
+   byteBuffer.put((byte) beamNumber);
    stateIndicator.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding2);
-   byteBuffer.putFloat( (float)azimuthOffset);
-   byteBuffer.putFloat( (float)azimuthWidth);
-   byteBuffer.putFloat( (float)azimuthPullRate);
-   byteBuffer.putFloat( (float)azimuthPullAcceleration);
-   byteBuffer.putFloat( (float)elevationOffset);
-   byteBuffer.putFloat( (float)elevationWidth);
-   byteBuffer.putFloat( (float)elevationPullRate);
-   byteBuffer.putFloat( (float)elevationPullAcceleration);
-   byteBuffer.putInt( (int)padding3);
+   byteBuffer.put((byte) padding2);
+   byteBuffer.putFloat(azimuthOffset);
+   byteBuffer.putFloat(azimuthWidth);
+   byteBuffer.putFloat(azimuthPullRate);
+   byteBuffer.putFloat(azimuthPullAcceleration);
+   byteBuffer.putFloat(elevationOffset);
+   byteBuffer.putFloat(elevationWidth);
+   byteBuffer.putFloat(elevationPullRate);
+   byteBuffer.putFloat(elevationPullAcceleration);
+   byteBuffer.putInt(padding3.intValue());
 }
 
 /**
@@ -509,46 +493,116 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute recordType marked as not serialized
-        recordType = byteBuffer.getInt();
-        // attribute recordLength marked as not serialized
-        recordLength = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute emitterNumber marked as not serialized
-        emitterNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute beamNumber marked as not serialized
-        beamNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute stateIndicator marked as not serialized
+        recordType = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        recordLength = Short.toUnsignedInt(byteBuffer.getShort());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
+        emitterNumber = Byte.toUnsignedInt(byteBuffer.get());
+        beamNumber = Byte.toUnsignedInt(byteBuffer.get());
         stateIndicator = EEAttributeStateIndicator.unmarshalEnum(byteBuffer);
-        // attribute padding2 marked as not serialized
-        padding2 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute azimuthOffset marked as not serialized
-        azimuthOffset = byteBuffer.getFloat();
-        // attribute azimuthWidth marked as not serialized
-        azimuthWidth = byteBuffer.getFloat();
-        // attribute azimuthPullRate marked as not serialized
-        azimuthPullRate = byteBuffer.getFloat();
-        // attribute azimuthPullAcceleration marked as not serialized
-        azimuthPullAcceleration = byteBuffer.getFloat();
-        // attribute elevationOffset marked as not serialized
-        elevationOffset = byteBuffer.getFloat();
-        // attribute elevationWidth marked as not serialized
-        elevationWidth = byteBuffer.getFloat();
-        // attribute elevationPullRate marked as not serialized
-        elevationPullRate = byteBuffer.getFloat();
-        // attribute elevationPullAcceleration marked as not serialized
-        elevationPullAcceleration = byteBuffer.getFloat();
-        // attribute padding3 marked as not serialized
-        padding3 = byteBuffer.getInt();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding2 = Byte.toUnsignedInt(byteBuffer.get());
+        azimuthOffset = (float) byteBuffer.getFloat();
+        azimuthWidth = (float) byteBuffer.getFloat();
+        azimuthPullRate = (float) byteBuffer.getFloat();
+        azimuthPullAcceleration = (float) byteBuffer.getFloat();
+        elevationOffset = (float) byteBuffer.getFloat();
+        elevationWidth = (float) byteBuffer.getFloat();
+        elevationPullRate = (float) byteBuffer.getFloat();
+        elevationPullAcceleration = (float) byteBuffer.getFloat();
+        padding3 = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("recordType", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("recordLength", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("emitterNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("beamNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("stateIndicator", EEAttributeStateIndicator.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding2", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("azimuthOffset", (float) byteBuffer.getFloat());
+    map.put("azimuthWidth", (float) byteBuffer.getFloat());
+    map.put("azimuthPullRate", (float) byteBuffer.getFloat());
+    map.put("azimuthPullAcceleration", (float) byteBuffer.getFloat());
+    map.put("elevationOffset", (float) byteBuffer.getFloat());
+    map.put("elevationWidth", (float) byteBuffer.getFloat());
+    map.put("elevationPullRate", (float) byteBuffer.getFloat());
+    map.put("elevationPullAcceleration", (float) byteBuffer.getFloat());
+    map.put("padding3", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putInt(((Number) map.get("recordType")).intValue());
+    byteBuffer.putShort(((Number) map.get("recordLength")).shortValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+    byteBuffer.put(((Number) map.get("emitterNumber")).byteValue());
+    byteBuffer.put(((Number) map.get("beamNumber")).byteValue());
+    EEAttributeStateIndicator.getEnumForValue(((Number) map.get("stateIndicator")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding2")).byteValue());
+    byteBuffer.putFloat(((Number) map.get("azimuthOffset")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("azimuthWidth")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("azimuthPullRate")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("azimuthPullAcceleration")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("elevationOffset")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("elevationWidth")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("elevationPullRate")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("elevationPullAcceleration")).floatValue());
+    byteBuffer.putInt(((Number) map.get("padding3")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // recordType
+    marshalSize += 2;  // recordLength
+    marshalSize += 2;  // padding
+    marshalSize += 1;  // emitterNumber
+    marshalSize += 1;  // beamNumber
+    marshalSize += EEAttributeStateIndicator.getEnumForValue(((Number) map.get("stateIndicator")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding2
+    marshalSize += 4;  // azimuthOffset
+    marshalSize += 4;  // azimuthWidth
+    marshalSize += 4;  // azimuthPullRate
+    marshalSize += 4;  // azimuthPullAcceleration
+    marshalSize += 4;  // elevationOffset
+    marshalSize += 4;  // elevationWidth
+    marshalSize += 4;  // elevationPullRate
+    marshalSize += 4;  // elevationPullAcceleration
+    marshalSize += 4;  // padding3
+
+    return marshalSize;
 }
 
  /*

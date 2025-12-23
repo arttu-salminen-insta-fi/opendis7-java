@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Two floating point values, x, y
@@ -19,10 +21,12 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class Vector2Float extends Object implements Serializable, Marshaller
 {
-   /** X value */
+   /** X value 
+   Value space: float32 */
    protected float x;
 
-   /** y Value */
+   /** y Value 
+   Value space: float32 */
    protected float y;
 
 
@@ -49,7 +53,7 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link Vector2Float#x}
-  * @param pX new value of interest
+  * @param pX new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized Vector2Float setX(float pX)
 {
@@ -64,7 +68,7 @@ public float getX()
 }
 
 /** Setter for {@link Vector2Float#y}
-  * @param pY new value of interest
+  * @param pY new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized Vector2Float setY(float pY)
 {
@@ -87,14 +91,10 @@ public float getY()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        dos.writeFloat(x);
        dos.writeFloat(y);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -110,16 +110,12 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        x = dis.readFloat();
+        x = (float) dis.readFloat();
         uPosition += 4;
-        y = dis.readFloat();
+        y = (float) dis.readFloat();
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -135,8 +131,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putFloat( (float)x);
-   byteBuffer.putFloat( (float)y);
+   byteBuffer.putFloat(x);
+   byteBuffer.putFloat(y);
 }
 
 /**
@@ -151,18 +147,60 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute x marked as not serialized
-        x = byteBuffer.getFloat();
-        // attribute y marked as not serialized
-        y = byteBuffer.getFloat();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        x = (float) byteBuffer.getFloat();
+        y = (float) byteBuffer.getFloat();
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("x", (float) byteBuffer.getFloat());
+    map.put("y", (float) byteBuffer.getFloat());
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putFloat(((Number) map.get("x")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("y")).floatValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // x
+    marshalSize += 4;  // y
+
+    return marshalSize;
 }
 
  /*

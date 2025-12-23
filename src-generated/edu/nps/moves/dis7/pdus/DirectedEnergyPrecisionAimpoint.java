@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * DE Precision Aimpoint Record. Section 6.2.20.3
@@ -19,14 +21,17 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class DirectedEnergyPrecisionAimpoint extends Object implements Serializable, Marshaller
 {
-   /** Type of Record */
-   protected int recordType = (int)4000;
+   /** Type of Record 
+   Value space: uint32 */
+   protected UnsignedInteger recordType = UnsignedInteger.valueOf(4000);
 
-   /** Length of Record */
-   protected short recordLength = (short)88;
+   /** Length of Record 
+   Value space: uint16 */
+   protected int recordLength = (int) 88;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding = (short)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding = (int) 0;
 
    /** Position of Target Spot in World Coordinates. */
    protected Vector3Double  targetSpotLocation = new Vector3Double(); 
@@ -43,26 +48,32 @@ public class DirectedEnergyPrecisionAimpoint extends Object implements Serializa
    /** Unique ID of the target entity. */
    protected EntityID  targetEntityID = new EntityID(); 
 
-   /** Target Component ID ENUM, same as in DamageDescriptionRecord. */
-   protected byte targetComponentID = (byte)0;
+   /** Target Component ID ENUM, same as in DamageDescriptionRecord. 
+   Value space: uint8 */
+   protected int targetComponentID = (int) 0;
 
    /** Spot Shape ENUM. uid 311 */
    protected DEPrecisionAimpointBeamSpotType beamSpotType = DEPrecisionAimpointBeamSpotType.values()[0];
 
-   /** Beam Spot Cross Section Semi-Major Axis. */
-   protected float beamSpotCrossSectionSemiMajorAxis = (float)0;
+   /** Beam Spot Cross Section Semi-Major Axis. 
+   Value space: float32 */
+   protected float beamSpotCrossSectionSemiMajorAxis = (float) 0;
 
-   /** Beam Spot Cross Section Semi-Major Axis. */
-   protected float beamSpotCrossSectionSemiMinorAxis = (float)0;
+   /** Beam Spot Cross Section Semi-Major Axis. 
+   Value space: float32 */
+   protected float beamSpotCrossSectionSemiMinorAxis = (float) 0;
 
-   /** Beam Spot Cross Section Orientation Angle. */
-   protected float beamSpotCrossSectionOrientationAngle = (float)0;
+   /** Beam Spot Cross Section Orientation Angle. 
+   Value space: float32 */
+   protected float beamSpotCrossSectionOrientationAngle = (float) 0;
 
-   /** Peak irradiance */
-   protected float peakIrradiance = (float)0;
+   /** Peak irradiance 
+   Value space: float32 */
+   protected float peakIrradiance = (float) 0;
 
-   /** padding */
-   protected int padding2 = (int)0;
+   /** padding 
+   Value space: uint32 */
+   protected UnsignedInteger padding2 = UnsignedInteger.valueOf(0);
 
 
 /** Constructor creates and configures a new instance object */
@@ -107,60 +118,50 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link DirectedEnergyPrecisionAimpoint#recordType}
-  * @param pRecordType new value of interest
+  * @param pRecordType new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyPrecisionAimpoint setRecordType(int pRecordType)
+public synchronized DirectedEnergyPrecisionAimpoint setRecordType(UnsignedInteger pRecordType)
 {
     recordType = pRecordType;
     return this;
 }
 /** Getter for {@link DirectedEnergyPrecisionAimpoint#recordType}
   * @return value of interest */
-public int getRecordType()
+public UnsignedInteger getRecordType()
 {
     return recordType; 
 }
 
 /** Setter for {@link DirectedEnergyPrecisionAimpoint#recordLength}
-  * @param pRecordLength new value of interest
+  * @param pRecordLength new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyPrecisionAimpoint setRecordLength(short pRecordLength)
+public synchronized DirectedEnergyPrecisionAimpoint setRecordLength(int pRecordLength)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pRecordLength >= 0 && pRecordLength <= 65535, "Value outside valid value space");
     recordLength = pRecordLength;
-    return this;
-}
-/** Utility setter for {@link DirectedEnergyPrecisionAimpoint#recordLength}
-  * @param pRecordLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DirectedEnergyPrecisionAimpoint setRecordLength(int pRecordLength){
-    recordLength = (short) pRecordLength;
     return this;
 }
 /** Getter for {@link DirectedEnergyPrecisionAimpoint#recordLength}
   * @return value of interest */
-public short getRecordLength()
+public int getRecordLength()
 {
     return recordLength; 
 }
 
 /** Setter for {@link DirectedEnergyPrecisionAimpoint#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyPrecisionAimpoint setPadding(short pPadding)
+public synchronized DirectedEnergyPrecisionAimpoint setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link DirectedEnergyPrecisionAimpoint#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DirectedEnergyPrecisionAimpoint setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link DirectedEnergyPrecisionAimpoint#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -246,23 +247,18 @@ public EntityID getTargetEntityID()
 
 
 /** Setter for {@link DirectedEnergyPrecisionAimpoint#targetComponentID}
-  * @param pTargetComponentID new value of interest
+  * @param pTargetComponentID new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyPrecisionAimpoint setTargetComponentID(byte pTargetComponentID)
+public synchronized DirectedEnergyPrecisionAimpoint setTargetComponentID(int pTargetComponentID)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pTargetComponentID >= 0 && pTargetComponentID <= 255, "Value outside valid value space");
     targetComponentID = pTargetComponentID;
-    return this;
-}
-/** Utility setter for {@link DirectedEnergyPrecisionAimpoint#targetComponentID}
-  * @param pTargetComponentID new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DirectedEnergyPrecisionAimpoint setTargetComponentID(int pTargetComponentID){
-    targetComponentID = (byte) pTargetComponentID;
     return this;
 }
 /** Getter for {@link DirectedEnergyPrecisionAimpoint#targetComponentID}
   * @return value of interest */
-public byte getTargetComponentID()
+public int getTargetComponentID()
 {
     return targetComponentID; 
 }
@@ -283,7 +279,7 @@ public DEPrecisionAimpointBeamSpotType getBeamSpotType()
 }
 
 /** Setter for {@link DirectedEnergyPrecisionAimpoint#beamSpotCrossSectionSemiMajorAxis}
-  * @param pBeamSpotCrossSectionSemiMajorAxis new value of interest
+  * @param pBeamSpotCrossSectionSemiMajorAxis new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DirectedEnergyPrecisionAimpoint setBeamSpotCrossSectionSemiMajorAxis(float pBeamSpotCrossSectionSemiMajorAxis)
 {
@@ -298,7 +294,7 @@ public float getBeamSpotCrossSectionSemiMajorAxis()
 }
 
 /** Setter for {@link DirectedEnergyPrecisionAimpoint#beamSpotCrossSectionSemiMinorAxis}
-  * @param pBeamSpotCrossSectionSemiMinorAxis new value of interest
+  * @param pBeamSpotCrossSectionSemiMinorAxis new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DirectedEnergyPrecisionAimpoint setBeamSpotCrossSectionSemiMinorAxis(float pBeamSpotCrossSectionSemiMinorAxis)
 {
@@ -313,7 +309,7 @@ public float getBeamSpotCrossSectionSemiMinorAxis()
 }
 
 /** Setter for {@link DirectedEnergyPrecisionAimpoint#beamSpotCrossSectionOrientationAngle}
-  * @param pBeamSpotCrossSectionOrientationAngle new value of interest
+  * @param pBeamSpotCrossSectionOrientationAngle new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DirectedEnergyPrecisionAimpoint setBeamSpotCrossSectionOrientationAngle(float pBeamSpotCrossSectionOrientationAngle)
 {
@@ -328,7 +324,7 @@ public float getBeamSpotCrossSectionOrientationAngle()
 }
 
 /** Setter for {@link DirectedEnergyPrecisionAimpoint#peakIrradiance}
-  * @param pPeakIrradiance new value of interest
+  * @param pPeakIrradiance new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DirectedEnergyPrecisionAimpoint setPeakIrradiance(float pPeakIrradiance)
 {
@@ -343,16 +339,16 @@ public float getPeakIrradiance()
 }
 
 /** Setter for {@link DirectedEnergyPrecisionAimpoint#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyPrecisionAimpoint setPadding2(int pPadding2)
+public synchronized DirectedEnergyPrecisionAimpoint setPadding2(UnsignedInteger pPadding2)
 {
     padding2 = pPadding2;
     return this;
 }
 /** Getter for {@link DirectedEnergyPrecisionAimpoint#padding2}
   * @return value of interest */
-public int getPadding2()
+public UnsignedInteger getPadding2()
 {
     return padding2; 
 }
@@ -366,27 +362,23 @@ public int getPadding2()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeInt(recordType);
-       dos.writeShort(recordLength);
-       dos.writeShort(padding);
+       dos.writeInt(recordType.intValue());
+       dos.writeShort((short) recordLength);
+       dos.writeShort((short) padding);
        targetSpotLocation.marshal(dos);
        targetSpotEntityLocation.marshal(dos);
        targetSpotVelocity.marshal(dos);
        targetSpotAcceleration.marshal(dos);
        targetEntityID.marshal(dos);
-       dos.writeByte(targetComponentID);
+       dos.writeByte((byte) targetComponentID);
        beamSpotType.marshal(dos);
        dos.writeFloat(beamSpotCrossSectionSemiMajorAxis);
        dos.writeFloat(beamSpotCrossSectionSemiMinorAxis);
        dos.writeFloat(beamSpotCrossSectionOrientationAngle);
        dos.writeFloat(peakIrradiance);
-       dos.writeInt(padding2);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeInt(padding2.intValue());
     }
 }
 
@@ -402,37 +394,33 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        recordType = dis.readInt();
+        recordType = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        recordLength = (short)dis.readUnsignedShort();
+        recordLength = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += targetSpotLocation.unmarshal(dis);
         uPosition += targetSpotEntityLocation.unmarshal(dis);
         uPosition += targetSpotVelocity.unmarshal(dis);
         uPosition += targetSpotAcceleration.unmarshal(dis);
         uPosition += targetEntityID.unmarshal(dis);
-        targetComponentID = (byte)dis.readUnsignedByte();
+        targetComponentID = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         beamSpotType = DEPrecisionAimpointBeamSpotType.unmarshalEnum(dis);
         uPosition += beamSpotType.getMarshalledSize();
-        beamSpotCrossSectionSemiMajorAxis = dis.readFloat();
+        beamSpotCrossSectionSemiMajorAxis = (float) dis.readFloat();
         uPosition += 4;
-        beamSpotCrossSectionSemiMinorAxis = dis.readFloat();
+        beamSpotCrossSectionSemiMinorAxis = (float) dis.readFloat();
         uPosition += 4;
-        beamSpotCrossSectionOrientationAngle = dis.readFloat();
+        beamSpotCrossSectionOrientationAngle = (float) dis.readFloat();
         uPosition += 4;
-        peakIrradiance = dis.readFloat();
+        peakIrradiance = (float) dis.readFloat();
         uPosition += 4;
-        padding2 = dis.readInt();
+        padding2 = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -448,21 +436,21 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putInt( (int)recordType);
-   byteBuffer.putShort( (short)recordLength);
-   byteBuffer.putShort( (short)padding);
+   byteBuffer.putInt(recordType.intValue());
+   byteBuffer.putShort((short) recordLength);
+   byteBuffer.putShort((short) padding);
    targetSpotLocation.marshal(byteBuffer);
    targetSpotEntityLocation.marshal(byteBuffer);
    targetSpotVelocity.marshal(byteBuffer);
    targetSpotAcceleration.marshal(byteBuffer);
    targetEntityID.marshal(byteBuffer);
-   byteBuffer.put( (byte)targetComponentID);
+   byteBuffer.put((byte) targetComponentID);
    beamSpotType.marshal(byteBuffer);
-   byteBuffer.putFloat( (float)beamSpotCrossSectionSemiMajorAxis);
-   byteBuffer.putFloat( (float)beamSpotCrossSectionSemiMinorAxis);
-   byteBuffer.putFloat( (float)beamSpotCrossSectionOrientationAngle);
-   byteBuffer.putFloat( (float)peakIrradiance);
-   byteBuffer.putInt( (int)padding2);
+   byteBuffer.putFloat(beamSpotCrossSectionSemiMajorAxis);
+   byteBuffer.putFloat(beamSpotCrossSectionSemiMinorAxis);
+   byteBuffer.putFloat(beamSpotCrossSectionOrientationAngle);
+   byteBuffer.putFloat(peakIrradiance);
+   byteBuffer.putInt(padding2.intValue());
 }
 
 /**
@@ -477,44 +465,112 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute recordType marked as not serialized
-        recordType = byteBuffer.getInt();
-        // attribute recordLength marked as not serialized
-        recordLength = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute targetSpotLocation marked as not serialized
+        recordType = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        recordLength = Short.toUnsignedInt(byteBuffer.getShort());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
         targetSpotLocation.unmarshal(byteBuffer);
-        // attribute targetSpotEntityLocation marked as not serialized
         targetSpotEntityLocation.unmarshal(byteBuffer);
-        // attribute targetSpotVelocity marked as not serialized
         targetSpotVelocity.unmarshal(byteBuffer);
-        // attribute targetSpotAcceleration marked as not serialized
         targetSpotAcceleration.unmarshal(byteBuffer);
-        // attribute targetEntityID marked as not serialized
         targetEntityID.unmarshal(byteBuffer);
-        // attribute targetComponentID marked as not serialized
-        targetComponentID = (byte)(byteBuffer.get() & 0xFF);
-        // attribute beamSpotType marked as not serialized
+        targetComponentID = Byte.toUnsignedInt(byteBuffer.get());
         beamSpotType = DEPrecisionAimpointBeamSpotType.unmarshalEnum(byteBuffer);
-        // attribute beamSpotCrossSectionSemiMajorAxis marked as not serialized
-        beamSpotCrossSectionSemiMajorAxis = byteBuffer.getFloat();
-        // attribute beamSpotCrossSectionSemiMinorAxis marked as not serialized
-        beamSpotCrossSectionSemiMinorAxis = byteBuffer.getFloat();
-        // attribute beamSpotCrossSectionOrientationAngle marked as not serialized
-        beamSpotCrossSectionOrientationAngle = byteBuffer.getFloat();
-        // attribute peakIrradiance marked as not serialized
-        peakIrradiance = byteBuffer.getFloat();
-        // attribute padding2 marked as not serialized
-        padding2 = byteBuffer.getInt();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        beamSpotCrossSectionSemiMajorAxis = (float) byteBuffer.getFloat();
+        beamSpotCrossSectionSemiMinorAxis = (float) byteBuffer.getFloat();
+        beamSpotCrossSectionOrientationAngle = (float) byteBuffer.getFloat();
+        peakIrradiance = (float) byteBuffer.getFloat();
+        padding2 = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("recordType", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("recordLength", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("targetSpotLocation", Vector3Double.fromBufferToMap(byteBuffer));
+    map.put("targetSpotEntityLocation", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("targetSpotVelocity", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("targetSpotAcceleration", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("targetEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("targetComponentID", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("beamSpotType", DEPrecisionAimpointBeamSpotType.unmarshalEnum(byteBuffer).getValue());
+    map.put("beamSpotCrossSectionSemiMajorAxis", (float) byteBuffer.getFloat());
+    map.put("beamSpotCrossSectionSemiMinorAxis", (float) byteBuffer.getFloat());
+    map.put("beamSpotCrossSectionOrientationAngle", (float) byteBuffer.getFloat());
+    map.put("peakIrradiance", (float) byteBuffer.getFloat());
+    map.put("padding2", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putInt(((Number) map.get("recordType")).intValue());
+    byteBuffer.putShort(((Number) map.get("recordLength")).shortValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+    Vector3Double.fromMapToBuffer((PduMap) map.get("targetSpotLocation"), byteBuffer);
+    Vector3Float.fromMapToBuffer((PduMap) map.get("targetSpotEntityLocation"), byteBuffer);
+    Vector3Float.fromMapToBuffer((PduMap) map.get("targetSpotVelocity"), byteBuffer);
+    Vector3Float.fromMapToBuffer((PduMap) map.get("targetSpotAcceleration"), byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("targetEntityID"), byteBuffer);
+    byteBuffer.put(((Number) map.get("targetComponentID")).byteValue());
+    DEPrecisionAimpointBeamSpotType.getEnumForValue(((Number) map.get("beamSpotType")).intValue()).marshal(byteBuffer);
+    byteBuffer.putFloat(((Number) map.get("beamSpotCrossSectionSemiMajorAxis")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("beamSpotCrossSectionSemiMinorAxis")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("beamSpotCrossSectionOrientationAngle")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("peakIrradiance")).floatValue());
+    byteBuffer.putInt(((Number) map.get("padding2")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // recordType
+    marshalSize += 2;  // recordLength
+    marshalSize += 2;  // padding
+    marshalSize += Vector3Double.getMarshalledSize((PduMap) map.get("targetSpotLocation"));
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("targetSpotEntityLocation"));
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("targetSpotVelocity"));
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("targetSpotAcceleration"));
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("targetEntityID"));
+    marshalSize += 1;  // targetComponentID
+    marshalSize += DEPrecisionAimpointBeamSpotType.getEnumForValue(((Number) map.get("beamSpotType")).intValue()).getMarshalledSize();
+    marshalSize += 4;  // beamSpotCrossSectionSemiMajorAxis
+    marshalSize += 4;  // beamSpotCrossSectionSemiMinorAxis
+    marshalSize += 4;  // beamSpotCrossSectionOrientationAngle
+    marshalSize += 4;  // peakIrradiance
+    marshalSize += 4;  // padding2
+
+    return marshalSize;
 }
 
  /*

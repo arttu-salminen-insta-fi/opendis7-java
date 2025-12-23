@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * A Simulation Address record shall consist of the Site Identification number and the Application Identification number. Section 6.2.79 
@@ -19,11 +21,13 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class SimulationAddress extends Object implements Serializable, Marshaller
 {
-   /** A site is defined as a facility, installation, organizational unit or a geographic location that has one or more simulation applications capable of participating in a distributed event.  */
-   protected short site;
+   /** A site is defined as a facility, installation, organizational unit or a geographic location that has one or more simulation applications capable of participating in a distributed event.  
+   Value space: uint16 */
+   protected int site;
 
-   /** An application is defined as a software program that is used to generate and process distributed simulation data including live, virtual and constructive data. */
-   protected short application;
+   /** An application is defined as a software program that is used to generate and process distributed simulation data including live, virtual and constructive data. 
+   Value space: uint16 */
+   protected int application;
 
 
 /** Constructor creates and configures a new instance object */
@@ -49,45 +53,35 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link SimulationAddress#site}
-  * @param pSite new value of interest
+  * @param pSite new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized SimulationAddress setSite(short pSite)
+public synchronized SimulationAddress setSite(int pSite)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pSite >= 0 && pSite <= 65535, "Value outside valid value space");
     site = pSite;
-    return this;
-}
-/** Utility setter for {@link SimulationAddress#site}
-  * @param pSite new value of interest
-  * @return same object to permit progressive setters */
-public synchronized SimulationAddress setSite(int pSite){
-    site = (short) pSite;
     return this;
 }
 /** Getter for {@link SimulationAddress#site}
   * @return value of interest */
-public short getSite()
+public int getSite()
 {
     return site; 
 }
 
 /** Setter for {@link SimulationAddress#application}
-  * @param pApplication new value of interest
+  * @param pApplication new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized SimulationAddress setApplication(short pApplication)
+public synchronized SimulationAddress setApplication(int pApplication)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pApplication >= 0 && pApplication <= 65535, "Value outside valid value space");
     application = pApplication;
-    return this;
-}
-/** Utility setter for {@link SimulationAddress#application}
-  * @param pApplication new value of interest
-  * @return same object to permit progressive setters */
-public synchronized SimulationAddress setApplication(int pApplication){
-    application = (short) pApplication;
     return this;
 }
 /** Getter for {@link SimulationAddress#application}
   * @return value of interest */
-public short getApplication()
+public int getApplication()
 {
     return application; 
 }
@@ -101,14 +95,10 @@ public short getApplication()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(site);
-       dos.writeShort(application);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) site);
+       dos.writeShort((short) application);
     }
 }
 
@@ -124,16 +114,12 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        site = (short)dis.readUnsignedShort();
+        site = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        application = (short)dis.readUnsignedShort();
+        application = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -149,8 +135,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)site);
-   byteBuffer.putShort( (short)application);
+   byteBuffer.putShort((short) site);
+   byteBuffer.putShort((short) application);
 }
 
 /**
@@ -165,18 +151,60 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute site marked as not serialized
-        site = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute application marked as not serialized
-        application = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        site = Short.toUnsignedInt(byteBuffer.getShort());
+        application = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("site", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("application", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("site")).shortValue());
+    byteBuffer.putShort(((Number) map.get("application")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // site
+    marshalSize += 2;  // application
+
+    return marshalSize;
 }
 
  /*

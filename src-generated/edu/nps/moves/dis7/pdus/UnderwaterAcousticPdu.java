@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -33,23 +35,28 @@ public class UnderwaterAcousticPdu extends DistributedEmissionsRegenerationFamil
    /** This field shall be used to indicate whether the data in the UA PDU represent a state update or data that have changed since issuance of the last UA PDU uid 143 */
    protected UAStateChangeUpdateIndicator stateChangeIndicator = UAStateChangeUpdateIndicator.values()[0];
 
-   /** padding */
-   protected byte pad;
+   /** padding 
+   Value space: uint8 */
+   protected int padding;
 
    /** This field indicates which database record (or file) shall be used in the definition of passive signature (unintentional) emissions of the entity. The indicated database record (or  file) shall define all noise generated as a function of propulsion plant configurations and associated  auxiliaries. uid 148 */
    protected UAPassiveParameterIndex passiveParameterIndex = UAPassiveParameterIndex.values()[0];
 
-   /** This field shall specify the entity propulsion plant configuration. This field is used to determine the passive signature characteristics of an entity. */
-   protected byte propulsionPlantConfiguration;
+   /** This field shall specify the entity propulsion plant configuration. This field is used to determine the passive signature characteristics of an entity. 
+   Value space: uint8 */
+   protected int propulsionPlantConfiguration;
 
-   /**  This field shall represent the number of shafts on a platform */
-   protected byte numberOfShafts;
+   /**  This field shall represent the number of shafts on a platform 
+   Value space: uint8 */
+   protected int numberOfShafts;
 
-   /** This field shall indicate the number of APAs described in the current UA PDU */
-   protected byte numberOfAPAs;
+   /** This field shall indicate the number of APAs described in the current UA PDU 
+   Value space: uint8 */
+   protected int numberOfAPAs;
 
-   /** This field shall specify the number of UA emitter systems being described in the current UA PDU */
-   protected byte numberOfUAEmitterSystems;
+   /** This field shall specify the number of UA emitter systems being described in the current UA PDU 
+   Value space: uint8 */
+   protected int numberOfUAEmitterSystems;
 
    /** shaft RPM values. */
    protected List< ShaftRPM > shaftRPMs = new ArrayList<>();
@@ -146,7 +153,7 @@ public synchronized int getMarshalledSize()
        marshalSize += eventID.getMarshalledSize();
    if (stateChangeIndicator != null)
        marshalSize += stateChangeIndicator.getMarshalledSize();
-   marshalSize += 1;  // pad
+   marshalSize += 1;  // padding
    if (passiveParameterIndex != null)
        marshalSize += passiveParameterIndex.getMarshalledSize();
    marshalSize += 1;  // propulsionPlantConfiguration
@@ -223,26 +230,21 @@ public UAStateChangeUpdateIndicator getStateChangeIndicator()
     return stateChangeIndicator; 
 }
 
-/** Setter for {@link UnderwaterAcousticPdu#pad}
-  * @param pPad new value of interest
+/** Setter for {@link UnderwaterAcousticPdu#padding}
+  * @param pPadding new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized UnderwaterAcousticPdu setPad(byte pPad)
+public synchronized UnderwaterAcousticPdu setPadding(int pPadding)
 {
-    pad = pPad;
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 255, "Value outside valid value space");
+    padding = pPadding;
     return this;
 }
-/** Utility setter for {@link UnderwaterAcousticPdu#pad}
-  * @param pPad new value of interest
-  * @return same object to permit progressive setters */
-public synchronized UnderwaterAcousticPdu setPad(int pPad){
-    pad = (byte) pPad;
-    return this;
-}
-/** Getter for {@link UnderwaterAcousticPdu#pad}
+/** Getter for {@link UnderwaterAcousticPdu#padding}
   * @return value of interest */
-public byte getPad()
+public int getPadding()
 {
-    return pad; 
+    return padding; 
 }
 
 /** Setter for {@link UnderwaterAcousticPdu#passiveParameterIndex}
@@ -261,23 +263,18 @@ public UAPassiveParameterIndex getPassiveParameterIndex()
 }
 
 /** Setter for {@link UnderwaterAcousticPdu#propulsionPlantConfiguration}
-  * @param pPropulsionPlantConfiguration new value of interest
+  * @param pPropulsionPlantConfiguration new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized UnderwaterAcousticPdu setPropulsionPlantConfiguration(byte pPropulsionPlantConfiguration)
+public synchronized UnderwaterAcousticPdu setPropulsionPlantConfiguration(int pPropulsionPlantConfiguration)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPropulsionPlantConfiguration >= 0 && pPropulsionPlantConfiguration <= 255, "Value outside valid value space");
     propulsionPlantConfiguration = pPropulsionPlantConfiguration;
-    return this;
-}
-/** Utility setter for {@link UnderwaterAcousticPdu#propulsionPlantConfiguration}
-  * @param pPropulsionPlantConfiguration new value of interest
-  * @return same object to permit progressive setters */
-public synchronized UnderwaterAcousticPdu setPropulsionPlantConfiguration(int pPropulsionPlantConfiguration){
-    propulsionPlantConfiguration = (byte) pPropulsionPlantConfiguration;
     return this;
 }
 /** Getter for {@link UnderwaterAcousticPdu#propulsionPlantConfiguration}
   * @return value of interest */
-public byte getPropulsionPlantConfiguration()
+public int getPropulsionPlantConfiguration()
 {
     return propulsionPlantConfiguration; 
 }
@@ -337,14 +334,14 @@ public List<UAEmitter> getEmitterSystems()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        emittingEntityID.marshal(dos);
        eventID.marshal(dos);
        stateChangeIndicator.marshal(dos);
-       dos.writeByte(pad);
+       dos.writeByte((byte) padding);
        passiveParameterIndex.marshal(dos);
-       dos.writeByte(propulsionPlantConfiguration);
+       dos.writeByte((byte) propulsionPlantConfiguration);
        dos.writeByte(shaftRPMs.size());
        dos.writeByte(apaData.size());
        dos.writeByte(emitterSystems.size());
@@ -370,10 +367,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        }
 
     }
-    catch(Exception e)
-    {
-      System.err.println(e);
-    }
 }
 
 /**
@@ -390,49 +383,45 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += emittingEntityID.unmarshal(dis);
         uPosition += eventID.unmarshal(dis);
         stateChangeIndicator = UAStateChangeUpdateIndicator.unmarshalEnum(dis);
         uPosition += stateChangeIndicator.getMarshalledSize();
-        pad = (byte)dis.readUnsignedByte();
+        padding = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         passiveParameterIndex = UAPassiveParameterIndex.unmarshalEnum(dis);
         uPosition += passiveParameterIndex.getMarshalledSize();
-        propulsionPlantConfiguration = (byte)dis.readUnsignedByte();
+        propulsionPlantConfiguration = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfShafts = (byte)dis.readUnsignedByte();
+        numberOfShafts = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfAPAs = (byte)dis.readUnsignedByte();
+        numberOfAPAs = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfUAEmitterSystems = (byte)dis.readUnsignedByte();
+        numberOfUAEmitterSystems = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        for (int idx = 0; idx < numberOfShafts; idx++)
+        for (int idx = 0; idx < ((Number) numberOfShafts).intValue(); idx++)
         {
             ShaftRPM anX = new ShaftRPM();
             uPosition += anX.unmarshal(dis);
             shaftRPMs.add(anX);
         }
 
-        for (int idx = 0; idx < numberOfAPAs; idx++)
+        for (int idx = 0; idx < ((Number) numberOfAPAs).intValue(); idx++)
         {
             APA anX = new APA();
             uPosition += anX.unmarshal(dis);
             apaData.add(anX);
         }
 
-        for (int idx = 0; idx < numberOfUAEmitterSystems; idx++)
+        for (int idx = 0; idx < ((Number) numberOfUAEmitterSystems).intValue(); idx++)
         {
             UAEmitter anX = new UAEmitter();
             uPosition += anX.unmarshal(dis);
             emitterSystems.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -452,9 +441,9 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    emittingEntityID.marshal(byteBuffer);
    eventID.marshal(byteBuffer);
    stateChangeIndicator.marshal(byteBuffer);
-   byteBuffer.put( (byte)pad);
+   byteBuffer.put((byte) padding);
    passiveParameterIndex.marshal(byteBuffer);
-   byteBuffer.put( (byte)propulsionPlantConfiguration);
+   byteBuffer.put((byte) propulsionPlantConfiguration);
    byteBuffer.put( (byte)shaftRPMs.size());
    byteBuffer.put( (byte)apaData.size());
    byteBuffer.put( (byte)emitterSystems.size());
@@ -495,56 +484,162 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute emittingEntityID marked as not serialized
         emittingEntityID.unmarshal(byteBuffer);
-        // attribute eventID marked as not serialized
         eventID.unmarshal(byteBuffer);
-        // attribute stateChangeIndicator marked as not serialized
         stateChangeIndicator = UAStateChangeUpdateIndicator.unmarshalEnum(byteBuffer);
-        // attribute pad marked as not serialized
-        pad = (byte)(byteBuffer.get() & 0xFF);
-        // attribute passiveParameterIndex marked as not serialized
+        padding = Byte.toUnsignedInt(byteBuffer.get());
         passiveParameterIndex = UAPassiveParameterIndex.unmarshalEnum(byteBuffer);
-        // attribute propulsionPlantConfiguration marked as not serialized
-        propulsionPlantConfiguration = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfShafts marked as not serialized
-        numberOfShafts = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfAPAs marked as not serialized
-        numberOfAPAs = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfUAEmitterSystems marked as not serialized
-        numberOfUAEmitterSystems = (byte)(byteBuffer.get() & 0xFF);
-        // attribute shaftRPMs marked as not serialized
-        for (int idx = 0; idx < numberOfShafts; idx++)
+        propulsionPlantConfiguration = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfShafts = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfAPAs = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfUAEmitterSystems = Byte.toUnsignedInt(byteBuffer.get());
+        for (int idx = 0; idx < ((Number) numberOfShafts).intValue(); idx++)
         {
-        ShaftRPM anX = new ShaftRPM();
-        anX.unmarshal(byteBuffer);
-        shaftRPMs.add(anX);
+            ShaftRPM anX = new ShaftRPM();
+            anX.unmarshal(byteBuffer);
+            shaftRPMs.add(anX);
         }
 
-        // attribute apaData marked as not serialized
-        for (int idx = 0; idx < numberOfAPAs; idx++)
+        for (int idx = 0; idx < ((Number) numberOfAPAs).intValue(); idx++)
         {
-        APA anX = new APA();
-        anX.unmarshal(byteBuffer);
-        apaData.add(anX);
+            APA anX = new APA();
+            anX.unmarshal(byteBuffer);
+            apaData.add(anX);
         }
 
-        // attribute emitterSystems marked as not serialized
-        for (int idx = 0; idx < numberOfUAEmitterSystems; idx++)
+        for (int idx = 0; idx < ((Number) numberOfUAEmitterSystems).intValue(); idx++)
         {
-        UAEmitter anX = new UAEmitter();
-        anX.unmarshal(byteBuffer);
-        emitterSystems.add(anX);
+            UAEmitter anX = new UAEmitter();
+            anX.unmarshal(byteBuffer);
+            emitterSystems.add(anX);
         }
 
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = DistributedEmissionsRegenerationFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("emittingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("eventID", EventIdentifier.fromBufferToMap(byteBuffer));
+    map.put("stateChangeIndicator", UAStateChangeUpdateIndicator.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("passiveParameterIndex", UAPassiveParameterIndex.unmarshalEnum(byteBuffer).getValue());
+    map.put("propulsionPlantConfiguration", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfShafts", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfAPAs", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfUAEmitterSystems", Byte.toUnsignedInt(byteBuffer.get()));
+    List shaftRPMs = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfShafts")).intValue(); idx++)
+    {
+        shaftRPMs.add(ShaftRPM.fromBufferToMap(byteBuffer));
+    }
+    map.put("shaftRPMs", shaftRPMs);
+
+    List apaData = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfAPAs")).intValue(); idx++)
+    {
+        apaData.add(APA.fromBufferToMap(byteBuffer));
+    }
+    map.put("apaData", apaData);
+
+    List emitterSystems = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfUAEmitterSystems")).intValue(); idx++)
+    {
+        emitterSystems.add(UAEmitter.fromBufferToMap(byteBuffer));
+    }
+    map.put("emitterSystems", emitterSystems);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    DistributedEmissionsRegenerationFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("emittingEntityID"), byteBuffer);
+    EventIdentifier.fromMapToBuffer((PduMap) map.get("eventID"), byteBuffer);
+    UAStateChangeUpdateIndicator.getEnumForValue(((Number) map.get("stateChangeIndicator")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding")).byteValue());
+    UAPassiveParameterIndex.getEnumForValue(((Number) map.get("passiveParameterIndex")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("propulsionPlantConfiguration")).byteValue());
+    byteBuffer.put(((Number) map.get("numberOfShafts")).byteValue());
+    byteBuffer.put(((Number) map.get("numberOfAPAs")).byteValue());
+    byteBuffer.put(((Number) map.get("numberOfUAEmitterSystems")).byteValue());
+
+    List shaftRPMs = (List) map.get("shaftRPMs");
+    for (int idx = 0; idx < ((Number) map.get("numberOfShafts")).intValue(); idx++)
+    {
+        ShaftRPM.fromMapToBuffer((PduMap) shaftRPMs.get(idx), byteBuffer);
+    }
+
+
+    List apaData = (List) map.get("apaData");
+    for (int idx = 0; idx < ((Number) map.get("numberOfAPAs")).intValue(); idx++)
+    {
+        APA.fromMapToBuffer((PduMap) apaData.get(idx), byteBuffer);
+    }
+
+
+    List emitterSystems = (List) map.get("emitterSystems");
+    for (int idx = 0; idx < ((Number) map.get("numberOfUAEmitterSystems")).intValue(); idx++)
+    {
+        UAEmitter.fromMapToBuffer((PduMap) emitterSystems.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += DistributedEmissionsRegenerationFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("emittingEntityID"));
+    marshalSize += EventIdentifier.getMarshalledSize((PduMap) map.get("eventID"));
+    marshalSize += UAStateChangeUpdateIndicator.getEnumForValue(((Number) map.get("stateChangeIndicator")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding
+    marshalSize += UAPassiveParameterIndex.getEnumForValue(((Number) map.get("passiveParameterIndex")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // propulsionPlantConfiguration
+    marshalSize += 1;  // numberOfShafts
+    marshalSize += 1;  // numberOfAPAs
+    marshalSize += 1;  // numberOfUAEmitterSystems
+    List shaftRPMs = (List) map.get("shaftRPMs");
+    for (int idx = 0; idx < ((Number) map.get("numberOfShafts")).intValue(); idx++)
+        marshalSize += ShaftRPM.getMarshalledSize((PduMap) shaftRPMs.get(idx));
+    List apaData = (List) map.get("apaData");
+    for (int idx = 0; idx < ((Number) map.get("numberOfAPAs")).intValue(); idx++)
+        marshalSize += APA.getMarshalledSize((PduMap) apaData.get(idx));
+    List emitterSystems = (List) map.get("emitterSystems");
+    for (int idx = 0; idx < ((Number) map.get("numberOfUAEmitterSystems")).intValue(); idx++)
+        marshalSize += UAEmitter.getMarshalledSize((PduMap) emitterSystems.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -573,7 +668,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
      if( ! Objects.equals(emittingEntityID, rhs.emittingEntityID) ) return false;
      if( ! Objects.equals(eventID, rhs.eventID) ) return false;
      if( ! (stateChangeIndicator == rhs.stateChangeIndicator)) return false;
-     if( ! (pad == rhs.pad)) return false;
+     if( ! (padding == rhs.padding)) return false;
      if( ! (passiveParameterIndex == rhs.passiveParameterIndex)) return false;
      if( ! (propulsionPlantConfiguration == rhs.propulsionPlantConfiguration)) return false;
      if( ! Objects.equals(shaftRPMs, rhs.shaftRPMs) ) return false;
@@ -587,11 +682,11 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" emittingEntityID:").append(emittingEntityID); // writeOneToString
     sb.append(" eventID:").append(eventID); // writeOneToString
     sb.append(" stateChangeIndicator:").append(stateChangeIndicator); // writeOneToString
-    sb.append(" pad:").append(pad); // writeOneToString
+    sb.append(" padding:").append(padding); // writeOneToString
     sb.append(" passiveParameterIndex:").append(passiveParameterIndex); // writeOneToString
     sb.append(" propulsionPlantConfiguration:").append(propulsionPlantConfiguration); // writeOneToString
     sb.append(" shaftRPMs: ");
@@ -619,7 +714,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	 return Objects.hash(this.emittingEntityID,
 	                     this.eventID,
 	                     this.stateChangeIndicator,
-	                     this.pad,
+	                     this.padding,
 	                     this.passiveParameterIndex,
 	                     this.propulsionPlantConfiguration,
 	                     this.numberOfShafts,

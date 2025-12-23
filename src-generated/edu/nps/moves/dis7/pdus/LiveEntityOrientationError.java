@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * 16-bit fixed binaries
@@ -19,14 +21,17 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class LiveEntityOrientationError extends Object implements Serializable, Marshaller
 {
-   /** azimuthError is an undescribed parameter... */
-   protected short azimuthError;
+   /** azimuthError is an undescribed parameter...
+   Value space: uint16 */
+   protected int azimuthError;
 
-   /** elevationError is an undescribed parameter... */
-   protected short elevationError;
+   /** elevationError is an undescribed parameter...
+   Value space: uint16 */
+   protected int elevationError;
 
-   /** rotationError is an undescribed parameter... */
-   protected short rotationError;
+   /** rotationError is an undescribed parameter...
+   Value space: uint16 */
+   protected int rotationError;
 
 
 /** Constructor creates and configures a new instance object */
@@ -53,67 +58,52 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link LiveEntityOrientationError#azimuthError}
-  * @param pAzimuthError new value of interest
+  * @param pAzimuthError new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LiveEntityOrientationError setAzimuthError(short pAzimuthError)
+public synchronized LiveEntityOrientationError setAzimuthError(int pAzimuthError)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pAzimuthError >= 0 && pAzimuthError <= 65535, "Value outside valid value space");
     azimuthError = pAzimuthError;
-    return this;
-}
-/** Utility setter for {@link LiveEntityOrientationError#azimuthError}
-  * @param pAzimuthError new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveEntityOrientationError setAzimuthError(int pAzimuthError){
-    azimuthError = (short) pAzimuthError;
     return this;
 }
 /** Getter for {@link LiveEntityOrientationError#azimuthError}
   * @return value of interest */
-public short getAzimuthError()
+public int getAzimuthError()
 {
     return azimuthError; 
 }
 
 /** Setter for {@link LiveEntityOrientationError#elevationError}
-  * @param pElevationError new value of interest
+  * @param pElevationError new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LiveEntityOrientationError setElevationError(short pElevationError)
+public synchronized LiveEntityOrientationError setElevationError(int pElevationError)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pElevationError >= 0 && pElevationError <= 65535, "Value outside valid value space");
     elevationError = pElevationError;
-    return this;
-}
-/** Utility setter for {@link LiveEntityOrientationError#elevationError}
-  * @param pElevationError new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveEntityOrientationError setElevationError(int pElevationError){
-    elevationError = (short) pElevationError;
     return this;
 }
 /** Getter for {@link LiveEntityOrientationError#elevationError}
   * @return value of interest */
-public short getElevationError()
+public int getElevationError()
 {
     return elevationError; 
 }
 
 /** Setter for {@link LiveEntityOrientationError#rotationError}
-  * @param pRotationError new value of interest
+  * @param pRotationError new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LiveEntityOrientationError setRotationError(short pRotationError)
+public synchronized LiveEntityOrientationError setRotationError(int pRotationError)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pRotationError >= 0 && pRotationError <= 65535, "Value outside valid value space");
     rotationError = pRotationError;
-    return this;
-}
-/** Utility setter for {@link LiveEntityOrientationError#rotationError}
-  * @param pRotationError new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveEntityOrientationError setRotationError(int pRotationError){
-    rotationError = (short) pRotationError;
     return this;
 }
 /** Getter for {@link LiveEntityOrientationError#rotationError}
   * @return value of interest */
-public short getRotationError()
+public int getRotationError()
 {
     return rotationError; 
 }
@@ -127,15 +117,11 @@ public short getRotationError()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(azimuthError);
-       dos.writeShort(elevationError);
-       dos.writeShort(rotationError);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) azimuthError);
+       dos.writeShort((short) elevationError);
+       dos.writeShort((short) rotationError);
     }
 }
 
@@ -151,18 +137,14 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        azimuthError = (short)dis.readUnsignedShort();
+        azimuthError = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        elevationError = (short)dis.readUnsignedShort();
+        elevationError = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        rotationError = (short)dis.readUnsignedShort();
+        rotationError = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -178,9 +160,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)azimuthError);
-   byteBuffer.putShort( (short)elevationError);
-   byteBuffer.putShort( (short)rotationError);
+   byteBuffer.putShort((short) azimuthError);
+   byteBuffer.putShort((short) elevationError);
+   byteBuffer.putShort((short) rotationError);
 }
 
 /**
@@ -195,20 +177,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute azimuthError marked as not serialized
-        azimuthError = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute elevationError marked as not serialized
-        elevationError = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute rotationError marked as not serialized
-        rotationError = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        azimuthError = Short.toUnsignedInt(byteBuffer.getShort());
+        elevationError = Short.toUnsignedInt(byteBuffer.getShort());
+        rotationError = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("azimuthError", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("elevationError", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("rotationError", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("azimuthError")).shortValue());
+    byteBuffer.putShort(((Number) map.get("elevationError")).shortValue());
+    byteBuffer.putShort(((Number) map.get("rotationError")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // azimuthError
+    marshalSize += 2;  // elevationError
+    marshalSize += 2;  // rotationError
+
+    return marshalSize;
 }
 
  /*

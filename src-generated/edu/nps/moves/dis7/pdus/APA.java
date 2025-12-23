@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Additional Passive Activity for use by Underwater Acoustic (UA) PDU. Section 7.6.4
@@ -19,11 +21,13 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class APA extends Object implements Serializable, Marshaller
 {
-   /** parameterIndex is an undescribed parameter... */
-   protected short parameterIndex;
+   /** parameterIndex is an undescribed parameter...
+   Value space: uint16 */
+   protected int parameterIndex;
 
-   /** value is an undescribed parameter... */
-   protected short value;
+   /** value is an undescribed parameter...
+   Value space: uint16 */
+   protected int value;
 
 
 /** Constructor creates and configures a new instance object */
@@ -49,45 +53,35 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link APA#parameterIndex}
-  * @param pParameterIndex new value of interest
+  * @param pParameterIndex new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized APA setParameterIndex(short pParameterIndex)
+public synchronized APA setParameterIndex(int pParameterIndex)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pParameterIndex >= 0 && pParameterIndex <= 65535, "Value outside valid value space");
     parameterIndex = pParameterIndex;
-    return this;
-}
-/** Utility setter for {@link APA#parameterIndex}
-  * @param pParameterIndex new value of interest
-  * @return same object to permit progressive setters */
-public synchronized APA setParameterIndex(int pParameterIndex){
-    parameterIndex = (short) pParameterIndex;
     return this;
 }
 /** Getter for {@link APA#parameterIndex}
   * @return value of interest */
-public short getParameterIndex()
+public int getParameterIndex()
 {
     return parameterIndex; 
 }
 
 /** Setter for {@link APA#value}
-  * @param pValue new value of interest
+  * @param pValue new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized APA setValue(short pValue)
+public synchronized APA setValue(int pValue)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pValue >= 0 && pValue <= 65535, "Value outside valid value space");
     value = pValue;
-    return this;
-}
-/** Utility setter for {@link APA#value}
-  * @param pValue new value of interest
-  * @return same object to permit progressive setters */
-public synchronized APA setValue(int pValue){
-    value = (short) pValue;
     return this;
 }
 /** Getter for {@link APA#value}
   * @return value of interest */
-public short getValue()
+public int getValue()
 {
     return value; 
 }
@@ -101,14 +95,10 @@ public short getValue()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(parameterIndex);
-       dos.writeShort(value);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) parameterIndex);
+       dos.writeShort((short) value);
     }
 }
 
@@ -124,16 +114,12 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        parameterIndex = (short)dis.readUnsignedShort();
+        parameterIndex = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        value = (short)dis.readUnsignedShort();
+        value = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -149,8 +135,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)parameterIndex);
-   byteBuffer.putShort( (short)value);
+   byteBuffer.putShort((short) parameterIndex);
+   byteBuffer.putShort((short) value);
 }
 
 /**
@@ -165,18 +151,60 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute parameterIndex marked as not serialized
-        parameterIndex = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute value marked as not serialized
-        value = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        parameterIndex = Short.toUnsignedInt(byteBuffer.getShort());
+        value = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("parameterIndex", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("value", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("parameterIndex")).shortValue());
+    byteBuffer.putShort(((Number) map.get("value")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // parameterIndex
+    marshalSize += 2;  // value
+
+    return marshalSize;
 }
 
  /*

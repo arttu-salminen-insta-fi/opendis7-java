@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  *  A supply, and the amount of that supply. Section 6.2.86
@@ -22,7 +24,8 @@ public class SupplyQuantity extends Object implements Serializable, Marshaller
    /** Type of supply */
    protected EntityType  supplyType = new EntityType(); 
 
-   /** The number of units of a supply type.  */
+   /** The number of units of a supply type.  
+   Value space: float32 */
    protected float quantity;
 
 
@@ -66,7 +69,7 @@ public EntityType getSupplyType()
 
 
 /** Setter for {@link SupplyQuantity#quantity}
-  * @param pQuantity new value of interest
+  * @param pQuantity new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized SupplyQuantity setQuantity(float pQuantity)
 {
@@ -89,14 +92,10 @@ public float getQuantity()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        supplyType.marshal(dos);
        dos.writeFloat(quantity);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -112,15 +111,11 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         uPosition += supplyType.unmarshal(dis);
-        quantity = dis.readFloat();
+        quantity = (float) dis.readFloat();
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -137,7 +132,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    supplyType.marshal(byteBuffer);
-   byteBuffer.putFloat( (float)quantity);
+   byteBuffer.putFloat(quantity);
 }
 
 /**
@@ -152,18 +147,60 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute supplyType marked as not serialized
         supplyType.unmarshal(byteBuffer);
-        // attribute quantity marked as not serialized
-        quantity = byteBuffer.getFloat();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        quantity = (float) byteBuffer.getFloat();
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("supplyType", EntityType.fromBufferToMap(byteBuffer));
+    map.put("quantity", (float) byteBuffer.getFloat());
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityType.fromMapToBuffer((PduMap) map.get("supplyType"), byteBuffer);
+    byteBuffer.putFloat(((Number) map.get("quantity")).floatValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("supplyType"));
+    marshalSize += 4;  // quantity
+
+    return marshalSize;
 }
 
  /*

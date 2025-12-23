@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Total number of record sets contained in a logical set of one or more PDUs. Used to transfer ownership, etc Section 6.2.88
@@ -19,11 +21,13 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class TotalRecordSets extends Object implements Serializable, Marshaller
 {
-   /** Total number of record sets */
-   protected short totalRecordSets;
+   /** Total number of record sets 
+   Value space: uint16 */
+   protected int totalRecordSets;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding = (short)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding = (int) 0;
 
 
 /** Constructor creates and configures a new instance object */
@@ -49,45 +53,35 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link TotalRecordSets#totalRecordSets}
-  * @param pTotalRecordSets new value of interest
+  * @param pTotalRecordSets new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized TotalRecordSets setTotalRecordSets(short pTotalRecordSets)
+public synchronized TotalRecordSets setTotalRecordSets(int pTotalRecordSets)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pTotalRecordSets >= 0 && pTotalRecordSets <= 65535, "Value outside valid value space");
     totalRecordSets = pTotalRecordSets;
-    return this;
-}
-/** Utility setter for {@link TotalRecordSets#totalRecordSets}
-  * @param pTotalRecordSets new value of interest
-  * @return same object to permit progressive setters */
-public synchronized TotalRecordSets setTotalRecordSets(int pTotalRecordSets){
-    totalRecordSets = (short) pTotalRecordSets;
     return this;
 }
 /** Getter for {@link TotalRecordSets#totalRecordSets}
   * @return value of interest */
-public short getTotalRecordSets()
+public int getTotalRecordSets()
 {
     return totalRecordSets; 
 }
 
 /** Setter for {@link TotalRecordSets#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized TotalRecordSets setPadding(short pPadding)
+public synchronized TotalRecordSets setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link TotalRecordSets#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized TotalRecordSets setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link TotalRecordSets#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -101,14 +95,10 @@ public short getPadding()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(totalRecordSets);
-       dos.writeShort(padding);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) totalRecordSets);
+       dos.writeShort((short) padding);
     }
 }
 
@@ -124,16 +114,12 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        totalRecordSets = (short)dis.readUnsignedShort();
+        totalRecordSets = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -149,8 +135,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)totalRecordSets);
-   byteBuffer.putShort( (short)padding);
+   byteBuffer.putShort((short) totalRecordSets);
+   byteBuffer.putShort((short) padding);
 }
 
 /**
@@ -165,18 +151,60 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute totalRecordSets marked as not serialized
-        totalRecordSets = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        totalRecordSets = Short.toUnsignedInt(byteBuffer.getShort());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("totalRecordSets", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("totalRecordSets")).shortValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // totalRecordSets
+    marshalSize += 2;  // padding
+
+    return marshalSize;
 }
 
  /*

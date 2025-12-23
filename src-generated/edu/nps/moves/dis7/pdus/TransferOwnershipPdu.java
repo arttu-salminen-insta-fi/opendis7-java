@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -30,8 +32,9 @@ public class TransferOwnershipPdu extends EntityManagementFamilyPdu implements S
    /** ID of entity receiving request */
    protected EntityID  receivingEntityID = new EntityID(); 
 
-   /** ID of request */
-   protected int requestID;
+   /** ID of request 
+   Value space: uint32 */
+   protected UnsignedInteger requestID = UnsignedInteger.ZERO;
 
    /** required level of reliability service. uid 74 */
    protected RequiredReliabilityService requiredReliabilityService = RequiredReliabilityService.values()[0];
@@ -176,16 +179,16 @@ public EntityID getReceivingEntityID()
 
 
 /** Setter for {@link TransferOwnershipPdu#requestID}
-  * @param pRequestID new value of interest
+  * @param pRequestID new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized TransferOwnershipPdu setRequestID(int pRequestID)
+public synchronized TransferOwnershipPdu setRequestID(UnsignedInteger pRequestID)
 {
     requestID = pRequestID;
     return this;
 }
 /** Getter for {@link TransferOwnershipPdu#requestID}
   * @return value of interest */
-public int getRequestID()
+public UnsignedInteger getRequestID()
 {
     return requestID; 
 }
@@ -262,19 +265,15 @@ public RecordSpecification getRecordSets()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        originatingEntityID.marshal(dos);
        receivingEntityID.marshal(dos);
-       dos.writeInt(requestID);
+       dos.writeInt(requestID.intValue());
        requiredReliabilityService.marshal(dos);
        transferType.marshal(dos);
        transferEntityID.marshal(dos);
        recordSets.marshal(dos);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -292,11 +291,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += originatingEntityID.unmarshal(dis);
         uPosition += receivingEntityID.unmarshal(dis);
-        requestID = dis.readInt();
+        requestID = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         requiredReliabilityService = RequiredReliabilityService.unmarshalEnum(dis);
         uPosition += requiredReliabilityService.getMarshalledSize();
@@ -304,10 +303,6 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += transferType.getMarshalledSize();
         uPosition += transferEntityID.unmarshal(dis);
         uPosition += recordSets.unmarshal(dis);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -326,7 +321,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    super.marshal(byteBuffer);
    originatingEntityID.marshal(byteBuffer);
    receivingEntityID.marshal(byteBuffer);
-   byteBuffer.putInt( (int)requestID);
+   byteBuffer.putInt(requestID.intValue());
    requiredReliabilityService.marshal(byteBuffer);
    transferType.marshal(byteBuffer);
    transferEntityID.marshal(byteBuffer);
@@ -347,28 +342,82 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute originatingEntityID marked as not serialized
         originatingEntityID.unmarshal(byteBuffer);
-        // attribute receivingEntityID marked as not serialized
         receivingEntityID.unmarshal(byteBuffer);
-        // attribute requestID marked as not serialized
-        requestID = byteBuffer.getInt();
-        // attribute requiredReliabilityService marked as not serialized
+        requestID = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         requiredReliabilityService = RequiredReliabilityService.unmarshalEnum(byteBuffer);
-        // attribute transferType marked as not serialized
         transferType = TransferControlTransferType.unmarshalEnum(byteBuffer);
-        // attribute transferEntityID marked as not serialized
         transferEntityID.unmarshal(byteBuffer);
-        // attribute recordSets marked as not serialized
         recordSets.unmarshal(byteBuffer);
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = EntityManagementFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("originatingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("receivingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("requestID", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("requiredReliabilityService", RequiredReliabilityService.unmarshalEnum(byteBuffer).getValue());
+    map.put("transferType", TransferControlTransferType.unmarshalEnum(byteBuffer).getValue());
+    map.put("transferEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("recordSets", RecordSpecification.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityManagementFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("originatingEntityID"), byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("receivingEntityID"), byteBuffer);
+    byteBuffer.putInt(((Number) map.get("requestID")).intValue());
+    RequiredReliabilityService.getEnumForValue(((Number) map.get("requiredReliabilityService")).intValue()).marshal(byteBuffer);
+    TransferControlTransferType.getEnumForValue(((Number) map.get("transferType")).intValue()).marshal(byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("transferEntityID"), byteBuffer);
+    RecordSpecification.fromMapToBuffer((PduMap) map.get("recordSets"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityManagementFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("originatingEntityID"));
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("receivingEntityID"));
+    marshalSize += 4;  // requestID
+    marshalSize += RequiredReliabilityService.getEnumForValue(((Number) map.get("requiredReliabilityService")).intValue()).getMarshalledSize();
+    marshalSize += TransferControlTransferType.getEnumForValue(((Number) map.get("transferType")).intValue()).getMarshalledSize();
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("transferEntityID"));
+    marshalSize += RecordSpecification.getMarshalledSize((PduMap) map.get("recordSets"));
+
+    return marshalSize;
 }
 
  /*
@@ -409,7 +458,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" originatingEntityID:").append(originatingEntityID); // writeOneToString
     sb.append(" receivingEntityID:").append(receivingEntityID); // writeOneToString
     sb.append(" requestID:").append(requestID); // writeOneToString

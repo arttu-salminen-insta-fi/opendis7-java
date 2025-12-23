@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -36,10 +38,12 @@ public class DesignatorPdu extends DistributedEmissionsRegenerationFamilyPdu imp
    /** This field shall identify the designator code being used by the designating entity  uid 81 */
    protected DesignatorDesignatorCode designatorCode = DesignatorDesignatorCode.values()[0];
 
-   /** This field shall identify the designator output power in watts */
+   /** This field shall identify the designator output power in watts 
+   Value space: float32 */
    protected float designatorPower;
 
-   /** This field shall identify the designator wavelength in units of microns */
+   /** This field shall identify the designator wavelength in units of microns 
+   Value space: float32 */
    protected float designatorWavelength;
 
    /** designtor spot wrt the designated entity */
@@ -51,11 +55,13 @@ public class DesignatorPdu extends DistributedEmissionsRegenerationFamilyPdu imp
    /** Dead reckoning algorithm uid 44 */
    protected DeadReckoningAlgorithm deadReckoningAlgorithm = DeadReckoningAlgorithm.values()[0];
 
-   /** padding */
-   protected byte padding1;
+   /** padding 
+   Value space: uint8 */
+   protected int padding1;
 
-   /** padding */
-   protected short padding2;
+   /** padding 
+   Value space: uint16 */
+   protected int padding2;
 
    /** linear accelleration of entity */
    protected Vector3Float  entityLinearAcceleration = new Vector3Float(); 
@@ -228,7 +234,7 @@ public DesignatorDesignatorCode getDesignatorCode()
 }
 
 /** Setter for {@link DesignatorPdu#designatorPower}
-  * @param pDesignatorPower new value of interest
+  * @param pDesignatorPower new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DesignatorPdu setDesignatorPower(float pDesignatorPower)
 {
@@ -243,7 +249,7 @@ public float getDesignatorPower()
 }
 
 /** Setter for {@link DesignatorPdu#designatorWavelength}
-  * @param pDesignatorWavelength new value of interest
+  * @param pDesignatorWavelength new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DesignatorPdu setDesignatorWavelength(float pDesignatorWavelength)
 {
@@ -305,45 +311,35 @@ public DeadReckoningAlgorithm getDeadReckoningAlgorithm()
 }
 
 /** Setter for {@link DesignatorPdu#padding1}
-  * @param pPadding1 new value of interest
+  * @param pPadding1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized DesignatorPdu setPadding1(byte pPadding1)
+public synchronized DesignatorPdu setPadding1(int pPadding1)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 255, "Value outside valid value space");
     padding1 = pPadding1;
-    return this;
-}
-/** Utility setter for {@link DesignatorPdu#padding1}
-  * @param pPadding1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DesignatorPdu setPadding1(int pPadding1){
-    padding1 = (byte) pPadding1;
     return this;
 }
 /** Getter for {@link DesignatorPdu#padding1}
   * @return value of interest */
-public byte getPadding1()
+public int getPadding1()
 {
     return padding1; 
 }
 
 /** Setter for {@link DesignatorPdu#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized DesignatorPdu setPadding2(short pPadding2)
+public synchronized DesignatorPdu setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 65535, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link DesignatorPdu#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DesignatorPdu setPadding2(int pPadding2){
-    padding2 = (short) pPadding2;
     return this;
 }
 /** Getter for {@link DesignatorPdu#padding2}
   * @return value of interest */
-public short getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
@@ -374,7 +370,7 @@ public Vector3Float getEntityLinearAcceleration()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        designatingEntityID.marshal(dos);
        codeName.marshal(dos);
@@ -385,13 +381,9 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        designatorSpotWrtDesignated.marshal(dos);
        designatorSpotLocation.marshal(dos);
        deadReckoningAlgorithm.marshal(dos);
-       dos.writeByte(padding1);
-       dos.writeShort(padding2);
+       dos.writeByte((byte) padding1);
+       dos.writeShort((short) padding2);
        entityLinearAcceleration.marshal(dos);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -409,7 +401,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += designatingEntityID.unmarshal(dis);
         codeName = DesignatorSystemName.unmarshalEnum(dis);
@@ -417,23 +409,19 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += designatedEntityID.unmarshal(dis);
         designatorCode = DesignatorDesignatorCode.unmarshalEnum(dis);
         uPosition += designatorCode.getMarshalledSize();
-        designatorPower = dis.readFloat();
+        designatorPower = (float) dis.readFloat();
         uPosition += 4;
-        designatorWavelength = dis.readFloat();
+        designatorWavelength = (float) dis.readFloat();
         uPosition += 4;
         uPosition += designatorSpotWrtDesignated.unmarshal(dis);
         uPosition += designatorSpotLocation.unmarshal(dis);
         deadReckoningAlgorithm = DeadReckoningAlgorithm.unmarshalEnum(dis);
         uPosition += deadReckoningAlgorithm.getMarshalledSize();
-        padding1 = (byte)dis.readUnsignedByte();
+        padding1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding2 = (short)dis.readUnsignedShort();
+        padding2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += entityLinearAcceleration.unmarshal(dis);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -454,13 +442,13 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    codeName.marshal(byteBuffer);
    designatedEntityID.marshal(byteBuffer);
    designatorCode.marshal(byteBuffer);
-   byteBuffer.putFloat( (float)designatorPower);
-   byteBuffer.putFloat( (float)designatorWavelength);
+   byteBuffer.putFloat(designatorPower);
+   byteBuffer.putFloat(designatorWavelength);
    designatorSpotWrtDesignated.marshal(byteBuffer);
    designatorSpotLocation.marshal(byteBuffer);
    deadReckoningAlgorithm.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding1);
-   byteBuffer.putShort( (short)padding2);
+   byteBuffer.put((byte) padding1);
+   byteBuffer.putShort((short) padding2);
    entityLinearAcceleration.marshal(byteBuffer);
 }
 
@@ -478,38 +466,102 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute designatingEntityID marked as not serialized
         designatingEntityID.unmarshal(byteBuffer);
-        // attribute codeName marked as not serialized
         codeName = DesignatorSystemName.unmarshalEnum(byteBuffer);
-        // attribute designatedEntityID marked as not serialized
         designatedEntityID.unmarshal(byteBuffer);
-        // attribute designatorCode marked as not serialized
         designatorCode = DesignatorDesignatorCode.unmarshalEnum(byteBuffer);
-        // attribute designatorPower marked as not serialized
-        designatorPower = byteBuffer.getFloat();
-        // attribute designatorWavelength marked as not serialized
-        designatorWavelength = byteBuffer.getFloat();
-        // attribute designatorSpotWrtDesignated marked as not serialized
+        designatorPower = (float) byteBuffer.getFloat();
+        designatorWavelength = (float) byteBuffer.getFloat();
         designatorSpotWrtDesignated.unmarshal(byteBuffer);
-        // attribute designatorSpotLocation marked as not serialized
         designatorSpotLocation.unmarshal(byteBuffer);
-        // attribute deadReckoningAlgorithm marked as not serialized
         deadReckoningAlgorithm = DeadReckoningAlgorithm.unmarshalEnum(byteBuffer);
-        // attribute padding1 marked as not serialized
-        padding1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding2 marked as not serialized
-        padding2 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute entityLinearAcceleration marked as not serialized
+        padding1 = Byte.toUnsignedInt(byteBuffer.get());
+        padding2 = Short.toUnsignedInt(byteBuffer.getShort());
         entityLinearAcceleration.unmarshal(byteBuffer);
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = DistributedEmissionsRegenerationFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("designatingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("codeName", DesignatorSystemName.unmarshalEnum(byteBuffer).getValue());
+    map.put("designatedEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("designatorCode", DesignatorDesignatorCode.unmarshalEnum(byteBuffer).getValue());
+    map.put("designatorPower", (float) byteBuffer.getFloat());
+    map.put("designatorWavelength", (float) byteBuffer.getFloat());
+    map.put("designatorSpotWrtDesignated", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("designatorSpotLocation", Vector3Double.fromBufferToMap(byteBuffer));
+    map.put("deadReckoningAlgorithm", DeadReckoningAlgorithm.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("entityLinearAcceleration", Vector3Float.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    DistributedEmissionsRegenerationFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("designatingEntityID"), byteBuffer);
+    DesignatorSystemName.getEnumForValue(((Number) map.get("codeName")).intValue()).marshal(byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("designatedEntityID"), byteBuffer);
+    DesignatorDesignatorCode.getEnumForValue(((Number) map.get("designatorCode")).intValue()).marshal(byteBuffer);
+    byteBuffer.putFloat(((Number) map.get("designatorPower")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("designatorWavelength")).floatValue());
+    Vector3Float.fromMapToBuffer((PduMap) map.get("designatorSpotWrtDesignated"), byteBuffer);
+    Vector3Double.fromMapToBuffer((PduMap) map.get("designatorSpotLocation"), byteBuffer);
+    DeadReckoningAlgorithm.getEnumForValue(((Number) map.get("deadReckoningAlgorithm")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding1")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+    Vector3Float.fromMapToBuffer((PduMap) map.get("entityLinearAcceleration"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += DistributedEmissionsRegenerationFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("designatingEntityID"));
+    marshalSize += DesignatorSystemName.getEnumForValue(((Number) map.get("codeName")).intValue()).getMarshalledSize();
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("designatedEntityID"));
+    marshalSize += DesignatorDesignatorCode.getEnumForValue(((Number) map.get("designatorCode")).intValue()).getMarshalledSize();
+    marshalSize += 4;  // designatorPower
+    marshalSize += 4;  // designatorWavelength
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("designatorSpotWrtDesignated"));
+    marshalSize += Vector3Double.getMarshalledSize((PduMap) map.get("designatorSpotLocation"));
+    marshalSize += DeadReckoningAlgorithm.getEnumForValue(((Number) map.get("deadReckoningAlgorithm")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding1
+    marshalSize += 2;  // padding2
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("entityLinearAcceleration"));
+
+    return marshalSize;
 }
 
  /*
@@ -555,7 +607,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" designatingEntityID:").append(designatingEntityID); // writeOneToString
     sb.append(" codeName:").append(codeName); // writeOneToString
     sb.append(" designatedEntityID:").append(designatedEntityID); // writeOneToString

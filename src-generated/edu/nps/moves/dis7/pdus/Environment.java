@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  *  Information about a geometry, a state associated with a geometry, a bounding volume, or an associated entity ID.  6.2.31, not fully defined. 'The current definitions can be found in DIS PCR 240'
@@ -22,16 +24,19 @@ public class Environment extends Object implements Serializable, Marshaller
    /** Record type uid 250 */
    protected EnvironmentalProcessRecordType environmentType = EnvironmentalProcessRecordType.values()[0];
 
-   /** length, in bits */
-   protected short length;
+   /** length, in bits 
+   Value space: uint16 */
+   protected int length;
 
-   /** Identify the sequentially numbered record index */
-   protected byte index;
+   /** Identify the sequentially numbered record index 
+   Value space: uint8 */
+   protected int index;
 
-   /** padding */
-   protected byte padding1;
+   /** padding 
+   Value space: uint8 */
+   protected int padding1;
 
-   /** Geometry or state record */
+   /** Geometry or state record. Current implementation also holds the padding bits after unmarshall! */
    protected byte[]  geometry = new byte[0]; 
 
    /** pad to 64-bit boundary */
@@ -84,67 +89,52 @@ public EnvironmentalProcessRecordType getEnvironmentType()
 }
 
 /** Setter for {@link Environment#length}
-  * @param pLength new value of interest
+  * @param pLength new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized Environment setLength(short pLength)
+public synchronized Environment setLength(int pLength)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pLength >= 0 && pLength <= 65535, "Value outside valid value space");
     length = pLength;
-    return this;
-}
-/** Utility setter for {@link Environment#length}
-  * @param pLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Environment setLength(int pLength){
-    length = (short) pLength;
     return this;
 }
 /** Getter for {@link Environment#length}
   * @return value of interest */
-public short getLength()
+public int getLength()
 {
     return length; 
 }
 
 /** Setter for {@link Environment#index}
-  * @param pIndex new value of interest
+  * @param pIndex new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized Environment setIndex(byte pIndex)
+public synchronized Environment setIndex(int pIndex)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pIndex >= 0 && pIndex <= 255, "Value outside valid value space");
     index = pIndex;
-    return this;
-}
-/** Utility setter for {@link Environment#index}
-  * @param pIndex new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Environment setIndex(int pIndex){
-    index = (byte) pIndex;
     return this;
 }
 /** Getter for {@link Environment#index}
   * @return value of interest */
-public byte getIndex()
+public int getIndex()
 {
     return index; 
 }
 
 /** Setter for {@link Environment#padding1}
-  * @param pPadding1 new value of interest
+  * @param pPadding1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized Environment setPadding1(byte pPadding1)
+public synchronized Environment setPadding1(int pPadding1)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 255, "Value outside valid value space");
     padding1 = pPadding1;
-    return this;
-}
-/** Utility setter for {@link Environment#padding1}
-  * @param pPadding1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Environment setPadding1(int pPadding1){
-    padding1 = (byte) pPadding1;
     return this;
 }
 /** Getter for {@link Environment#padding1}
   * @return value of interest */
-public byte getPadding1()
+public int getPadding1()
 {
     return padding1; 
 }
@@ -173,21 +163,20 @@ public byte[] getGeometry()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        environmentType.marshal(dos);
-       dos.writeShort(length);
-       dos.writeByte(index);
-       dos.writeByte(padding1);
+       // Count in bits (fixed + data + padding)
+       int fixedAndVariableDataBits = 64 + (geometry.length * 8);
+       int padBitsToInclude = Align.padCountTo64Bits((fixedAndVariableDataBits + 7) / 8) * 8;
+       dos.writeShort(fixedAndVariableDataBits + padBitsToInclude);
+       dos.writeByte((byte) index);
+       dos.writeByte((byte) padding1);
 
        for (int idx = 0; idx < geometry.length; idx++)
            dos.writeByte(geometry[idx]);
 
        padding2 = new byte[Align.to64bits(dos)];
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -203,25 +192,22 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         environmentType = EnvironmentalProcessRecordType.unmarshalEnum(dis);
         uPosition += environmentType.getMarshalledSize();
-        length = (short)dis.readUnsignedShort();
+        length = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        index = (byte)dis.readUnsignedByte();
+        index = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding1 = (byte)dis.readUnsignedByte();
+        padding1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        for (int idx = 0; idx < geometry.length; idx++)
+        geometry = new byte[(((Number) length).intValue() - 64 + 7) / 8];
+        for (int idx = 0; idx < (((Number) length).intValue() - 64 + 7) / 8; idx++)
             geometry[idx] = dis.readByte();
         uPosition += (geometry.length * 1);
         padding2 = new byte[Align.from64bits(uPosition,dis)];
         uPosition += padding2.length;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -238,9 +224,12 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    environmentType.marshal(byteBuffer);
-   byteBuffer.putShort( (short)length);
-   byteBuffer.put( (byte)index);
-   byteBuffer.put( (byte)padding1);
+   // Count in bits (fixed + data + padding)
+   int fixedAndVariableDataBits = 64 + (geometry.length * 8);
+   int padBitsToInclude = Align.padCountTo64Bits((fixedAndVariableDataBits + 7) / 8) * 8;
+   byteBuffer.putShort((short) (fixedAndVariableDataBits + padBitsToInclude));
+   byteBuffer.put((byte) index);
+   byteBuffer.put((byte) padding1);
 
    for (int idx = 0; idx < geometry.length; idx++)
        byteBuffer.put((byte)geometry[idx]);
@@ -260,27 +249,88 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute environmentType marked as not serialized
         environmentType = EnvironmentalProcessRecordType.unmarshalEnum(byteBuffer);
-        // attribute length marked as not serialized
-        length = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute index marked as not serialized
-        index = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding1 marked as not serialized
-        padding1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute geometry marked as not serialized
-        for (int idx = 0; idx < geometry.length; idx++)
+        length = Short.toUnsignedInt(byteBuffer.getShort());
+        index = Byte.toUnsignedInt(byteBuffer.get());
+        padding1 = Byte.toUnsignedInt(byteBuffer.get());
+        geometry = new byte[(((Number) length).intValue() - 64 + 7) / 8];
+        for (int idx = 0; idx < (((Number) length).intValue() - 64 + 7) / 8; idx++)
             geometry[idx] = byteBuffer.get();
-        // attribute padding2 marked as not serialized
         padding2 = new byte[Align.from64bits(byteBuffer)];
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("environmentType", EnvironmentalProcessRecordType.unmarshalEnum(byteBuffer).getValue());
+    map.put("length", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("index", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding1", Byte.toUnsignedInt(byteBuffer.get()));
+    // Valid primitive list varying length with bits
+    byte[] geometry = new byte[(((Number) map.get("length")).intValue() - 64 + 7) / 8];
+    for (int idx = 0; idx < (((Number) map.get("length")).intValue() - 64 + 7) / 8; idx++)
+        geometry[idx] = byteBuffer.get();
+    map.put("geometry", geometry);
+    map.put("padding2", new byte[Align.from64bits(byteBuffer)]);
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EnvironmentalProcessRecordType.getEnumForValue(((Number) map.get("environmentType")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("length")).shortValue());
+    byteBuffer.put(((Number) map.get("index")).byteValue());
+    byteBuffer.put(((Number) map.get("padding1")).byteValue());
+
+    byte[] geometry = (byte[]) map.get("geometry");
+    for (int idx = 0; idx < geometry.length; idx++)
+        byteBuffer.put(geometry[idx]);
+
+    byte[] padding2 = new byte[Align.to64bits(byteBuffer)];
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EnvironmentalProcessRecordType.getEnumForValue(((Number) map.get("environmentType")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // length
+    marshalSize += 1;  // index
+    marshalSize += 1;  // padding1
+    byte[] geometry = (byte[]) map.get("geometry");
+    for (int idx = 0; idx < geometry.length; idx++)
+        marshalSize += 1;
+    marshalSize += ((byte[]) map.get("padding2")).length;
+
+    return marshalSize;
 }
 
  /*

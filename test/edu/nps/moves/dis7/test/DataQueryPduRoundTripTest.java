@@ -4,6 +4,7 @@
  */
 package edu.nps.moves.dis7.test;
 
+import com.google.common.primitives.UnsignedInteger;
 import edu.nps.moves.dis7.enumerations.VariableRecordType;
 import edu.nps.moves.dis7.pdus.DataQueryPdu;
 import edu.nps.moves.dis7.pdus.FixedDatum;
@@ -29,15 +30,15 @@ public class DataQueryPduRoundTripTest
   private static final int TIME_INTERVAL = 0x15151515;
 
     private static final FixedDatum fixedDatum1 = new FixedDatum();
-    private static final int FIXED_DATUM_VALUE = 0x111111FF;
+    private static final UnsignedInteger FIXED_DATUM_VALUE = UnsignedInteger.valueOf(0x111111FF);
     private static final VariableRecordType FIXED_DATUM_1_VAR_RECORD_TYPE = VariableRecordType.ACTIVATE_OWNSHIP;
 
     private static final FixedDatum fixedDatum2 = new FixedDatum();
-    private static final int FIXED_DATUM2_VALUE = 0x222222FF;
+    private static final UnsignedInteger FIXED_DATUM2_VALUE = UnsignedInteger.valueOf(0x222222FF);
     private static final VariableRecordType FIXED_DATUM_2_VAR_RECORD_TYPE = VariableRecordType.HUMIDITY;
 
     private static final FixedDatum fixedDatum3 = new FixedDatum();
-    private static final int FIXED_DATUM_3_VALUE = 0x333333FF;
+    private static final UnsignedInteger FIXED_DATUM_3_VALUE = UnsignedInteger.valueOf(0x333333FF);
     private static final VariableRecordType FIXED_DATUM_3_VAR_RECORD_TYPE = VariableRecordType.SKE_FREQUENCY;
 
     private static final VariableDatum variableDatum1 = new VariableDatum();
@@ -59,11 +60,11 @@ public class DataQueryPduRoundTripTest
         fixedDatum3.setFixedDatumID(FIXED_DATUM_3_VAR_RECORD_TYPE);
 
         variableDatum1.setVariableDatumValue(variableDatum1Value);
-        variableDatum1.setVariableDatumLength(variableDatum1Value.length * 8);
+        variableDatum1.setVariableDatumLength(UnsignedInteger.valueOf(variableDatum1Value.length * 8L));
         variableDatum1.setVariableDatumID(VARIABLE_DATUM_1_TYPE);
 
         variableDatum2.setVariableDatumValue(variableDatum2Value);
-        variableDatum2.setVariableDatumLength(variableDatum2Value.length * 8);
+        variableDatum2.setVariableDatumLength(UnsignedInteger.valueOf(variableDatum2Value.length * 8L));
         variableDatum2.setVariableDatumID(VARIABLE_DATUM_2_TYPE);
     }
 
@@ -115,8 +116,8 @@ public class DataQueryPduRoundTripTest
     PduFactory factory = new PduFactory();
 
     DataQueryPdu sendingPdu = factory.makeDataQueryPdu();
-    sendingPdu.setRequestID(REQUEST_ID);
-    sendingPdu.setTimeInterval(TIME_INTERVAL);
+    sendingPdu.setRequestID(UnsignedInteger.valueOf(REQUEST_ID));
+    sendingPdu.setTimeInterval(UnsignedInteger.valueOf(TIME_INTERVAL));
 
     sendingPdu.getFixedDatums().add(fixedDatum1);
     sendingPdu.getFixedDatums().add(fixedDatum2);

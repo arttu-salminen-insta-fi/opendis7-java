@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Time measurements that exceed one hour are represented by this record. The first field is the hours since the unix epoch (Jan 1 1970, used by most Unix systems and java) and the second field the timestamp units since the top of the hour. Section 6.2.14
@@ -19,11 +21,13 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class ClockTime extends Object implements Serializable, Marshaller
 {
-   /** Hours in UTC */
-   protected int hour;
+   /** Hours in UTC 
+   Value space: uint32 */
+   protected UnsignedInteger hour = UnsignedInteger.ZERO;
 
-   /** Time past the hour */
-   protected int timePastHour;
+   /** Time past the hour 
+   Value space: uint32 */
+   protected UnsignedInteger timePastHour = UnsignedInteger.ZERO;
 
 
 /** Constructor creates and configures a new instance object */
@@ -49,31 +53,31 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link ClockTime#hour}
-  * @param pHour new value of interest
+  * @param pHour new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized ClockTime setHour(int pHour)
+public synchronized ClockTime setHour(UnsignedInteger pHour)
 {
     hour = pHour;
     return this;
 }
 /** Getter for {@link ClockTime#hour}
   * @return value of interest */
-public int getHour()
+public UnsignedInteger getHour()
 {
     return hour; 
 }
 
 /** Setter for {@link ClockTime#timePastHour}
-  * @param pTimePastHour new value of interest
+  * @param pTimePastHour new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized ClockTime setTimePastHour(int pTimePastHour)
+public synchronized ClockTime setTimePastHour(UnsignedInteger pTimePastHour)
 {
     timePastHour = pTimePastHour;
     return this;
 }
 /** Getter for {@link ClockTime#timePastHour}
   * @return value of interest */
-public int getTimePastHour()
+public UnsignedInteger getTimePastHour()
 {
     return timePastHour; 
 }
@@ -87,14 +91,10 @@ public int getTimePastHour()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeInt(hour);
-       dos.writeInt(timePastHour);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeInt(hour.intValue());
+       dos.writeInt(timePastHour.intValue());
     }
 }
 
@@ -110,16 +110,12 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        hour = dis.readInt();
+        hour = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        timePastHour = dis.readInt();
+        timePastHour = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -135,8 +131,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putInt( (int)hour);
-   byteBuffer.putInt( (int)timePastHour);
+   byteBuffer.putInt(hour.intValue());
+   byteBuffer.putInt(timePastHour.intValue());
 }
 
 /**
@@ -151,18 +147,60 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute hour marked as not serialized
-        hour = byteBuffer.getInt();
-        // attribute timePastHour marked as not serialized
-        timePastHour = byteBuffer.getInt();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        hour = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        timePastHour = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("hour", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("timePastHour", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putInt(((Number) map.get("hour")).intValue());
+    byteBuffer.putInt(((Number) map.get("timePastHour")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // hour
+    marshalSize += 4;  // timePastHour
+
+    return marshalSize;
 }
 
  /*

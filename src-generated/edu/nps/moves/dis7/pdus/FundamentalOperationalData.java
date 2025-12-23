@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Basic operational data for IFF. Section 6.2.39
@@ -19,35 +21,45 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class FundamentalOperationalData extends Object implements Serializable, Marshaller
 {
-   /** system status, IEEE DIS 7 defined */
-   protected byte systemStatus;
+   /** system status, IEEE DIS 7 defined 
+   Value space: uint8 */
+   protected int systemStatus;
 
-   /** data field 1 */
-   protected byte dataField1;
+   /** data field 1 
+   Value space: uint8 */
+   protected int dataField1;
 
-   /** eight boolean fields */
-   protected byte informationLayers;
+   /** eight boolean fields 
+   Value space: uint8 */
+   protected int informationLayers;
 
-   /** enumeration */
-   protected byte dataField2;
+   /** enumeration 
+   Value space: uint8 */
+   protected int dataField2;
 
-   /** parameter, enumeration */
-   protected short parameter1;
+   /** parameter, enumeration 
+   Value space: uint16 */
+   protected int parameter1;
 
-   /** parameter, enumeration */
-   protected short parameter2;
+   /** parameter, enumeration 
+   Value space: uint16 */
+   protected int parameter2;
 
-   /** parameter, enumeration */
-   protected short parameter3;
+   /** parameter, enumeration 
+   Value space: uint16 */
+   protected int parameter3;
 
-   /** parameter, enumeration */
-   protected short parameter4;
+   /** parameter, enumeration 
+   Value space: uint16 */
+   protected int parameter4;
 
-   /** parameter, enumeration */
-   protected short parameter5;
+   /** parameter, enumeration 
+   Value space: uint16 */
+   protected int parameter5;
 
-   /** parameter, enumeration */
-   protected short parameter6;
+   /** parameter, enumeration 
+   Value space: uint16 */
+   protected int parameter6;
 
 
 /** Constructor creates and configures a new instance object */
@@ -81,221 +93,171 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link FundamentalOperationalData#systemStatus}
-  * @param pSystemStatus new value of interest
+  * @param pSystemStatus new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setSystemStatus(byte pSystemStatus)
+public synchronized FundamentalOperationalData setSystemStatus(int pSystemStatus)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSystemStatus >= 0 && pSystemStatus <= 255, "Value outside valid value space");
     systemStatus = pSystemStatus;
-    return this;
-}
-/** Utility setter for {@link FundamentalOperationalData#systemStatus}
-  * @param pSystemStatus new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setSystemStatus(int pSystemStatus){
-    systemStatus = (byte) pSystemStatus;
     return this;
 }
 /** Getter for {@link FundamentalOperationalData#systemStatus}
   * @return value of interest */
-public byte getSystemStatus()
+public int getSystemStatus()
 {
     return systemStatus; 
 }
 
 /** Setter for {@link FundamentalOperationalData#dataField1}
-  * @param pDataField1 new value of interest
+  * @param pDataField1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setDataField1(byte pDataField1)
+public synchronized FundamentalOperationalData setDataField1(int pDataField1)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pDataField1 >= 0 && pDataField1 <= 255, "Value outside valid value space");
     dataField1 = pDataField1;
-    return this;
-}
-/** Utility setter for {@link FundamentalOperationalData#dataField1}
-  * @param pDataField1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setDataField1(int pDataField1){
-    dataField1 = (byte) pDataField1;
     return this;
 }
 /** Getter for {@link FundamentalOperationalData#dataField1}
   * @return value of interest */
-public byte getDataField1()
+public int getDataField1()
 {
     return dataField1; 
 }
 
 /** Setter for {@link FundamentalOperationalData#informationLayers}
-  * @param pInformationLayers new value of interest
+  * @param pInformationLayers new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setInformationLayers(byte pInformationLayers)
+public synchronized FundamentalOperationalData setInformationLayers(int pInformationLayers)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pInformationLayers >= 0 && pInformationLayers <= 255, "Value outside valid value space");
     informationLayers = pInformationLayers;
-    return this;
-}
-/** Utility setter for {@link FundamentalOperationalData#informationLayers}
-  * @param pInformationLayers new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setInformationLayers(int pInformationLayers){
-    informationLayers = (byte) pInformationLayers;
     return this;
 }
 /** Getter for {@link FundamentalOperationalData#informationLayers}
   * @return value of interest */
-public byte getInformationLayers()
+public int getInformationLayers()
 {
     return informationLayers; 
 }
 
 /** Setter for {@link FundamentalOperationalData#dataField2}
-  * @param pDataField2 new value of interest
+  * @param pDataField2 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setDataField2(byte pDataField2)
+public synchronized FundamentalOperationalData setDataField2(int pDataField2)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pDataField2 >= 0 && pDataField2 <= 255, "Value outside valid value space");
     dataField2 = pDataField2;
-    return this;
-}
-/** Utility setter for {@link FundamentalOperationalData#dataField2}
-  * @param pDataField2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setDataField2(int pDataField2){
-    dataField2 = (byte) pDataField2;
     return this;
 }
 /** Getter for {@link FundamentalOperationalData#dataField2}
   * @return value of interest */
-public byte getDataField2()
+public int getDataField2()
 {
     return dataField2; 
 }
 
 /** Setter for {@link FundamentalOperationalData#parameter1}
-  * @param pParameter1 new value of interest
+  * @param pParameter1 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setParameter1(short pParameter1)
+public synchronized FundamentalOperationalData setParameter1(int pParameter1)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pParameter1 >= 0 && pParameter1 <= 65535, "Value outside valid value space");
     parameter1 = pParameter1;
-    return this;
-}
-/** Utility setter for {@link FundamentalOperationalData#parameter1}
-  * @param pParameter1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setParameter1(int pParameter1){
-    parameter1 = (short) pParameter1;
     return this;
 }
 /** Getter for {@link FundamentalOperationalData#parameter1}
   * @return value of interest */
-public short getParameter1()
+public int getParameter1()
 {
     return parameter1; 
 }
 
 /** Setter for {@link FundamentalOperationalData#parameter2}
-  * @param pParameter2 new value of interest
+  * @param pParameter2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setParameter2(short pParameter2)
+public synchronized FundamentalOperationalData setParameter2(int pParameter2)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pParameter2 >= 0 && pParameter2 <= 65535, "Value outside valid value space");
     parameter2 = pParameter2;
-    return this;
-}
-/** Utility setter for {@link FundamentalOperationalData#parameter2}
-  * @param pParameter2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setParameter2(int pParameter2){
-    parameter2 = (short) pParameter2;
     return this;
 }
 /** Getter for {@link FundamentalOperationalData#parameter2}
   * @return value of interest */
-public short getParameter2()
+public int getParameter2()
 {
     return parameter2; 
 }
 
 /** Setter for {@link FundamentalOperationalData#parameter3}
-  * @param pParameter3 new value of interest
+  * @param pParameter3 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setParameter3(short pParameter3)
+public synchronized FundamentalOperationalData setParameter3(int pParameter3)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pParameter3 >= 0 && pParameter3 <= 65535, "Value outside valid value space");
     parameter3 = pParameter3;
-    return this;
-}
-/** Utility setter for {@link FundamentalOperationalData#parameter3}
-  * @param pParameter3 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setParameter3(int pParameter3){
-    parameter3 = (short) pParameter3;
     return this;
 }
 /** Getter for {@link FundamentalOperationalData#parameter3}
   * @return value of interest */
-public short getParameter3()
+public int getParameter3()
 {
     return parameter3; 
 }
 
 /** Setter for {@link FundamentalOperationalData#parameter4}
-  * @param pParameter4 new value of interest
+  * @param pParameter4 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setParameter4(short pParameter4)
+public synchronized FundamentalOperationalData setParameter4(int pParameter4)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pParameter4 >= 0 && pParameter4 <= 65535, "Value outside valid value space");
     parameter4 = pParameter4;
-    return this;
-}
-/** Utility setter for {@link FundamentalOperationalData#parameter4}
-  * @param pParameter4 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setParameter4(int pParameter4){
-    parameter4 = (short) pParameter4;
     return this;
 }
 /** Getter for {@link FundamentalOperationalData#parameter4}
   * @return value of interest */
-public short getParameter4()
+public int getParameter4()
 {
     return parameter4; 
 }
 
 /** Setter for {@link FundamentalOperationalData#parameter5}
-  * @param pParameter5 new value of interest
+  * @param pParameter5 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setParameter5(short pParameter5)
+public synchronized FundamentalOperationalData setParameter5(int pParameter5)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pParameter5 >= 0 && pParameter5 <= 65535, "Value outside valid value space");
     parameter5 = pParameter5;
-    return this;
-}
-/** Utility setter for {@link FundamentalOperationalData#parameter5}
-  * @param pParameter5 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setParameter5(int pParameter5){
-    parameter5 = (short) pParameter5;
     return this;
 }
 /** Getter for {@link FundamentalOperationalData#parameter5}
   * @return value of interest */
-public short getParameter5()
+public int getParameter5()
 {
     return parameter5; 
 }
 
 /** Setter for {@link FundamentalOperationalData#parameter6}
-  * @param pParameter6 new value of interest
+  * @param pParameter6 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setParameter6(short pParameter6)
+public synchronized FundamentalOperationalData setParameter6(int pParameter6)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pParameter6 >= 0 && pParameter6 <= 65535, "Value outside valid value space");
     parameter6 = pParameter6;
-    return this;
-}
-/** Utility setter for {@link FundamentalOperationalData#parameter6}
-  * @param pParameter6 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setParameter6(int pParameter6){
-    parameter6 = (short) pParameter6;
     return this;
 }
 /** Getter for {@link FundamentalOperationalData#parameter6}
   * @return value of interest */
-public short getParameter6()
+public int getParameter6()
 {
     return parameter6; 
 }
@@ -309,22 +271,18 @@ public short getParameter6()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeByte(systemStatus);
-       dos.writeByte(dataField1);
-       dos.writeByte(informationLayers);
-       dos.writeByte(dataField2);
-       dos.writeShort(parameter1);
-       dos.writeShort(parameter2);
-       dos.writeShort(parameter3);
-       dos.writeShort(parameter4);
-       dos.writeShort(parameter5);
-       dos.writeShort(parameter6);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) systemStatus);
+       dos.writeByte((byte) dataField1);
+       dos.writeByte((byte) informationLayers);
+       dos.writeByte((byte) dataField2);
+       dos.writeShort((short) parameter1);
+       dos.writeShort((short) parameter2);
+       dos.writeShort((short) parameter3);
+       dos.writeShort((short) parameter4);
+       dos.writeShort((short) parameter5);
+       dos.writeShort((short) parameter6);
     }
 }
 
@@ -340,32 +298,28 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        systemStatus = (byte)dis.readUnsignedByte();
+        systemStatus = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        dataField1 = (byte)dis.readUnsignedByte();
+        dataField1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        informationLayers = (byte)dis.readUnsignedByte();
+        informationLayers = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        dataField2 = (byte)dis.readUnsignedByte();
+        dataField2 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        parameter1 = (short)dis.readUnsignedShort();
+        parameter1 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        parameter2 = (short)dis.readUnsignedShort();
+        parameter2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        parameter3 = (short)dis.readUnsignedShort();
+        parameter3 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        parameter4 = (short)dis.readUnsignedShort();
+        parameter4 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        parameter5 = (short)dis.readUnsignedShort();
+        parameter5 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        parameter6 = (short)dis.readUnsignedShort();
+        parameter6 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -381,16 +335,16 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.put( (byte)systemStatus);
-   byteBuffer.put( (byte)dataField1);
-   byteBuffer.put( (byte)informationLayers);
-   byteBuffer.put( (byte)dataField2);
-   byteBuffer.putShort( (short)parameter1);
-   byteBuffer.putShort( (short)parameter2);
-   byteBuffer.putShort( (short)parameter3);
-   byteBuffer.putShort( (short)parameter4);
-   byteBuffer.putShort( (short)parameter5);
-   byteBuffer.putShort( (short)parameter6);
+   byteBuffer.put((byte) systemStatus);
+   byteBuffer.put((byte) dataField1);
+   byteBuffer.put((byte) informationLayers);
+   byteBuffer.put((byte) dataField2);
+   byteBuffer.putShort((short) parameter1);
+   byteBuffer.putShort((short) parameter2);
+   byteBuffer.putShort((short) parameter3);
+   byteBuffer.putShort((short) parameter4);
+   byteBuffer.putShort((short) parameter5);
+   byteBuffer.putShort((short) parameter6);
 }
 
 /**
@@ -405,34 +359,92 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute systemStatus marked as not serialized
-        systemStatus = (byte)(byteBuffer.get() & 0xFF);
-        // attribute dataField1 marked as not serialized
-        dataField1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute informationLayers marked as not serialized
-        informationLayers = (byte)(byteBuffer.get() & 0xFF);
-        // attribute dataField2 marked as not serialized
-        dataField2 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute parameter1 marked as not serialized
-        parameter1 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute parameter2 marked as not serialized
-        parameter2 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute parameter3 marked as not serialized
-        parameter3 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute parameter4 marked as not serialized
-        parameter4 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute parameter5 marked as not serialized
-        parameter5 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute parameter6 marked as not serialized
-        parameter6 = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        systemStatus = Byte.toUnsignedInt(byteBuffer.get());
+        dataField1 = Byte.toUnsignedInt(byteBuffer.get());
+        informationLayers = Byte.toUnsignedInt(byteBuffer.get());
+        dataField2 = Byte.toUnsignedInt(byteBuffer.get());
+        parameter1 = Short.toUnsignedInt(byteBuffer.getShort());
+        parameter2 = Short.toUnsignedInt(byteBuffer.getShort());
+        parameter3 = Short.toUnsignedInt(byteBuffer.getShort());
+        parameter4 = Short.toUnsignedInt(byteBuffer.getShort());
+        parameter5 = Short.toUnsignedInt(byteBuffer.getShort());
+        parameter6 = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("systemStatus", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("dataField1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("informationLayers", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("dataField2", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("parameter1", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("parameter2", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("parameter3", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("parameter4", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("parameter5", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("parameter6", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.put(((Number) map.get("systemStatus")).byteValue());
+    byteBuffer.put(((Number) map.get("dataField1")).byteValue());
+    byteBuffer.put(((Number) map.get("informationLayers")).byteValue());
+    byteBuffer.put(((Number) map.get("dataField2")).byteValue());
+    byteBuffer.putShort(((Number) map.get("parameter1")).shortValue());
+    byteBuffer.putShort(((Number) map.get("parameter2")).shortValue());
+    byteBuffer.putShort(((Number) map.get("parameter3")).shortValue());
+    byteBuffer.putShort(((Number) map.get("parameter4")).shortValue());
+    byteBuffer.putShort(((Number) map.get("parameter5")).shortValue());
+    byteBuffer.putShort(((Number) map.get("parameter6")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 1;  // systemStatus
+    marshalSize += 1;  // dataField1
+    marshalSize += 1;  // informationLayers
+    marshalSize += 1;  // dataField2
+    marshalSize += 2;  // parameter1
+    marshalSize += 2;  // parameter2
+    marshalSize += 2;  // parameter3
+    marshalSize += 2;  // parameter4
+    marshalSize += 2;  // parameter5
+    marshalSize += 2;  // parameter6
+
+    return marshalSize;
 }
 
  /*

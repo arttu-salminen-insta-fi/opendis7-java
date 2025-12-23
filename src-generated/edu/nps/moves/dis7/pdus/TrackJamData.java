@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  *  Track-Jam data Section 6.2.89
@@ -22,11 +24,13 @@ public class TrackJamData extends Object implements Serializable, Marshaller
    /** The entity tracked or illumated, or an emitter beam targeted with jamming */
    protected EntityID  entityID = new EntityID(); 
 
-   /** Emitter system associated with the entity */
-   protected byte emitterNumber;
+   /** Emitter system associated with the entity 
+   Value space: uint8 */
+   protected int emitterNumber;
 
-   /** Beam associated with the entity */
-   protected byte beamNumber;
+   /** Beam associated with the entity 
+   Value space: uint8 */
+   protected int beamNumber;
 
 
 /** Constructor creates and configures a new instance object */
@@ -70,45 +74,35 @@ public EntityID getEntityID()
 
 
 /** Setter for {@link TrackJamData#emitterNumber}
-  * @param pEmitterNumber new value of interest
+  * @param pEmitterNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized TrackJamData setEmitterNumber(byte pEmitterNumber)
+public synchronized TrackJamData setEmitterNumber(int pEmitterNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pEmitterNumber >= 0 && pEmitterNumber <= 255, "Value outside valid value space");
     emitterNumber = pEmitterNumber;
-    return this;
-}
-/** Utility setter for {@link TrackJamData#emitterNumber}
-  * @param pEmitterNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized TrackJamData setEmitterNumber(int pEmitterNumber){
-    emitterNumber = (byte) pEmitterNumber;
     return this;
 }
 /** Getter for {@link TrackJamData#emitterNumber}
   * @return value of interest */
-public byte getEmitterNumber()
+public int getEmitterNumber()
 {
     return emitterNumber; 
 }
 
 /** Setter for {@link TrackJamData#beamNumber}
-  * @param pBeamNumber new value of interest
+  * @param pBeamNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized TrackJamData setBeamNumber(byte pBeamNumber)
+public synchronized TrackJamData setBeamNumber(int pBeamNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pBeamNumber >= 0 && pBeamNumber <= 255, "Value outside valid value space");
     beamNumber = pBeamNumber;
-    return this;
-}
-/** Utility setter for {@link TrackJamData#beamNumber}
-  * @param pBeamNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized TrackJamData setBeamNumber(int pBeamNumber){
-    beamNumber = (byte) pBeamNumber;
     return this;
 }
 /** Getter for {@link TrackJamData#beamNumber}
   * @return value of interest */
-public byte getBeamNumber()
+public int getBeamNumber()
 {
     return beamNumber; 
 }
@@ -122,15 +116,11 @@ public byte getBeamNumber()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        entityID.marshal(dos);
-       dos.writeByte(emitterNumber);
-       dos.writeByte(beamNumber);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) emitterNumber);
+       dos.writeByte((byte) beamNumber);
     }
 }
 
@@ -146,17 +136,13 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         uPosition += entityID.unmarshal(dis);
-        emitterNumber = (byte)dis.readUnsignedByte();
+        emitterNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        beamNumber = (byte)dis.readUnsignedByte();
+        beamNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -173,8 +159,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    entityID.marshal(byteBuffer);
-   byteBuffer.put( (byte)emitterNumber);
-   byteBuffer.put( (byte)beamNumber);
+   byteBuffer.put((byte) emitterNumber);
+   byteBuffer.put((byte) beamNumber);
 }
 
 /**
@@ -189,20 +175,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute entityID marked as not serialized
         entityID.unmarshal(byteBuffer);
-        // attribute emitterNumber marked as not serialized
-        emitterNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute beamNumber marked as not serialized
-        beamNumber = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        emitterNumber = Byte.toUnsignedInt(byteBuffer.get());
+        beamNumber = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("entityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("emitterNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("beamNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityID.fromMapToBuffer((PduMap) map.get("entityID"), byteBuffer);
+    byteBuffer.put(((Number) map.get("emitterNumber")).byteValue());
+    byteBuffer.put(((Number) map.get("beamNumber")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("entityID"));
+    marshalSize += 1;  // emitterNumber
+    marshalSize += 1;  // beamNumber
+
+    return marshalSize;
 }
 
  /*

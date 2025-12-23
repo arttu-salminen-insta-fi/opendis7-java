@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * used in AppearancePdu
@@ -19,17 +21,21 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class Appearance extends Object implements Serializable, Marshaller
 {
-   /** visual is an undescribed parameter... */
-   protected int visual;
+   /** visual is an undescribed parameter...
+   Value space: uint32 */
+   protected UnsignedInteger visual = UnsignedInteger.ZERO;
 
-   /** ir is an undescribed parameter... */
-   protected int ir;
+   /** ir is an undescribed parameter...
+   Value space: uint32 */
+   protected UnsignedInteger ir = UnsignedInteger.ZERO;
 
-   /** em is an undescribed parameter... */
-   protected int em;
+   /** em is an undescribed parameter...
+   Value space: uint32 */
+   protected UnsignedInteger em = UnsignedInteger.ZERO;
 
-   /** audio is an undescribed parameter... */
-   protected int audio;
+   /** audio is an undescribed parameter...
+   Value space: uint32 */
+   protected UnsignedInteger audio = UnsignedInteger.ZERO;
 
 
 /** Constructor creates and configures a new instance object */
@@ -57,61 +63,61 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link Appearance#visual}
-  * @param pVisual new value of interest
+  * @param pVisual new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized Appearance setVisual(int pVisual)
+public synchronized Appearance setVisual(UnsignedInteger pVisual)
 {
     visual = pVisual;
     return this;
 }
 /** Getter for {@link Appearance#visual}
   * @return value of interest */
-public int getVisual()
+public UnsignedInteger getVisual()
 {
     return visual; 
 }
 
 /** Setter for {@link Appearance#ir}
-  * @param pIr new value of interest
+  * @param pIr new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized Appearance setIr(int pIr)
+public synchronized Appearance setIr(UnsignedInteger pIr)
 {
     ir = pIr;
     return this;
 }
 /** Getter for {@link Appearance#ir}
   * @return value of interest */
-public int getIr()
+public UnsignedInteger getIr()
 {
     return ir; 
 }
 
 /** Setter for {@link Appearance#em}
-  * @param pEm new value of interest
+  * @param pEm new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized Appearance setEm(int pEm)
+public synchronized Appearance setEm(UnsignedInteger pEm)
 {
     em = pEm;
     return this;
 }
 /** Getter for {@link Appearance#em}
   * @return value of interest */
-public int getEm()
+public UnsignedInteger getEm()
 {
     return em; 
 }
 
 /** Setter for {@link Appearance#audio}
-  * @param pAudio new value of interest
+  * @param pAudio new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized Appearance setAudio(int pAudio)
+public synchronized Appearance setAudio(UnsignedInteger pAudio)
 {
     audio = pAudio;
     return this;
 }
 /** Getter for {@link Appearance#audio}
   * @return value of interest */
-public int getAudio()
+public UnsignedInteger getAudio()
 {
     return audio; 
 }
@@ -125,16 +131,12 @@ public int getAudio()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeInt(visual);
-       dos.writeInt(ir);
-       dos.writeInt(em);
-       dos.writeInt(audio);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeInt(visual.intValue());
+       dos.writeInt(ir.intValue());
+       dos.writeInt(em.intValue());
+       dos.writeInt(audio.intValue());
     }
 }
 
@@ -150,20 +152,16 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        visual = dis.readInt();
+        visual = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        ir = dis.readInt();
+        ir = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        em = dis.readInt();
+        em = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        audio = dis.readInt();
+        audio = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -179,10 +177,10 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putInt( (int)visual);
-   byteBuffer.putInt( (int)ir);
-   byteBuffer.putInt( (int)em);
-   byteBuffer.putInt( (int)audio);
+   byteBuffer.putInt(visual.intValue());
+   byteBuffer.putInt(ir.intValue());
+   byteBuffer.putInt(em.intValue());
+   byteBuffer.putInt(audio.intValue());
 }
 
 /**
@@ -197,22 +195,68 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute visual marked as not serialized
-        visual = byteBuffer.getInt();
-        // attribute ir marked as not serialized
-        ir = byteBuffer.getInt();
-        // attribute em marked as not serialized
-        em = byteBuffer.getInt();
-        // attribute audio marked as not serialized
-        audio = byteBuffer.getInt();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        visual = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        ir = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        em = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        audio = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("visual", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("ir", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("em", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("audio", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putInt(((Number) map.get("visual")).intValue());
+    byteBuffer.putInt(((Number) map.get("ir")).intValue());
+    byteBuffer.putInt(((Number) map.get("em")).intValue());
+    byteBuffer.putInt(((Number) map.get("audio")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // visual
+    marshalSize += 4;  // ir
+    marshalSize += 4;  // em
+    marshalSize += 4;  // audio
+
+    return marshalSize;
 }
 
  /*

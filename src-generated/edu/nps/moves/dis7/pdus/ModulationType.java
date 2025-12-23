@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Information about the type of modulation used for radio transmission. 6.2.59 
@@ -19,14 +21,16 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class ModulationType extends Object implements Serializable, Marshaller
 {
-   /** This field shall indicate the spread spectrum technique or combination of spread spectrum techniques in use. Bit field. 0=freq hopping, 1=psuedo noise, time hopping=2, reamining bits unused */
-   protected short spreadSpectrum;
+   /** This field shall indicate the spread spectrum technique or combination of spread spectrum techniques in use. Bit field. 0=freq hopping, 1=psuedo noise, time hopping=2, reamining bits unused 
+   Value space: uint16 */
+   protected int spreadSpectrum;
 
-   /** The major classification of the modulation type.  UID 155 */
+   /** The major classification of the modulation type.  uid 155 */
    protected TransmitterMajorModulation majorModulation = TransmitterMajorModulation.values()[0];
 
-   /** provide certain detailed information depending upon the major modulation type, uid 156-162 */
-   protected short detail;
+   /** provide certain detailed information depending upon the major modulation type, uid 156-162 
+   Value space: uint16 */
+   protected int detail;
 
    /** The radio system associated with this Transmitter PDU and shall be used as the basis to interpret other fields whose values depend on a specific radio system. uid =163 */
    protected TransmitterModulationTypeSystem radioSystem = TransmitterModulationTypeSystem.values()[0];
@@ -59,23 +63,18 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link ModulationType#spreadSpectrum}
-  * @param pSpreadSpectrum new value of interest
+  * @param pSpreadSpectrum new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized ModulationType setSpreadSpectrum(short pSpreadSpectrum)
+public synchronized ModulationType setSpreadSpectrum(int pSpreadSpectrum)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pSpreadSpectrum >= 0 && pSpreadSpectrum <= 65535, "Value outside valid value space");
     spreadSpectrum = pSpreadSpectrum;
-    return this;
-}
-/** Utility setter for {@link ModulationType#spreadSpectrum}
-  * @param pSpreadSpectrum new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ModulationType setSpreadSpectrum(int pSpreadSpectrum){
-    spreadSpectrum = (short) pSpreadSpectrum;
     return this;
 }
 /** Getter for {@link ModulationType#spreadSpectrum}
   * @return value of interest */
-public short getSpreadSpectrum()
+public int getSpreadSpectrum()
 {
     return spreadSpectrum; 
 }
@@ -96,23 +95,18 @@ public TransmitterMajorModulation getMajorModulation()
 }
 
 /** Setter for {@link ModulationType#detail}
-  * @param pDetail new value of interest
+  * @param pDetail new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized ModulationType setDetail(short pDetail)
+public synchronized ModulationType setDetail(int pDetail)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pDetail >= 0 && pDetail <= 65535, "Value outside valid value space");
     detail = pDetail;
-    return this;
-}
-/** Utility setter for {@link ModulationType#detail}
-  * @param pDetail new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ModulationType setDetail(int pDetail){
-    detail = (short) pDetail;
     return this;
 }
 /** Getter for {@link ModulationType#detail}
   * @return value of interest */
-public short getDetail()
+public int getDetail()
 {
     return detail; 
 }
@@ -141,16 +135,12 @@ public TransmitterModulationTypeSystem getRadioSystem()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(spreadSpectrum);
+       dos.writeShort((short) spreadSpectrum);
        majorModulation.marshal(dos);
-       dos.writeShort(detail);
+       dos.writeShort((short) detail);
        radioSystem.marshal(dos);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -166,20 +156,16 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        spreadSpectrum = (short)dis.readUnsignedShort();
+        spreadSpectrum = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         majorModulation = TransmitterMajorModulation.unmarshalEnum(dis);
         uPosition += majorModulation.getMarshalledSize();
-        detail = (short)dis.readUnsignedShort();
+        detail = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         radioSystem = TransmitterModulationTypeSystem.unmarshalEnum(dis);
         uPosition += radioSystem.getMarshalledSize();
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -195,9 +181,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)spreadSpectrum);
+   byteBuffer.putShort((short) spreadSpectrum);
    majorModulation.marshal(byteBuffer);
-   byteBuffer.putShort( (short)detail);
+   byteBuffer.putShort((short) detail);
    radioSystem.marshal(byteBuffer);
 }
 
@@ -213,22 +199,68 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute spreadSpectrum marked as not serialized
-        spreadSpectrum = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute majorModulation marked as not serialized
+        spreadSpectrum = Short.toUnsignedInt(byteBuffer.getShort());
         majorModulation = TransmitterMajorModulation.unmarshalEnum(byteBuffer);
-        // attribute detail marked as not serialized
-        detail = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute radioSystem marked as not serialized
+        detail = Short.toUnsignedInt(byteBuffer.getShort());
         radioSystem = TransmitterModulationTypeSystem.unmarshalEnum(byteBuffer);
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("spreadSpectrum", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("majorModulation", TransmitterMajorModulation.unmarshalEnum(byteBuffer).getValue());
+    map.put("detail", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("radioSystem", TransmitterModulationTypeSystem.unmarshalEnum(byteBuffer).getValue());
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("spreadSpectrum")).shortValue());
+    TransmitterMajorModulation.getEnumForValue(((Number) map.get("majorModulation")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("detail")).shortValue());
+    TransmitterModulationTypeSystem.getEnumForValue(((Number) map.get("radioSystem")).intValue()).marshal(byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // spreadSpectrum
+    marshalSize += TransmitterMajorModulation.getEnumForValue(((Number) map.get("majorModulation")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // detail
+    marshalSize += TransmitterModulationTypeSystem.getEnumForValue(((Number) map.get("radioSystem")).intValue()).getMarshalledSize();
+
+    return marshalSize;
 }
 
  /*

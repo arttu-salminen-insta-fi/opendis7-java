@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * 7.6.5.6. Layer 5 data communications
@@ -22,30 +24,32 @@ public class IFFPduLayer5Data extends AbstractIFFPduLayerData implements Seriali
    /** Layer header */
    protected LayerHeader  layerHeader = new LayerHeader(); 
 
-   /** 6.2.80 Site number, part of reporting simulation field */
-   protected short siteNumber;
+   /** 6.2.80 Site number, part of reporting simulation field 
+   Value space: uint16 */
+   protected int siteNumber;
 
-   /** 6.2.80 Application number, part of reporting simulation field */
-   protected short applicationNumber;
+   /** 6.2.80 Application number, part of reporting simulation field 
+   Value space: uint16 */
+   protected int applicationNumber;
 
-   /** Padding */
-   protected short padding;
+   /** Padding 
+   Value space: uint16 */
+   protected int padding;
 
-   /** Eight boolean fields. See 6.2.45. */
-   protected byte applicableLayers;
+   /** Eight boolean fields. See 6.2.45. 
+   Value space: uint8 */
+   protected int applicableLayers;
 
    /** Data category uid 369 */
    protected DataCategory dataCategory = DataCategory.values()[0];
 
-   /** Padding */
-   protected short padding2;
-
-   /** numberOfIFFFundamentalParameterDataRecordsParameters is an undescribed parameter... */
-   protected short numberOfIFFFundamentalParameterDataRecordsParameters;
+   /** Padding 
+   Value space: uint16 */
+   protected int padding2;
 
    /** Variable length list of fundamental parameters. */
-   protected List< IFFDataSpecification > IFFFundamentalParameterDataRecord = new ArrayList<>();
- 
+   protected IFFDataSpecification  IFFFundamentalParameterDataRecord = new IFFDataSpecification(); 
+
 
 /** Constructor creates and configures a new instance object */
  public IFFPduLayer5Data()
@@ -72,13 +76,8 @@ public synchronized int getMarshalledSize()
    if (dataCategory != null)
        marshalSize += dataCategory.getMarshalledSize();
    marshalSize += 2;  // padding2
-   marshalSize += 2;  // numberOfIFFFundamentalParameterDataRecordsParameters
    if (IFFFundamentalParameterDataRecord != null)
-       for (int idx=0; idx < IFFFundamentalParameterDataRecord.size(); idx++)
-       {
-            IFFDataSpecification listElement = IFFFundamentalParameterDataRecord.get(idx);
-            marshalSize += listElement.getMarshalledSize();
-       }
+       marshalSize += IFFFundamentalParameterDataRecord.getMarshalledSize();
 
    return marshalSize;
 }
@@ -101,89 +100,69 @@ public LayerHeader getLayerHeader()
 
 
 /** Setter for {@link IFFPduLayer5Data#siteNumber}
-  * @param pSiteNumber new value of interest
+  * @param pSiteNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized IFFPduLayer5Data setSiteNumber(short pSiteNumber)
+public synchronized IFFPduLayer5Data setSiteNumber(int pSiteNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pSiteNumber >= 0 && pSiteNumber <= 65535, "Value outside valid value space");
     siteNumber = pSiteNumber;
-    return this;
-}
-/** Utility setter for {@link IFFPduLayer5Data#siteNumber}
-  * @param pSiteNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IFFPduLayer5Data setSiteNumber(int pSiteNumber){
-    siteNumber = (short) pSiteNumber;
     return this;
 }
 /** Getter for {@link IFFPduLayer5Data#siteNumber}
   * @return value of interest */
-public short getSiteNumber()
+public int getSiteNumber()
 {
     return siteNumber; 
 }
 
 /** Setter for {@link IFFPduLayer5Data#applicationNumber}
-  * @param pApplicationNumber new value of interest
+  * @param pApplicationNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized IFFPduLayer5Data setApplicationNumber(short pApplicationNumber)
+public synchronized IFFPduLayer5Data setApplicationNumber(int pApplicationNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pApplicationNumber >= 0 && pApplicationNumber <= 65535, "Value outside valid value space");
     applicationNumber = pApplicationNumber;
-    return this;
-}
-/** Utility setter for {@link IFFPduLayer5Data#applicationNumber}
-  * @param pApplicationNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IFFPduLayer5Data setApplicationNumber(int pApplicationNumber){
-    applicationNumber = (short) pApplicationNumber;
     return this;
 }
 /** Getter for {@link IFFPduLayer5Data#applicationNumber}
   * @return value of interest */
-public short getApplicationNumber()
+public int getApplicationNumber()
 {
     return applicationNumber; 
 }
 
 /** Setter for {@link IFFPduLayer5Data#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized IFFPduLayer5Data setPadding(short pPadding)
+public synchronized IFFPduLayer5Data setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link IFFPduLayer5Data#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IFFPduLayer5Data setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link IFFPduLayer5Data#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
 
 /** Setter for {@link IFFPduLayer5Data#applicableLayers}
-  * @param pApplicableLayers new value of interest
+  * @param pApplicableLayers new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized IFFPduLayer5Data setApplicableLayers(byte pApplicableLayers)
+public synchronized IFFPduLayer5Data setApplicableLayers(int pApplicableLayers)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pApplicableLayers >= 0 && pApplicableLayers <= 255, "Value outside valid value space");
     applicableLayers = pApplicableLayers;
-    return this;
-}
-/** Utility setter for {@link IFFPduLayer5Data#applicableLayers}
-  * @param pApplicableLayers new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IFFPduLayer5Data setApplicableLayers(int pApplicableLayers){
-    applicableLayers = (byte) pApplicableLayers;
     return this;
 }
 /** Getter for {@link IFFPduLayer5Data#applicableLayers}
   * @return value of interest */
-public byte getApplicableLayers()
+public int getApplicableLayers()
 {
     return applicableLayers; 
 }
@@ -204,60 +183,37 @@ public DataCategory getDataCategory()
 }
 
 /** Setter for {@link IFFPduLayer5Data#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized IFFPduLayer5Data setPadding2(short pPadding2)
+public synchronized IFFPduLayer5Data setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 65535, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link IFFPduLayer5Data#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IFFPduLayer5Data setPadding2(int pPadding2){
-    padding2 = (short) pPadding2;
     return this;
 }
 /** Getter for {@link IFFPduLayer5Data#padding2}
   * @return value of interest */
-public short getPadding2()
+public int getPadding2()
 {
     return padding2; 
-}
-
-/** Utility method to get size of field
- * @return size of field */
-public short getNumberOfIFFFundamentalParameterDataRecordsParameters()
-{
-    return (short)IFFFundamentalParameterDataRecord.size(); 
-}
-
-/** Note that setting this value will not change the marshalled value. The list whose length this describes is used for that purpose.
- * The getnumberOfIFFFundamentalParameterDataRecordsParameters method will also be based on the actual list length rather than this value. 
- * The method is simply here for java bean completeness.
- * @param pNumberOfIFFFundamentalParameterDataRecordsParameters passed parameter
- * @return this object
- */
-public synchronized IFFPduLayer5Data setNumberOfIFFFundamentalParameterDataRecordsParameters(short pNumberOfIFFFundamentalParameterDataRecordsParameters)
-{
-    numberOfIFFFundamentalParameterDataRecordsParameters = pNumberOfIFFFundamentalParameterDataRecordsParameters;
-    return this;
 }
 
 /** Setter for {@link IFFPduLayer5Data#IFFFundamentalParameterDataRecord}
   * @param pIFFFundamentalParameterDataRecord new value of interest
   * @return same object to permit progressive setters */
-public synchronized IFFPduLayer5Data setIFFFundamentalParameterDataRecord(List<IFFDataSpecification> pIFFFundamentalParameterDataRecord)
+public synchronized IFFPduLayer5Data setIFFFundamentalParameterDataRecord(IFFDataSpecification pIFFFundamentalParameterDataRecord)
 {
     IFFFundamentalParameterDataRecord = pIFFFundamentalParameterDataRecord;
     return this;
 }
 /** Getter for {@link IFFPduLayer5Data#IFFFundamentalParameterDataRecord}
   * @return value of interest */
-public List<IFFDataSpecification> getIFFFundamentalParameterDataRecord()
+public IFFDataSpecification getIFFFundamentalParameterDataRecord()
 {
-    return IFFFundamentalParameterDataRecord; 
+    return IFFFundamentalParameterDataRecord;
 }
+
 
 /**
  * Serializes an object to a DataOutputStream.
@@ -269,27 +225,16 @@ public List<IFFDataSpecification> getIFFFundamentalParameterDataRecord()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        layerHeader.marshal(dos);
-       dos.writeShort(siteNumber);
-       dos.writeShort(applicationNumber);
-       dos.writeShort(padding);
-       dos.writeByte(applicableLayers);
+       dos.writeShort((short) siteNumber);
+       dos.writeShort((short) applicationNumber);
+       dos.writeShort((short) padding);
+       dos.writeByte((byte) applicableLayers);
        dataCategory.marshal(dos);
-       dos.writeShort(padding2);
-       dos.writeShort(IFFFundamentalParameterDataRecord.size());
-
-       for (int idx = 0; idx < IFFFundamentalParameterDataRecord.size(); idx++)
-       {
-            IFFDataSpecification aIFFDataSpecification = IFFFundamentalParameterDataRecord.get(idx);
-            aIFFDataSpecification.marshal(dos);
-       }
-
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) padding2);
+       IFFFundamentalParameterDataRecord.marshal(dos);
     }
 }
 
@@ -307,34 +252,22 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += layerHeader.unmarshal(dis);
-        siteNumber = (short)dis.readUnsignedShort();
+        siteNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        applicationNumber = (short)dis.readUnsignedShort();
+        applicationNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        applicableLayers = (byte)dis.readUnsignedByte();
+        applicableLayers = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         dataCategory = DataCategory.unmarshalEnum(dis);
         uPosition += dataCategory.getMarshalledSize();
-        padding2 = (short)dis.readUnsignedShort();
+        padding2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        numberOfIFFFundamentalParameterDataRecordsParameters = (short)dis.readUnsignedShort();
-        uPosition += 2;
-        for (int idx = 0; idx < numberOfIFFFundamentalParameterDataRecordsParameters; idx++)
-        {
-            IFFDataSpecification anX = new IFFDataSpecification();
-            uPosition += anX.unmarshal(dis);
-            IFFFundamentalParameterDataRecord.add(anX);
-        }
-
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
+        uPosition += IFFFundamentalParameterDataRecord.unmarshal(dis);
     }
     return getMarshalledSize();
 }
@@ -352,20 +285,13 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    layerHeader.marshal(byteBuffer);
-   byteBuffer.putShort( (short)siteNumber);
-   byteBuffer.putShort( (short)applicationNumber);
-   byteBuffer.putShort( (short)padding);
-   byteBuffer.put( (byte)applicableLayers);
+   byteBuffer.putShort((short) siteNumber);
+   byteBuffer.putShort((short) applicationNumber);
+   byteBuffer.putShort((short) padding);
+   byteBuffer.put((byte) applicableLayers);
    dataCategory.marshal(byteBuffer);
-   byteBuffer.putShort( (short)padding2);
-   byteBuffer.putShort( (short)IFFFundamentalParameterDataRecord.size());
-
-   for (int idx = 0; idx < IFFFundamentalParameterDataRecord.size(); idx++)
-   {
-        IFFDataSpecification aIFFDataSpecification = IFFFundamentalParameterDataRecord.get(idx);
-        aIFFDataSpecification.marshal(byteBuffer);
-   }
-
+   byteBuffer.putShort((short) padding2);
+   IFFFundamentalParameterDataRecord.marshal(byteBuffer);
 }
 
 /**
@@ -382,38 +308,86 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute layerHeader marked as not serialized
         layerHeader.unmarshal(byteBuffer);
-        // attribute siteNumber marked as not serialized
-        siteNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute applicationNumber marked as not serialized
-        applicationNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute applicableLayers marked as not serialized
-        applicableLayers = (byte)(byteBuffer.get() & 0xFF);
-        // attribute dataCategory marked as not serialized
+        siteNumber = Short.toUnsignedInt(byteBuffer.getShort());
+        applicationNumber = Short.toUnsignedInt(byteBuffer.getShort());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
+        applicableLayers = Byte.toUnsignedInt(byteBuffer.get());
         dataCategory = DataCategory.unmarshalEnum(byteBuffer);
-        // attribute padding2 marked as not serialized
-        padding2 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute numberOfIFFFundamentalParameterDataRecordsParameters marked as not serialized
-        numberOfIFFFundamentalParameterDataRecordsParameters = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute IFFFundamentalParameterDataRecord marked as not serialized
-        for (int idx = 0; idx < numberOfIFFFundamentalParameterDataRecordsParameters; idx++)
-        {
-        IFFDataSpecification anX = new IFFDataSpecification();
-        anX.unmarshal(byteBuffer);
-        IFFFundamentalParameterDataRecord.add(anX);
-        }
-
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding2 = Short.toUnsignedInt(byteBuffer.getShort());
+        IFFFundamentalParameterDataRecord.unmarshal(byteBuffer);
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = AbstractIFFPduLayerData.fromBufferToMap(byteBuffer);
+
+    map.put("layerHeader", LayerHeader.fromBufferToMap(byteBuffer));
+    map.put("siteNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("applicationNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("applicableLayers", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("dataCategory", DataCategory.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("IFFFundamentalParameterDataRecord", IFFDataSpecification.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    AbstractIFFPduLayerData.fromMapToBuffer(map, byteBuffer);
+    LayerHeader.fromMapToBuffer((PduMap) map.get("layerHeader"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("siteNumber")).shortValue());
+    byteBuffer.putShort(((Number) map.get("applicationNumber")).shortValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+    byteBuffer.put(((Number) map.get("applicableLayers")).byteValue());
+    DataCategory.getEnumForValue(((Number) map.get("dataCategory")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+    IFFDataSpecification.fromMapToBuffer((PduMap) map.get("IFFFundamentalParameterDataRecord"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += AbstractIFFPduLayerData.getMarshalledSize(map);
+    marshalSize += LayerHeader.getMarshalledSize((PduMap) map.get("layerHeader"));
+    marshalSize += 2;  // siteNumber
+    marshalSize += 2;  // applicationNumber
+    marshalSize += 2;  // padding
+    marshalSize += 1;  // applicableLayers
+    marshalSize += DataCategory.getEnumForValue(((Number) map.get("dataCategory")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // padding2
+    marshalSize += IFFDataSpecification.getMarshalledSize((PduMap) map.get("IFFFundamentalParameterDataRecord"));
+
+    return marshalSize;
 }
 
  /*
@@ -446,7 +420,6 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
      if( ! (applicableLayers == rhs.applicableLayers)) return false;
      if( ! (dataCategory == rhs.dataCategory)) return false;
      if( ! (padding2 == rhs.padding2)) return false;
-     if( ! (numberOfIFFFundamentalParameterDataRecordsParameters == rhs.numberOfIFFFundamentalParameterDataRecordsParameters)) return false;
      if( ! Objects.equals(IFFFundamentalParameterDataRecord, rhs.IFFFundamentalParameterDataRecord) ) return false;
     return super.equalsImpl(rhs);
  }
@@ -456,7 +429,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" layerHeader:").append(layerHeader); // writeOneToString
     sb.append(" siteNumber:").append(siteNumber); // writeOneToString
     sb.append(" applicationNumber:").append(applicationNumber); // writeOneToString
@@ -464,12 +437,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     sb.append(" applicableLayers:").append(applicableLayers); // writeOneToString
     sb.append(" dataCategory:").append(dataCategory); // writeOneToString
     sb.append(" padding2:").append(padding2); // writeOneToString
-    sb.append(" numberOfIFFFundamentalParameterDataRecordsParameters:").append(numberOfIFFFundamentalParameterDataRecordsParameters); // writeOneToString
-    sb.append(" IFFFundamentalParameterDataRecord: ");
-    IFFFundamentalParameterDataRecord.forEach(r->{ sb2.append(" ").append(r);}); // writeList
-    sb.append(sb2.toString().trim());
-    // https://stackoverflow.com/questions/2242471/clearing-a-string-buffer-builder-after-loop
-    sb2.setLength(0); // reset
+    sb.append(" IFFFundamentalParameterDataRecord:").append(IFFFundamentalParameterDataRecord); // writeOneToString
 
    return sb.toString();
  }
@@ -484,7 +452,6 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	                     this.applicableLayers,
 	                     this.dataCategory,
 	                     this.padding2,
-	                     this.numberOfIFFFundamentalParameterDataRecordsParameters,
 	                     this.IFFFundamentalParameterDataRecord);
  }
 } // end of IFFPduLayer5Data

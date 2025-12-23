@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * 6.2.48.2
@@ -22,14 +24,16 @@ public class IOCommsNodeRecord extends IORecord implements Serializable, Marshal
    /**  uid 66 Variable Record Type values are defined by VariableRecordType enumerations */
    protected VariableRecordType recordType = VariableRecordType.IO_COMMUNICATIONS_NODE;
 
-   /** recordLength is an undescribed parameter... */
-   protected short recordLength;
+   /** recordLength is an undescribed parameter...
+   Value space: uint16 */
+   protected int recordLength;
 
    /**  uid 294 */
    protected IOCommsNodeRecordCommsNodeType commsNodeType = IOCommsNodeRecordCommsNodeType.values()[0];
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected byte padding;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint8 */
+   protected int padding;
 
    /** commsNodeId is an undescribed parameter... */
    protected CommunicationsNodeID  commsNodeId = new CommunicationsNodeID(); 
@@ -80,23 +84,18 @@ public VariableRecordType getRecordType()
 }
 
 /** Setter for {@link IOCommsNodeRecord#recordLength}
-  * @param pRecordLength new value of interest
+  * @param pRecordLength new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized IOCommsNodeRecord setRecordLength(short pRecordLength)
+public synchronized IOCommsNodeRecord setRecordLength(int pRecordLength)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pRecordLength >= 0 && pRecordLength <= 65535, "Value outside valid value space");
     recordLength = pRecordLength;
-    return this;
-}
-/** Utility setter for {@link IOCommsNodeRecord#recordLength}
-  * @param pRecordLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IOCommsNodeRecord setRecordLength(int pRecordLength){
-    recordLength = (short) pRecordLength;
     return this;
 }
 /** Getter for {@link IOCommsNodeRecord#recordLength}
   * @return value of interest */
-public short getRecordLength()
+public int getRecordLength()
 {
     return recordLength; 
 }
@@ -117,23 +116,18 @@ public IOCommsNodeRecordCommsNodeType getCommsNodeType()
 }
 
 /** Setter for {@link IOCommsNodeRecord#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized IOCommsNodeRecord setPadding(byte pPadding)
+public synchronized IOCommsNodeRecord setPadding(int pPadding)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 255, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link IOCommsNodeRecord#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IOCommsNodeRecord setPadding(int pPadding){
-    padding = (byte) pPadding;
     return this;
 }
 /** Getter for {@link IOCommsNodeRecord#padding}
   * @return value of interest */
-public byte getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -164,17 +158,13 @@ public CommunicationsNodeID getCommsNodeId()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        recordType.marshal(dos);
-       dos.writeShort(recordLength);
+       dos.writeShort((short) recordLength);
        commsNodeType.marshal(dos);
-       dos.writeByte(padding);
+       dos.writeByte((byte) padding);
        commsNodeId.marshal(dos);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -192,21 +182,17 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         recordType = VariableRecordType.unmarshalEnum(dis);
         uPosition += recordType.getMarshalledSize();
-        recordLength = (short)dis.readUnsignedShort();
+        recordLength = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         commsNodeType = IOCommsNodeRecordCommsNodeType.unmarshalEnum(dis);
         uPosition += commsNodeType.getMarshalledSize();
-        padding = (byte)dis.readUnsignedByte();
+        padding = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += commsNodeId.unmarshal(dis);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -224,9 +210,9 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    recordType.marshal(byteBuffer);
-   byteBuffer.putShort( (short)recordLength);
+   byteBuffer.putShort((short) recordLength);
    commsNodeType.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding);
+   byteBuffer.put((byte) padding);
    commsNodeId.marshal(byteBuffer);
 }
 
@@ -244,24 +230,74 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute recordType marked as not serialized
         recordType = VariableRecordType.unmarshalEnum(byteBuffer);
-        // attribute recordLength marked as not serialized
-        recordLength = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute commsNodeType marked as not serialized
+        recordLength = Short.toUnsignedInt(byteBuffer.getShort());
         commsNodeType = IOCommsNodeRecordCommsNodeType.unmarshalEnum(byteBuffer);
-        // attribute padding marked as not serialized
-        padding = (byte)(byteBuffer.get() & 0xFF);
-        // attribute commsNodeId marked as not serialized
+        padding = Byte.toUnsignedInt(byteBuffer.get());
         commsNodeId.unmarshal(byteBuffer);
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = IORecord.fromBufferToMap(byteBuffer);
+
+    map.put("recordType", VariableRecordType.unmarshalEnum(byteBuffer).getValue());
+    map.put("recordLength", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("commsNodeType", IOCommsNodeRecordCommsNodeType.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("commsNodeId", CommunicationsNodeID.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    IORecord.fromMapToBuffer(map, byteBuffer);
+    VariableRecordType.getEnumForValue(((Number) map.get("recordType")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("recordLength")).shortValue());
+    IOCommsNodeRecordCommsNodeType.getEnumForValue(((Number) map.get("commsNodeType")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding")).byteValue());
+    CommunicationsNodeID.fromMapToBuffer((PduMap) map.get("commsNodeId"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += IORecord.getMarshalledSize(map);
+    marshalSize += VariableRecordType.getEnumForValue(((Number) map.get("recordType")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // recordLength
+    marshalSize += IOCommsNodeRecordCommsNodeType.getEnumForValue(((Number) map.get("commsNodeType")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding
+    marshalSize += CommunicationsNodeID.getMarshalledSize((PduMap) map.get("commsNodeId"));
+
+    return marshalSize;
 }
 
  /*
@@ -300,7 +336,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" recordType:").append(recordType); // writeOneToString
     sb.append(" recordLength:").append(recordLength); // writeOneToString
     sb.append(" commsNodeType:").append(commsNodeType); // writeOneToString

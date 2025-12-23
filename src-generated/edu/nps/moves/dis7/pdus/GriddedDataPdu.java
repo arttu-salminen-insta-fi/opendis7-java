@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -27,20 +29,24 @@ public class GriddedDataPdu extends SyntheticEnvironmentFamilyPdu implements Ser
    /** environmental simulation application ID provides a unique identifier */
    protected SimulationIdentifier  environmentalSimulationApplicationID = new SimulationIdentifier(); 
 
-   /** unique identifier for each piece of environmental data */
-   protected short fieldNumber;
+   /** unique identifier for each piece of environmental data 
+   Value space: uint16 */
+   protected int fieldNumber;
 
-   /** sequence number for the total set of PDUS used to transmit the data */
-   protected short pduNumber;
+   /** sequence number for the total set of PDUS used to transmit the data 
+   Value space: uint16 */
+   protected int pduNumber;
 
-   /** Total number of PDUS used to transmit the data */
-   protected short pduTotal;
+   /** Total number of PDUS used to transmit the data 
+   Value space: uint16 */
+   protected int pduTotal;
 
    /** coordinate system of the grid uid 244 */
    protected GriddedDataCoordinateSystem coordinateSystem = GriddedDataCoordinateSystem.values()[0];
 
-   /** number of grid axes for the environmental data */
-   protected byte numberOfGridAxes;
+   /** number of grid axes for the environmental data 
+   Value space: uint8 */
+   protected int numberOfGridAxes;
 
    /** are domain grid axes identidal to those of the priveious domain update? uid 245 */
    protected GriddedDataConstantGrid constantGrid = GriddedDataConstantGrid.values()[0];
@@ -54,17 +60,21 @@ public class GriddedDataPdu extends SyntheticEnvironmentFamilyPdu implements Ser
    /** valid time of the enviormental data sample, 64-bit unsigned int */
    protected ClockTime  sampleTime = new ClockTime(); 
 
-   /** total number of all data values for all pdus for an environmental sample */
-   protected int totalValues;
+   /** total number of all data values for all pdus for an environmental sample 
+   Value space: uint32 */
+   protected UnsignedInteger totalValues = UnsignedInteger.ZERO;
 
-   /** total number of data values at each grid point. */
-   protected byte vectorDimension;
+   /** total number of data values at each grid point. 
+   Value space: uint8 */
+   protected int vectorDimension;
 
-   /** padding */
-   protected byte padding1;
+   /** padding 
+   Value space: uint8 */
+   protected int padding1;
 
-   /** padding */
-   protected short padding2;
+   /** padding 
+   Value space: uint16 */
+   protected int padding2;
 
    /** gridAxisDescriptors is an undescribed parameter... */
    protected List< GridAxisDescriptor > gridAxisDescriptors = new ArrayList<>();
@@ -206,67 +216,52 @@ public SimulationIdentifier getEnvironmentalSimulationApplicationID()
 
 
 /** Setter for {@link GriddedDataPdu#fieldNumber}
-  * @param pFieldNumber new value of interest
+  * @param pFieldNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized GriddedDataPdu setFieldNumber(short pFieldNumber)
+public synchronized GriddedDataPdu setFieldNumber(int pFieldNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pFieldNumber >= 0 && pFieldNumber <= 65535, "Value outside valid value space");
     fieldNumber = pFieldNumber;
-    return this;
-}
-/** Utility setter for {@link GriddedDataPdu#fieldNumber}
-  * @param pFieldNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GriddedDataPdu setFieldNumber(int pFieldNumber){
-    fieldNumber = (short) pFieldNumber;
     return this;
 }
 /** Getter for {@link GriddedDataPdu#fieldNumber}
   * @return value of interest */
-public short getFieldNumber()
+public int getFieldNumber()
 {
     return fieldNumber; 
 }
 
 /** Setter for {@link GriddedDataPdu#pduNumber}
-  * @param pPduNumber new value of interest
+  * @param pPduNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized GriddedDataPdu setPduNumber(short pPduNumber)
+public synchronized GriddedDataPdu setPduNumber(int pPduNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPduNumber >= 0 && pPduNumber <= 65535, "Value outside valid value space");
     pduNumber = pPduNumber;
-    return this;
-}
-/** Utility setter for {@link GriddedDataPdu#pduNumber}
-  * @param pPduNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GriddedDataPdu setPduNumber(int pPduNumber){
-    pduNumber = (short) pPduNumber;
     return this;
 }
 /** Getter for {@link GriddedDataPdu#pduNumber}
   * @return value of interest */
-public short getPduNumber()
+public int getPduNumber()
 {
     return pduNumber; 
 }
 
 /** Setter for {@link GriddedDataPdu#pduTotal}
-  * @param pPduTotal new value of interest
+  * @param pPduTotal new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized GriddedDataPdu setPduTotal(short pPduTotal)
+public synchronized GriddedDataPdu setPduTotal(int pPduTotal)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPduTotal >= 0 && pPduTotal <= 65535, "Value outside valid value space");
     pduTotal = pPduTotal;
-    return this;
-}
-/** Utility setter for {@link GriddedDataPdu#pduTotal}
-  * @param pPduTotal new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GriddedDataPdu setPduTotal(int pPduTotal){
-    pduTotal = (short) pPduTotal;
     return this;
 }
 /** Getter for {@link GriddedDataPdu#pduTotal}
   * @return value of interest */
-public short getPduTotal()
+public int getPduTotal()
 {
     return pduTotal; 
 }
@@ -350,82 +345,67 @@ public ClockTime getSampleTime()
 
 
 /** Setter for {@link GriddedDataPdu#totalValues}
-  * @param pTotalValues new value of interest
+  * @param pTotalValues new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized GriddedDataPdu setTotalValues(int pTotalValues)
+public synchronized GriddedDataPdu setTotalValues(UnsignedInteger pTotalValues)
 {
     totalValues = pTotalValues;
     return this;
 }
 /** Getter for {@link GriddedDataPdu#totalValues}
   * @return value of interest */
-public int getTotalValues()
+public UnsignedInteger getTotalValues()
 {
     return totalValues; 
 }
 
 /** Setter for {@link GriddedDataPdu#vectorDimension}
-  * @param pVectorDimension new value of interest
+  * @param pVectorDimension new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized GriddedDataPdu setVectorDimension(byte pVectorDimension)
+public synchronized GriddedDataPdu setVectorDimension(int pVectorDimension)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pVectorDimension >= 0 && pVectorDimension <= 255, "Value outside valid value space");
     vectorDimension = pVectorDimension;
-    return this;
-}
-/** Utility setter for {@link GriddedDataPdu#vectorDimension}
-  * @param pVectorDimension new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GriddedDataPdu setVectorDimension(int pVectorDimension){
-    vectorDimension = (byte) pVectorDimension;
     return this;
 }
 /** Getter for {@link GriddedDataPdu#vectorDimension}
   * @return value of interest */
-public byte getVectorDimension()
+public int getVectorDimension()
 {
     return vectorDimension; 
 }
 
 /** Setter for {@link GriddedDataPdu#padding1}
-  * @param pPadding1 new value of interest
+  * @param pPadding1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized GriddedDataPdu setPadding1(byte pPadding1)
+public synchronized GriddedDataPdu setPadding1(int pPadding1)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 255, "Value outside valid value space");
     padding1 = pPadding1;
-    return this;
-}
-/** Utility setter for {@link GriddedDataPdu#padding1}
-  * @param pPadding1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GriddedDataPdu setPadding1(int pPadding1){
-    padding1 = (byte) pPadding1;
     return this;
 }
 /** Getter for {@link GriddedDataPdu#padding1}
   * @return value of interest */
-public byte getPadding1()
+public int getPadding1()
 {
     return padding1; 
 }
 
 /** Setter for {@link GriddedDataPdu#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized GriddedDataPdu setPadding2(short pPadding2)
+public synchronized GriddedDataPdu setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 65535, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link GriddedDataPdu#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized GriddedDataPdu setPadding2(int pPadding2){
-    padding2 = (short) pPadding2;
     return this;
 }
 /** Getter for {@link GriddedDataPdu#padding2}
   * @return value of interest */
-public short getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
@@ -470,22 +450,22 @@ public List<GridData> getGridDataRecords()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        environmentalSimulationApplicationID.marshal(dos);
-       dos.writeShort(fieldNumber);
-       dos.writeShort(pduNumber);
-       dos.writeShort(pduTotal);
+       dos.writeShort((short) fieldNumber);
+       dos.writeShort((short) pduNumber);
+       dos.writeShort((short) pduTotal);
        coordinateSystem.marshal(dos);
        dos.writeByte(gridDataRecords.size());
        constantGrid.marshal(dos);
        environmentType.marshal(dos);
        orientation.marshal(dos);
        sampleTime.marshal(dos);
-       dos.writeInt(totalValues);
-       dos.writeByte(vectorDimension);
-       dos.writeByte(padding1);
-       dos.writeShort(padding2);
+       dos.writeInt(totalValues.intValue());
+       dos.writeByte((byte) vectorDimension);
+       dos.writeByte((byte) padding1);
+       dos.writeShort((short) padding2);
 
        for (int idx = 0; idx < gridAxisDescriptors.size(); idx++)
        {
@@ -500,10 +480,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aGridData.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -521,50 +497,46 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += environmentalSimulationApplicationID.unmarshal(dis);
-        fieldNumber = (short)dis.readUnsignedShort();
+        fieldNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        pduNumber = (short)dis.readUnsignedShort();
+        pduNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        pduTotal = (short)dis.readUnsignedShort();
+        pduTotal = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         coordinateSystem = GriddedDataCoordinateSystem.unmarshalEnum(dis);
         uPosition += coordinateSystem.getMarshalledSize();
-        numberOfGridAxes = (byte)dis.readUnsignedByte();
+        numberOfGridAxes = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         constantGrid = GriddedDataConstantGrid.unmarshalEnum(dis);
         uPosition += constantGrid.getMarshalledSize();
         uPosition += environmentType.unmarshal(dis);
         uPosition += orientation.unmarshal(dis);
         uPosition += sampleTime.unmarshal(dis);
-        totalValues = dis.readInt();
+        totalValues = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        vectorDimension = (byte)dis.readUnsignedByte();
+        vectorDimension = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding1 = (byte)dis.readUnsignedByte();
+        padding1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding2 = (short)dis.readUnsignedShort();
+        padding2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < numberOfGridAxes; idx++)
+        for (int idx = 0; idx < ((Number) numberOfGridAxes).intValue(); idx++)
         {
             GridAxisDescriptor anX = new GridAxisDescriptor();
             uPosition += anX.unmarshal(dis);
             gridAxisDescriptors.add(anX);
         }
 
-        for (int idx = 0; idx < numberOfGridAxes; idx++)
+        for (int idx = 0; idx < ((Number) numberOfGridAxes).intValue(); idx++)
         {
             GridData anX = new GridData();
             uPosition += anX.unmarshal(dis);
             gridDataRecords.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -582,19 +554,19 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    environmentalSimulationApplicationID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)fieldNumber);
-   byteBuffer.putShort( (short)pduNumber);
-   byteBuffer.putShort( (short)pduTotal);
+   byteBuffer.putShort((short) fieldNumber);
+   byteBuffer.putShort((short) pduNumber);
+   byteBuffer.putShort((short) pduTotal);
    coordinateSystem.marshal(byteBuffer);
    byteBuffer.put( (byte)gridDataRecords.size());
    constantGrid.marshal(byteBuffer);
    environmentType.marshal(byteBuffer);
    orientation.marshal(byteBuffer);
    sampleTime.marshal(byteBuffer);
-   byteBuffer.putInt( (int)totalValues);
-   byteBuffer.put( (byte)vectorDimension);
-   byteBuffer.put( (byte)padding1);
-   byteBuffer.putShort( (short)padding2);
+   byteBuffer.putInt(totalValues.intValue());
+   byteBuffer.put((byte) vectorDimension);
+   byteBuffer.put((byte) padding1);
+   byteBuffer.putShort((short) padding2);
 
    for (int idx = 0; idx < gridAxisDescriptors.size(); idx++)
    {
@@ -625,58 +597,158 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute environmentalSimulationApplicationID marked as not serialized
         environmentalSimulationApplicationID.unmarshal(byteBuffer);
-        // attribute fieldNumber marked as not serialized
-        fieldNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute pduNumber marked as not serialized
-        pduNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute pduTotal marked as not serialized
-        pduTotal = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute coordinateSystem marked as not serialized
+        fieldNumber = Short.toUnsignedInt(byteBuffer.getShort());
+        pduNumber = Short.toUnsignedInt(byteBuffer.getShort());
+        pduTotal = Short.toUnsignedInt(byteBuffer.getShort());
         coordinateSystem = GriddedDataCoordinateSystem.unmarshalEnum(byteBuffer);
-        // attribute numberOfGridAxes marked as not serialized
-        numberOfGridAxes = (byte)(byteBuffer.get() & 0xFF);
-        // attribute constantGrid marked as not serialized
+        numberOfGridAxes = Byte.toUnsignedInt(byteBuffer.get());
         constantGrid = GriddedDataConstantGrid.unmarshalEnum(byteBuffer);
-        // attribute environmentType marked as not serialized
         environmentType.unmarshal(byteBuffer);
-        // attribute orientation marked as not serialized
         orientation.unmarshal(byteBuffer);
-        // attribute sampleTime marked as not serialized
         sampleTime.unmarshal(byteBuffer);
-        // attribute totalValues marked as not serialized
-        totalValues = byteBuffer.getInt();
-        // attribute vectorDimension marked as not serialized
-        vectorDimension = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding1 marked as not serialized
-        padding1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding2 marked as not serialized
-        padding2 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute gridAxisDescriptors marked as not serialized
-        for (int idx = 0; idx < numberOfGridAxes; idx++)
+        totalValues = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        vectorDimension = Byte.toUnsignedInt(byteBuffer.get());
+        padding1 = Byte.toUnsignedInt(byteBuffer.get());
+        padding2 = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) numberOfGridAxes).intValue(); idx++)
         {
-        GridAxisDescriptor anX = new GridAxisDescriptor();
-        anX.unmarshal(byteBuffer);
-        gridAxisDescriptors.add(anX);
+            GridAxisDescriptor anX = new GridAxisDescriptor();
+            anX.unmarshal(byteBuffer);
+            gridAxisDescriptors.add(anX);
         }
 
-        // attribute gridDataRecords marked as not serialized
-        for (int idx = 0; idx < numberOfGridAxes; idx++)
+        for (int idx = 0; idx < ((Number) numberOfGridAxes).intValue(); idx++)
         {
-        GridData anX = new GridData();
-        anX.unmarshal(byteBuffer);
-        gridDataRecords.add(anX);
+            GridData anX = new GridData();
+            anX.unmarshal(byteBuffer);
+            gridDataRecords.add(anX);
         }
 
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = SyntheticEnvironmentFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("environmentalSimulationApplicationID", SimulationIdentifier.fromBufferToMap(byteBuffer));
+    map.put("fieldNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("pduNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("pduTotal", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("coordinateSystem", GriddedDataCoordinateSystem.unmarshalEnum(byteBuffer).getValue());
+    map.put("numberOfGridAxes", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("constantGrid", GriddedDataConstantGrid.unmarshalEnum(byteBuffer).getValue());
+    map.put("environmentType", EntityType.fromBufferToMap(byteBuffer));
+    map.put("orientation", EulerAngles.fromBufferToMap(byteBuffer));
+    map.put("sampleTime", ClockTime.fromBufferToMap(byteBuffer));
+    map.put("totalValues", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("vectorDimension", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
+    List gridAxisDescriptors = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfGridAxes")).intValue(); idx++)
+    {
+        gridAxisDescriptors.add(GridAxisDescriptor.fromBufferToMap(byteBuffer));
+    }
+    map.put("gridAxisDescriptors", gridAxisDescriptors);
+
+    List gridDataRecords = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfGridAxes")).intValue(); idx++)
+    {
+        gridDataRecords.add(GridData.fromBufferToMap(byteBuffer));
+    }
+    map.put("gridDataRecords", gridDataRecords);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    SyntheticEnvironmentFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    SimulationIdentifier.fromMapToBuffer((PduMap) map.get("environmentalSimulationApplicationID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("fieldNumber")).shortValue());
+    byteBuffer.putShort(((Number) map.get("pduNumber")).shortValue());
+    byteBuffer.putShort(((Number) map.get("pduTotal")).shortValue());
+    GriddedDataCoordinateSystem.getEnumForValue(((Number) map.get("coordinateSystem")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("numberOfGridAxes")).byteValue());
+    GriddedDataConstantGrid.getEnumForValue(((Number) map.get("constantGrid")).intValue()).marshal(byteBuffer);
+    EntityType.fromMapToBuffer((PduMap) map.get("environmentType"), byteBuffer);
+    EulerAngles.fromMapToBuffer((PduMap) map.get("orientation"), byteBuffer);
+    ClockTime.fromMapToBuffer((PduMap) map.get("sampleTime"), byteBuffer);
+    byteBuffer.putInt(((Number) map.get("totalValues")).intValue());
+    byteBuffer.put(((Number) map.get("vectorDimension")).byteValue());
+    byteBuffer.put(((Number) map.get("padding1")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+
+    List gridAxisDescriptors = (List) map.get("gridAxisDescriptors");
+    for (int idx = 0; idx < ((Number) map.get("numberOfGridAxes")).intValue(); idx++)
+    {
+        GridAxisDescriptor.fromMapToBuffer((PduMap) gridAxisDescriptors.get(idx), byteBuffer);
+    }
+
+
+    List gridDataRecords = (List) map.get("gridDataRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfGridAxes")).intValue(); idx++)
+    {
+        GridData.fromMapToBuffer((PduMap) gridDataRecords.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += SyntheticEnvironmentFamilyPdu.getMarshalledSize(map);
+    marshalSize += SimulationIdentifier.getMarshalledSize((PduMap) map.get("environmentalSimulationApplicationID"));
+    marshalSize += 2;  // fieldNumber
+    marshalSize += 2;  // pduNumber
+    marshalSize += 2;  // pduTotal
+    marshalSize += GriddedDataCoordinateSystem.getEnumForValue(((Number) map.get("coordinateSystem")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // numberOfGridAxes
+    marshalSize += GriddedDataConstantGrid.getEnumForValue(((Number) map.get("constantGrid")).intValue()).getMarshalledSize();
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("environmentType"));
+    marshalSize += EulerAngles.getMarshalledSize((PduMap) map.get("orientation"));
+    marshalSize += ClockTime.getMarshalledSize((PduMap) map.get("sampleTime"));
+    marshalSize += 4;  // totalValues
+    marshalSize += 1;  // vectorDimension
+    marshalSize += 1;  // padding1
+    marshalSize += 2;  // padding2
+    List gridAxisDescriptors = (List) map.get("gridAxisDescriptors");
+    for (int idx = 0; idx < ((Number) map.get("numberOfGridAxes")).intValue(); idx++)
+        marshalSize += GridAxisDescriptor.getMarshalledSize((PduMap) gridAxisDescriptors.get(idx));
+    List gridDataRecords = (List) map.get("gridDataRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfGridAxes")).intValue(); idx++)
+        marshalSize += GridData.getMarshalledSize((PduMap) gridDataRecords.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -725,7 +797,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" environmentalSimulationApplicationID:").append(environmentalSimulationApplicationID); // writeOneToString
     sb.append(" fieldNumber:").append(fieldNumber); // writeOneToString
     sb.append(" pduNumber:").append(pduNumber); // writeOneToString

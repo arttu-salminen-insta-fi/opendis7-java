@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -27,8 +29,9 @@ public class TSPIPdu extends LiveEntityFamilyPdu implements Serializable, Marsha
    /** liveEntityId is an undescribed parameter... */
    protected EntityID  liveEntityId = new EntityID(); 
 
-   /** bit field */
-   protected byte TSPIFlag;
+   /** bit field 
+   Value space: uint8 */
+   protected int TSPIFlag;
 
    /** entityLocation is an undescribed parameter... */
    protected LiveEntityRelativeWorldCoordinates  entityLocation = new LiveEntityRelativeWorldCoordinates(); 
@@ -48,11 +51,13 @@ public class TSPIPdu extends LiveEntityFamilyPdu implements Serializable, Marsha
    /** deadReckoningParameters is an undescribed parameter... */
    protected LiveDeadReckoningParameters  deadReckoningParameters = new LiveDeadReckoningParameters(); 
 
-   /** measuredSpeed is an undescribed parameter... */
-   protected short measuredSpeed;
+   /** measuredSpeed is an undescribed parameter...
+   Value space: uint16 */
+   protected int measuredSpeed;
 
-   /** systemSpecificDataLength is an undescribed parameter... */
-   protected byte systemSpecificDataLength;
+   /** systemSpecificDataLength is an undescribed parameter...
+   Value space: uint8 */
+   protected int systemSpecificDataLength;
 
    /** systemSpecificData is an undescribed parameter... */
    protected byte[]  systemSpecificData = new byte[0]; 
@@ -178,23 +183,18 @@ public EntityID getLiveEntityId()
 
 
 /** Setter for {@link TSPIPdu#TSPIFlag}
-  * @param pTSPIFlag new value of interest
+  * @param pTSPIFlag new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized TSPIPdu setTSPIFlag(byte pTSPIFlag)
+public synchronized TSPIPdu setTSPIFlag(int pTSPIFlag)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pTSPIFlag >= 0 && pTSPIFlag <= 255, "Value outside valid value space");
     TSPIFlag = pTSPIFlag;
-    return this;
-}
-/** Utility setter for {@link TSPIPdu#TSPIFlag}
-  * @param pTSPIFlag new value of interest
-  * @return same object to permit progressive setters */
-public synchronized TSPIPdu setTSPIFlag(int pTSPIFlag){
-    TSPIFlag = (byte) pTSPIFlag;
     return this;
 }
 /** Getter for {@link TSPIPdu#TSPIFlag}
   * @return value of interest */
-public byte getTSPIFlag()
+public int getTSPIFlag()
 {
     return TSPIFlag; 
 }
@@ -296,23 +296,18 @@ public LiveDeadReckoningParameters getDeadReckoningParameters()
 
 
 /** Setter for {@link TSPIPdu#measuredSpeed}
-  * @param pMeasuredSpeed new value of interest
+  * @param pMeasuredSpeed new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized TSPIPdu setMeasuredSpeed(short pMeasuredSpeed)
+public synchronized TSPIPdu setMeasuredSpeed(int pMeasuredSpeed)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pMeasuredSpeed >= 0 && pMeasuredSpeed <= 65535, "Value outside valid value space");
     measuredSpeed = pMeasuredSpeed;
-    return this;
-}
-/** Utility setter for {@link TSPIPdu#measuredSpeed}
-  * @param pMeasuredSpeed new value of interest
-  * @return same object to permit progressive setters */
-public synchronized TSPIPdu setMeasuredSpeed(int pMeasuredSpeed){
-    measuredSpeed = (short) pMeasuredSpeed;
     return this;
 }
 /** Getter for {@link TSPIPdu#measuredSpeed}
   * @return value of interest */
-public short getMeasuredSpeed()
+public int getMeasuredSpeed()
 {
     return measuredSpeed; 
 }
@@ -342,26 +337,23 @@ public byte[] getSystemSpecificData()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        liveEntityId.marshal(dos);
-       dos.writeByte(TSPIFlag);
+       dos.writeByte((byte) TSPIFlag);
        entityLocation.marshal(dos);
        entityLinearVelocity.marshal(dos);
        entityOrientation.marshal(dos);
        positionError.marshal(dos);
        orientationError.marshal(dos);
        deadReckoningParameters.marshal(dos);
-       dos.writeShort(measuredSpeed);
+       dos.writeShort((short) measuredSpeed);
+       // Count in primitive instances
        dos.writeByte(systemSpecificData.length);
 
        for (int idx = 0; idx < systemSpecificData.length; idx++)
            dos.writeByte(systemSpecificData[idx]);
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -379,10 +371,10 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += liveEntityId.unmarshal(dis);
-        TSPIFlag = (byte)dis.readUnsignedByte();
+        TSPIFlag = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += entityLocation.unmarshal(dis);
         uPosition += entityLinearVelocity.unmarshal(dis);
@@ -390,17 +382,14 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += positionError.unmarshal(dis);
         uPosition += orientationError.unmarshal(dis);
         uPosition += deadReckoningParameters.unmarshal(dis);
-        measuredSpeed = (short)dis.readUnsignedShort();
+        measuredSpeed = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        systemSpecificDataLength = (byte)dis.readUnsignedByte();
+        systemSpecificDataLength = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        for (int idx = 0; idx < systemSpecificData.length; idx++)
+        systemSpecificData = new byte[((Number) systemSpecificDataLength).intValue()];
+        for (int idx = 0; idx < ((Number) systemSpecificDataLength).intValue(); idx++)
             systemSpecificData[idx] = dis.readByte();
         uPosition += (systemSpecificData.length * 1);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -418,15 +407,16 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    liveEntityId.marshal(byteBuffer);
-   byteBuffer.put( (byte)TSPIFlag);
+   byteBuffer.put((byte) TSPIFlag);
    entityLocation.marshal(byteBuffer);
    entityLinearVelocity.marshal(byteBuffer);
    entityOrientation.marshal(byteBuffer);
    positionError.marshal(byteBuffer);
    orientationError.marshal(byteBuffer);
    deadReckoningParameters.marshal(byteBuffer);
-   byteBuffer.putShort( (short)measuredSpeed);
-   byteBuffer.put( (byte)systemSpecificData.length);
+   byteBuffer.putShort((short) measuredSpeed);
+   // Count in primitive instances
+   byteBuffer.put((byte) systemSpecificData.length);
 
    for (int idx = 0; idx < systemSpecificData.length; idx++)
        byteBuffer.put((byte)systemSpecificData[idx]);
@@ -447,37 +437,110 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute liveEntityId marked as not serialized
         liveEntityId.unmarshal(byteBuffer);
-        // attribute TSPIFlag marked as not serialized
-        TSPIFlag = (byte)(byteBuffer.get() & 0xFF);
-        // attribute entityLocation marked as not serialized
+        TSPIFlag = Byte.toUnsignedInt(byteBuffer.get());
         entityLocation.unmarshal(byteBuffer);
-        // attribute entityLinearVelocity marked as not serialized
         entityLinearVelocity.unmarshal(byteBuffer);
-        // attribute entityOrientation marked as not serialized
         entityOrientation.unmarshal(byteBuffer);
-        // attribute positionError marked as not serialized
         positionError.unmarshal(byteBuffer);
-        // attribute orientationError marked as not serialized
         orientationError.unmarshal(byteBuffer);
-        // attribute deadReckoningParameters marked as not serialized
         deadReckoningParameters.unmarshal(byteBuffer);
-        // attribute measuredSpeed marked as not serialized
-        measuredSpeed = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute systemSpecificDataLength marked as not serialized
-        systemSpecificDataLength = (byte)(byteBuffer.get() & 0xFF);
-        // attribute systemSpecificData marked as not serialized
-        for (int idx = 0; idx < systemSpecificData.length; idx++)
+        measuredSpeed = Short.toUnsignedInt(byteBuffer.getShort());
+        systemSpecificDataLength = Byte.toUnsignedInt(byteBuffer.get());
+        systemSpecificData = new byte[((Number) systemSpecificDataLength).intValue()];
+        for (int idx = 0; idx < ((Number) systemSpecificDataLength).intValue(); idx++)
             systemSpecificData[idx] = byteBuffer.get();
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = LiveEntityFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("liveEntityId", EntityID.fromBufferToMap(byteBuffer));
+    map.put("TSPIFlag", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("entityLocation", LiveEntityRelativeWorldCoordinates.fromBufferToMap(byteBuffer));
+    map.put("entityLinearVelocity", LiveEntityLinearVelocity.fromBufferToMap(byteBuffer));
+    map.put("entityOrientation", LiveEntityOrientation.fromBufferToMap(byteBuffer));
+    map.put("positionError", LiveEntityPositionError.fromBufferToMap(byteBuffer));
+    map.put("orientationError", LiveEntityOrientationError.fromBufferToMap(byteBuffer));
+    map.put("deadReckoningParameters", LiveDeadReckoningParameters.fromBufferToMap(byteBuffer));
+    map.put("measuredSpeed", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("systemSpecificDataLength", Byte.toUnsignedInt(byteBuffer.get()));
+    // Valid primitive list varying length
+    byte[] systemSpecificData = new byte[((Number) map.get("systemSpecificDataLength")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("systemSpecificDataLength")).intValue(); idx++)
+        systemSpecificData[idx] = byteBuffer.get();
+    map.put("systemSpecificData", systemSpecificData);
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    LiveEntityFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("liveEntityId"), byteBuffer);
+    byteBuffer.put(((Number) map.get("TSPIFlag")).byteValue());
+    LiveEntityRelativeWorldCoordinates.fromMapToBuffer((PduMap) map.get("entityLocation"), byteBuffer);
+    LiveEntityLinearVelocity.fromMapToBuffer((PduMap) map.get("entityLinearVelocity"), byteBuffer);
+    LiveEntityOrientation.fromMapToBuffer((PduMap) map.get("entityOrientation"), byteBuffer);
+    LiveEntityPositionError.fromMapToBuffer((PduMap) map.get("positionError"), byteBuffer);
+    LiveEntityOrientationError.fromMapToBuffer((PduMap) map.get("orientationError"), byteBuffer);
+    LiveDeadReckoningParameters.fromMapToBuffer((PduMap) map.get("deadReckoningParameters"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("measuredSpeed")).shortValue());
+    byteBuffer.put(((Number) map.get("systemSpecificDataLength")).byteValue());
+
+    byte[] systemSpecificData = (byte[]) map.get("systemSpecificData");
+    for (int idx = 0; idx < systemSpecificData.length; idx++)
+        byteBuffer.put(systemSpecificData[idx]);
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += LiveEntityFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("liveEntityId"));
+    marshalSize += 1;  // TSPIFlag
+    marshalSize += LiveEntityRelativeWorldCoordinates.getMarshalledSize((PduMap) map.get("entityLocation"));
+    marshalSize += LiveEntityLinearVelocity.getMarshalledSize((PduMap) map.get("entityLinearVelocity"));
+    marshalSize += LiveEntityOrientation.getMarshalledSize((PduMap) map.get("entityOrientation"));
+    marshalSize += LiveEntityPositionError.getMarshalledSize((PduMap) map.get("positionError"));
+    marshalSize += LiveEntityOrientationError.getMarshalledSize((PduMap) map.get("orientationError"));
+    marshalSize += LiveDeadReckoningParameters.getMarshalledSize((PduMap) map.get("deadReckoningParameters"));
+    marshalSize += 2;  // measuredSpeed
+    marshalSize += 1;  // systemSpecificDataLength
+    byte[] systemSpecificData = (byte[]) map.get("systemSpecificData");
+    for (int idx = 0; idx < systemSpecificData.length; idx++)
+        marshalSize += 1;
+
+    return marshalSize;
 }
 
  /*
@@ -526,7 +589,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" liveEntityId:").append(liveEntityId); // writeOneToString
     sb.append(" TSPIFlag:").append(TSPIFlag); // writeOneToString
     sb.append(" entityLocation:").append(entityLocation); // writeOneToString

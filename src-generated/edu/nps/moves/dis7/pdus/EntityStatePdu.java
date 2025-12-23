@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -30,8 +32,9 @@ public class EntityStatePdu extends EntityInformationInteractionFamilyPdu implem
    /** What force this entity is affiliated with, eg red, blue, neutral, etc uid 6 */
    protected ForceID forceId = ForceID.values()[0];
 
-   /** How many variable parameters are in the variable length list. In earlier versions of DIS these were known as articulation parameters */
-   protected byte numberOfVariableParameters;
+   /** How many variable parameters are in the variable length list. In earlier versions of DIS these were known as articulation parameters 
+   Value space: uint8 */
+   protected int numberOfVariableParameters;
 
    /** Describes the type of entity in the world */
    protected EntityType  entityType = new EntityType(); 
@@ -48,8 +51,9 @@ public class EntityStatePdu extends EntityInformationInteractionFamilyPdu implem
    /** describes the orientation of the entity, in euler angles with units of radians */
    protected EulerAngles  entityOrientation = new EulerAngles(); 
 
-   /** a series of bit flags that are used to help draw the entity, such as smoking, on fire, etc. */
-   protected int entityAppearance;
+   /** a series of bit flags that are used to help draw the entity, such as smoking, on fire, etc. 
+   Value space: uint32 */
+   protected UnsignedInteger entityAppearance = UnsignedInteger.ZERO;
 
    /** parameters used for dead reckoning */
    protected DeadReckoningParameters  deadReckoningParameters = new DeadReckoningParameters(); 
@@ -288,16 +292,16 @@ public EulerAngles getEntityOrientation()
 
 
 /** Setter for {@link EntityStatePdu#entityAppearance}
-  * @param pEntityAppearance new value of interest
+  * @param pEntityAppearance new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized EntityStatePdu setEntityAppearance(int pEntityAppearance)
+public synchronized EntityStatePdu setEntityAppearance(UnsignedInteger pEntityAppearance)
 {
     entityAppearance = pEntityAppearance;
     return this;
 }
 /** Getter for {@link EntityStatePdu#entityAppearance}
   * @return value of interest */
-public int getEntityAppearance()
+public UnsignedInteger getEntityAppearance()
 {
     return entityAppearance; 
 }
@@ -374,7 +378,7 @@ public List<VariableParameter> getVariableParameters()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        entityID.marshal(dos);
        forceId.marshal(dos);
@@ -384,7 +388,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        entityLinearVelocity.marshal(dos);
        entityLocation.marshal(dos);
        entityOrientation.marshal(dos);
-       dos.writeInt(entityAppearance);
+       dos.writeInt(entityAppearance.intValue());
        deadReckoningParameters.marshal(dos);
        marking.marshal(dos);
        capabilities.marshal(dos);
@@ -395,10 +399,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aVariableParameter.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -416,34 +416,30 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += entityID.unmarshal(dis);
         forceId = ForceID.unmarshalEnum(dis);
         uPosition += forceId.getMarshalledSize();
-        numberOfVariableParameters = (byte)dis.readUnsignedByte();
+        numberOfVariableParameters = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += entityType.unmarshal(dis);
         uPosition += alternativeEntityType.unmarshal(dis);
         uPosition += entityLinearVelocity.unmarshal(dis);
         uPosition += entityLocation.unmarshal(dis);
         uPosition += entityOrientation.unmarshal(dis);
-        entityAppearance = dis.readInt();
+        entityAppearance = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         uPosition += deadReckoningParameters.unmarshal(dis);
         uPosition += marking.unmarshal(dis);
         uPosition += capabilities.unmarshal(dis);
-        for (int idx = 0; idx < numberOfVariableParameters; idx++)
+        for (int idx = 0; idx < ((Number) numberOfVariableParameters).intValue(); idx++)
         {
             VariableParameter anX = new VariableParameter();
             uPosition += anX.unmarshal(dis);
             variableParameters.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -468,7 +464,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    entityLinearVelocity.marshal(byteBuffer);
    entityLocation.marshal(byteBuffer);
    entityOrientation.marshal(byteBuffer);
-   byteBuffer.putInt( (int)entityAppearance);
+   byteBuffer.putInt(entityAppearance.intValue());
    deadReckoningParameters.marshal(byteBuffer);
    marking.marshal(byteBuffer);
    capabilities.marshal(byteBuffer);
@@ -495,46 +491,126 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute entityID marked as not serialized
         entityID.unmarshal(byteBuffer);
-        // attribute forceId marked as not serialized
         forceId = ForceID.unmarshalEnum(byteBuffer);
-        // attribute numberOfVariableParameters marked as not serialized
-        numberOfVariableParameters = (byte)(byteBuffer.get() & 0xFF);
-        // attribute entityType marked as not serialized
+        numberOfVariableParameters = Byte.toUnsignedInt(byteBuffer.get());
         entityType.unmarshal(byteBuffer);
-        // attribute alternativeEntityType marked as not serialized
         alternativeEntityType.unmarshal(byteBuffer);
-        // attribute entityLinearVelocity marked as not serialized
         entityLinearVelocity.unmarshal(byteBuffer);
-        // attribute entityLocation marked as not serialized
         entityLocation.unmarshal(byteBuffer);
-        // attribute entityOrientation marked as not serialized
         entityOrientation.unmarshal(byteBuffer);
-        // attribute entityAppearance marked as not serialized
-        entityAppearance = byteBuffer.getInt();
-        // attribute deadReckoningParameters marked as not serialized
+        entityAppearance = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         deadReckoningParameters.unmarshal(byteBuffer);
-        // attribute marking marked as not serialized
         marking.unmarshal(byteBuffer);
-        // attribute capabilities marked as not serialized
         capabilities.unmarshal(byteBuffer);
-        // attribute variableParameters marked as not serialized
-        for (int idx = 0; idx < numberOfVariableParameters; idx++)
+        for (int idx = 0; idx < ((Number) numberOfVariableParameters).intValue(); idx++)
         {
-        VariableParameter anX = new VariableParameter();
-        anX.unmarshal(byteBuffer);
-        variableParameters.add(anX);
+            VariableParameter anX = new VariableParameter();
+            anX.unmarshal(byteBuffer);
+            variableParameters.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = EntityInformationInteractionFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("entityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("forceId", ForceID.unmarshalEnum(byteBuffer).getValue());
+    map.put("numberOfVariableParameters", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("entityType", EntityType.fromBufferToMap(byteBuffer));
+    map.put("alternativeEntityType", EntityType.fromBufferToMap(byteBuffer));
+    map.put("entityLinearVelocity", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("entityLocation", Vector3Double.fromBufferToMap(byteBuffer));
+    map.put("entityOrientation", EulerAngles.fromBufferToMap(byteBuffer));
+    map.put("entityAppearance", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("deadReckoningParameters", DeadReckoningParameters.fromBufferToMap(byteBuffer));
+    map.put("marking", EntityMarking.fromBufferToMap(byteBuffer));
+    map.put("capabilities", EntityCapabilities.unmarshallRawValue(byteBuffer));
+    List variableParameters = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableParameters")).intValue(); idx++)
+    {
+        variableParameters.add(VariableParameter.fromBufferToMap(byteBuffer));
+    }
+    map.put("variableParameters", variableParameters);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityInformationInteractionFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("entityID"), byteBuffer);
+    ForceID.getEnumForValue(((Number) map.get("forceId")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("numberOfVariableParameters")).byteValue());
+    EntityType.fromMapToBuffer((PduMap) map.get("entityType"), byteBuffer);
+    EntityType.fromMapToBuffer((PduMap) map.get("alternativeEntityType"), byteBuffer);
+    Vector3Float.fromMapToBuffer((PduMap) map.get("entityLinearVelocity"), byteBuffer);
+    Vector3Double.fromMapToBuffer((PduMap) map.get("entityLocation"), byteBuffer);
+    EulerAngles.fromMapToBuffer((PduMap) map.get("entityOrientation"), byteBuffer);
+    byteBuffer.putInt(((Number) map.get("entityAppearance")).intValue());
+    DeadReckoningParameters.fromMapToBuffer((PduMap) map.get("deadReckoningParameters"), byteBuffer);
+    EntityMarking.fromMapToBuffer((PduMap) map.get("marking"), byteBuffer);
+    EntityCapabilities.marshallRawValue(((Number) map.get("capabilities")).intValue(), byteBuffer);
+
+    List variableParameters = (List) map.get("variableParameters");
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableParameters")).intValue(); idx++)
+    {
+        VariableParameter.fromMapToBuffer((PduMap) variableParameters.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityInformationInteractionFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("entityID"));
+    marshalSize += ForceID.getEnumForValue(((Number) map.get("forceId")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // numberOfVariableParameters
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("entityType"));
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("alternativeEntityType"));
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("entityLinearVelocity"));
+    marshalSize += Vector3Double.getMarshalledSize((PduMap) map.get("entityLocation"));
+    marshalSize += EulerAngles.getMarshalledSize((PduMap) map.get("entityOrientation"));
+    marshalSize += 4;  // entityAppearance
+    marshalSize += DeadReckoningParameters.getMarshalledSize((PduMap) map.get("deadReckoningParameters"));
+    marshalSize += EntityMarking.getMarshalledSize((PduMap) map.get("marking"));
+    marshalSize += EntityCapabilities.getByteLength();
+    List variableParameters = (List) map.get("variableParameters");
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableParameters")).intValue(); idx++)
+        marshalSize += VariableParameter.getMarshalledSize((PduMap) variableParameters.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -580,7 +656,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" entityID:").append(entityID); // writeOneToString
     sb.append(" forceId:").append(forceId); // writeOneToString
     sb.append(" entityType:").append(entityType); // writeOneToString

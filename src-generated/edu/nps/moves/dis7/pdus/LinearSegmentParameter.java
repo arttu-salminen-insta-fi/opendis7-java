@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * The specification of an individual segment of a linear segment synthetic environment object in a Linear Object State PDU Section 6.2.52
@@ -19,17 +21,19 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class LinearSegmentParameter extends Object implements Serializable, Marshaller
 {
-   /** The individual segment of the linear segment */
-   protected byte segmentNumber;
+   /** The individual segment of the linear segment 
+   Value space: uint8 */
+   protected int segmentNumber;
 
-   /**  whether a modification has been made to the point object's location or orientation UID 241 */
+   /**  whether a modification has been made to the point object's location or orientation uid 241 */
    protected ObjectStateModificationLinearObject segmentModification = new ObjectStateModificationLinearObject();
 
-   /** general dynamic appearance attributes of the segment. This record shall be defined as a 16-bit record of enumerations. The values defined for this record are included in Section 12 of SISO-REF-010. UID 229 */
+   /** general dynamic appearance attributes of the segment. This record shall be defined as a 16-bit record of enumerations. The values defined for this record are included in Section 12 of SISO-REF-010. uid 229 */
    protected ObjectStateAppearanceGeneral generalSegmentAppearance = new ObjectStateAppearanceGeneral();
 
-   /** This field shall specify specific dynamic appearance attributes of the segment. This record shall be defined as a 32-bit record of enumerations. */
-   protected int specificSegmentAppearance;
+   /** This field shall specify specific dynamic appearance attributes of the segment. This record shall be defined as a 32-bit record of enumerations. 
+   Value space: uint32 */
+   protected UnsignedInteger specificSegmentAppearance = UnsignedInteger.ZERO;
 
    /** This field shall specify the location of the linear segment in the simulated world and shall be represented by a World Coordinates record  */
    protected Vector3Double  segmentLocation = new Vector3Double(); 
@@ -37,20 +41,25 @@ public class LinearSegmentParameter extends Object implements Serializable, Mars
    /** orientation of the linear segment about the segment location and shall be represented by a Euler Angles record  */
    protected EulerAngles  segmentOrientation = new EulerAngles(); 
 
-   /** length of the linear segment, in meters, extending in the positive X direction */
+   /** length of the linear segment, in meters, extending in the positive X direction 
+   Value space: float32 */
    protected float segmentLength;
 
-   /** The total width of the linear segment, in meters, shall be specified by a 16-bit unsigned integer. One-half of the width shall extend in the positive Y direction, and one-half of the width shall extend in the negative Y direction. */
+   /** The total width of the linear segment, in meters, shall be specified by a 16-bit unsigned integer. One-half of the width shall extend in the positive Y direction, and one-half of the width shall extend in the negative Y direction. 
+   Value space: float32 */
    protected float segmentWidth;
 
-   /** The height of the linear segment, in meters, above ground shall be specified by a 16-bit unsigned integer. */
+   /** The height of the linear segment, in meters, above ground shall be specified by a 16-bit unsigned integer. 
+   Value space: float32 */
    protected float segmentHeight;
 
-   /** The depth of the linear segment, in meters, below ground level  */
+   /** The depth of the linear segment, in meters, below ground level  
+   Value space: float32 */
    protected float segmentDepth;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected int padding;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint32 */
+   protected UnsignedInteger padding = UnsignedInteger.ZERO;
 
 
 /** Constructor creates and configures a new instance object */
@@ -89,23 +98,18 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link LinearSegmentParameter#segmentNumber}
-  * @param pSegmentNumber new value of interest
+  * @param pSegmentNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized LinearSegmentParameter setSegmentNumber(byte pSegmentNumber)
+public synchronized LinearSegmentParameter setSegmentNumber(int pSegmentNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSegmentNumber >= 0 && pSegmentNumber <= 255, "Value outside valid value space");
     segmentNumber = pSegmentNumber;
-    return this;
-}
-/** Utility setter for {@link LinearSegmentParameter#segmentNumber}
-  * @param pSegmentNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LinearSegmentParameter setSegmentNumber(int pSegmentNumber){
-    segmentNumber = (byte) pSegmentNumber;
     return this;
 }
 /** Getter for {@link LinearSegmentParameter#segmentNumber}
   * @return value of interest */
-public byte getSegmentNumber()
+public int getSegmentNumber()
 {
     return segmentNumber; 
 }
@@ -141,16 +145,16 @@ public ObjectStateAppearanceGeneral getGeneralSegmentAppearance()
 }
 
 /** Setter for {@link LinearSegmentParameter#specificSegmentAppearance}
-  * @param pSpecificSegmentAppearance new value of interest
+  * @param pSpecificSegmentAppearance new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized LinearSegmentParameter setSpecificSegmentAppearance(int pSpecificSegmentAppearance)
+public synchronized LinearSegmentParameter setSpecificSegmentAppearance(UnsignedInteger pSpecificSegmentAppearance)
 {
     specificSegmentAppearance = pSpecificSegmentAppearance;
     return this;
 }
 /** Getter for {@link LinearSegmentParameter#specificSegmentAppearance}
   * @return value of interest */
-public int getSpecificSegmentAppearance()
+public UnsignedInteger getSpecificSegmentAppearance()
 {
     return specificSegmentAppearance; 
 }
@@ -188,7 +192,7 @@ public EulerAngles getSegmentOrientation()
 
 
 /** Setter for {@link LinearSegmentParameter#segmentLength}
-  * @param pSegmentLength new value of interest
+  * @param pSegmentLength new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized LinearSegmentParameter setSegmentLength(float pSegmentLength)
 {
@@ -203,7 +207,7 @@ public float getSegmentLength()
 }
 
 /** Setter for {@link LinearSegmentParameter#segmentWidth}
-  * @param pSegmentWidth new value of interest
+  * @param pSegmentWidth new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized LinearSegmentParameter setSegmentWidth(float pSegmentWidth)
 {
@@ -218,7 +222,7 @@ public float getSegmentWidth()
 }
 
 /** Setter for {@link LinearSegmentParameter#segmentHeight}
-  * @param pSegmentHeight new value of interest
+  * @param pSegmentHeight new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized LinearSegmentParameter setSegmentHeight(float pSegmentHeight)
 {
@@ -233,7 +237,7 @@ public float getSegmentHeight()
 }
 
 /** Setter for {@link LinearSegmentParameter#segmentDepth}
-  * @param pSegmentDepth new value of interest
+  * @param pSegmentDepth new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized LinearSegmentParameter setSegmentDepth(float pSegmentDepth)
 {
@@ -248,16 +252,16 @@ public float getSegmentDepth()
 }
 
 /** Setter for {@link LinearSegmentParameter#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized LinearSegmentParameter setPadding(int pPadding)
+public synchronized LinearSegmentParameter setPadding(UnsignedInteger pPadding)
 {
     padding = pPadding;
     return this;
 }
 /** Getter for {@link LinearSegmentParameter#padding}
   * @return value of interest */
-public int getPadding()
+public UnsignedInteger getPadding()
 {
     return padding; 
 }
@@ -271,23 +275,19 @@ public int getPadding()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeByte(segmentNumber);
+       dos.writeByte((byte) segmentNumber);
        segmentModification.marshal(dos);
        generalSegmentAppearance.marshal(dos);
-       dos.writeInt(specificSegmentAppearance);
+       dos.writeInt(specificSegmentAppearance.intValue());
        segmentLocation.marshal(dos);
        segmentOrientation.marshal(dos);
        dos.writeFloat(segmentLength);
        dos.writeFloat(segmentWidth);
        dos.writeFloat(segmentHeight);
        dos.writeFloat(segmentDepth);
-       dos.writeInt(padding);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeInt(padding.intValue());
     }
 }
 
@@ -303,30 +303,26 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        segmentNumber = (byte)dis.readUnsignedByte();
+        segmentNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += segmentModification.unmarshal(dis);
         uPosition += generalSegmentAppearance.unmarshal(dis);
-        specificSegmentAppearance = dis.readInt();
+        specificSegmentAppearance = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         uPosition += segmentLocation.unmarshal(dis);
         uPosition += segmentOrientation.unmarshal(dis);
-        segmentLength = dis.readFloat();
+        segmentLength = (float) dis.readFloat();
         uPosition += 4;
-        segmentWidth = dis.readFloat();
+        segmentWidth = (float) dis.readFloat();
         uPosition += 4;
-        segmentHeight = dis.readFloat();
+        segmentHeight = (float) dis.readFloat();
         uPosition += 4;
-        segmentDepth = dis.readFloat();
+        segmentDepth = (float) dis.readFloat();
         uPosition += 4;
-        padding = dis.readInt();
+        padding = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -342,17 +338,17 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.put( (byte)segmentNumber);
+   byteBuffer.put((byte) segmentNumber);
    segmentModification.marshal(byteBuffer);
    generalSegmentAppearance.marshal(byteBuffer);
-   byteBuffer.putInt( (int)specificSegmentAppearance);
+   byteBuffer.putInt(specificSegmentAppearance.intValue());
    segmentLocation.marshal(byteBuffer);
    segmentOrientation.marshal(byteBuffer);
-   byteBuffer.putFloat( (float)segmentLength);
-   byteBuffer.putFloat( (float)segmentWidth);
-   byteBuffer.putFloat( (float)segmentHeight);
-   byteBuffer.putFloat( (float)segmentDepth);
-   byteBuffer.putInt( (int)padding);
+   byteBuffer.putFloat(segmentLength);
+   byteBuffer.putFloat(segmentWidth);
+   byteBuffer.putFloat(segmentHeight);
+   byteBuffer.putFloat(segmentDepth);
+   byteBuffer.putInt(padding.intValue());
 }
 
 /**
@@ -367,36 +363,96 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute segmentNumber marked as not serialized
-        segmentNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute segmentModification marked as not serialized
+        segmentNumber = Byte.toUnsignedInt(byteBuffer.get());
         segmentModification.unmarshal(byteBuffer);
-        // attribute generalSegmentAppearance marked as not serialized
         generalSegmentAppearance.unmarshal(byteBuffer);
-        // attribute specificSegmentAppearance marked as not serialized
-        specificSegmentAppearance = byteBuffer.getInt();
-        // attribute segmentLocation marked as not serialized
+        specificSegmentAppearance = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         segmentLocation.unmarshal(byteBuffer);
-        // attribute segmentOrientation marked as not serialized
         segmentOrientation.unmarshal(byteBuffer);
-        // attribute segmentLength marked as not serialized
-        segmentLength = byteBuffer.getFloat();
-        // attribute segmentWidth marked as not serialized
-        segmentWidth = byteBuffer.getFloat();
-        // attribute segmentHeight marked as not serialized
-        segmentHeight = byteBuffer.getFloat();
-        // attribute segmentDepth marked as not serialized
-        segmentDepth = byteBuffer.getFloat();
-        // attribute padding marked as not serialized
-        padding = byteBuffer.getInt();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        segmentLength = (float) byteBuffer.getFloat();
+        segmentWidth = (float) byteBuffer.getFloat();
+        segmentHeight = (float) byteBuffer.getFloat();
+        segmentDepth = (float) byteBuffer.getFloat();
+        padding = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("segmentNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("segmentModification", ObjectStateModificationLinearObject.unmarshallRawValue(byteBuffer));
+    map.put("generalSegmentAppearance", ObjectStateAppearanceGeneral.unmarshallRawValue(byteBuffer));
+    map.put("specificSegmentAppearance", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("segmentLocation", Vector3Double.fromBufferToMap(byteBuffer));
+    map.put("segmentOrientation", EulerAngles.fromBufferToMap(byteBuffer));
+    map.put("segmentLength", (float) byteBuffer.getFloat());
+    map.put("segmentWidth", (float) byteBuffer.getFloat());
+    map.put("segmentHeight", (float) byteBuffer.getFloat());
+    map.put("segmentDepth", (float) byteBuffer.getFloat());
+    map.put("padding", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.put(((Number) map.get("segmentNumber")).byteValue());
+    ObjectStateModificationLinearObject.marshallRawValue(((Number) map.get("segmentModification")).intValue(), byteBuffer);
+    ObjectStateAppearanceGeneral.marshallRawValue(((Number) map.get("generalSegmentAppearance")).intValue(), byteBuffer);
+    byteBuffer.putInt(((Number) map.get("specificSegmentAppearance")).intValue());
+    Vector3Double.fromMapToBuffer((PduMap) map.get("segmentLocation"), byteBuffer);
+    EulerAngles.fromMapToBuffer((PduMap) map.get("segmentOrientation"), byteBuffer);
+    byteBuffer.putFloat(((Number) map.get("segmentLength")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("segmentWidth")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("segmentHeight")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("segmentDepth")).floatValue());
+    byteBuffer.putInt(((Number) map.get("padding")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 1;  // segmentNumber
+    marshalSize += ObjectStateModificationLinearObject.getByteLength();
+    marshalSize += ObjectStateAppearanceGeneral.getByteLength();
+    marshalSize += 4;  // specificSegmentAppearance
+    marshalSize += Vector3Double.getMarshalledSize((PduMap) map.get("segmentLocation"));
+    marshalSize += EulerAngles.getMarshalledSize((PduMap) map.get("segmentOrientation"));
+    marshalSize += 4;  // segmentLength
+    marshalSize += 4;  // segmentWidth
+    marshalSize += 4;  // segmentHeight
+    marshalSize += 4;  // segmentDepth
+    marshalSize += 4;  // padding
+
+    return marshalSize;
 }
 
  /*

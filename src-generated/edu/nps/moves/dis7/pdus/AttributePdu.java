@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -27,10 +29,12 @@ public class AttributePdu extends EntityInformationInteractionFamilyPdu implemen
    /** This field shall identify the simulation issuing the Attribute PDU. It shall be represented by a Simulation Address record (see 6.2.79). */
    protected SimulationAddress  originatingSimulationAddress = new SimulationAddress(); 
 
-   /** Padding */
+   /** Padding 
+   Value space: int32 */
    protected int padding1;
 
-   /** Padding */
+   /** Padding 
+   Value space: int16 */
    protected short padding2;
 
    /** This field shall represent the type of the PDU that is being extended or updated, if applicable. It shall be represented by an 8-bit enumeration. uid 4 */
@@ -45,11 +49,13 @@ public class AttributePdu extends EntityInformationInteractionFamilyPdu implemen
    /** This field shall identify the action code applicable to this Attribute PDU. The Action Code shall apply to all Attribute records contained in the PDU. It shall be represented by an 8-bit enumeration. uid 295 */
    protected DISAttributeActionCode actionCode = DISAttributeActionCode.values()[0];
 
-   /** Padding */
-   protected byte padding3;
+   /** Padding 
+   Value space: uint8 */
+   protected int padding3;
 
-   /** This field shall specify the number of Attribute Record Sets that make up the remainder of the PDU. It shall be represented by a 16-bit unsigned integer. */
-   protected short numberAttributeRecordSet;
+   /** This field shall specify the number of Attribute Record Sets that make up the remainder of the PDU. It shall be represented by a 16-bit unsigned integer. 
+   Value space: uint16 */
+   protected int numberAttributeRecordSet;
 
    /** attributeRecordSets is an undescribed parameter... */
    protected List< AttributeRecordSet > attributeRecordSets = new ArrayList<>();
@@ -176,7 +182,7 @@ public SimulationAddress getOriginatingSimulationAddress()
 
 
 /** Setter for {@link AttributePdu#padding1}
-  * @param pPadding1 new value of interest
+  * @param pPadding1 new value of interest. Value space int32
   * @return same object to permit progressive setters */
 public synchronized AttributePdu setPadding1(int pPadding1)
 {
@@ -191,7 +197,7 @@ public int getPadding1()
 }
 
 /** Setter for {@link AttributePdu#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space int16
   * @return same object to permit progressive setters */
 public synchronized AttributePdu setPadding2(short pPadding2)
 {
@@ -273,23 +279,18 @@ public DISAttributeActionCode getActionCode()
 }
 
 /** Setter for {@link AttributePdu#padding3}
-  * @param pPadding3 new value of interest
+  * @param pPadding3 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized AttributePdu setPadding3(byte pPadding3)
+public synchronized AttributePdu setPadding3(int pPadding3)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding3 >= 0 && pPadding3 <= 255, "Value outside valid value space");
     padding3 = pPadding3;
-    return this;
-}
-/** Utility setter for {@link AttributePdu#padding3}
-  * @param pPadding3 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized AttributePdu setPadding3(int pPadding3){
-    padding3 = (byte) pPadding3;
     return this;
 }
 /** Getter for {@link AttributePdu#padding3}
   * @return value of interest */
-public byte getPadding3()
+public int getPadding3()
 {
     return padding3; 
 }
@@ -319,7 +320,7 @@ public List<AttributeRecordSet> getAttributeRecordSets()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        originatingSimulationAddress.marshal(dos);
        dos.writeInt(padding1);
@@ -328,7 +329,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        attributeRecordProtocolVersion.marshal(dos);
        masterAttributeRecordType.marshal(dos);
        actionCode.marshal(dos);
-       dos.writeByte(padding3);
+       dos.writeByte((byte) padding3);
        dos.writeShort(attributeRecordSets.size());
 
        for (int idx = 0; idx < attributeRecordSets.size(); idx++)
@@ -337,10 +338,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aAttributeRecordSet.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -358,13 +355,13 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += originatingSimulationAddress.unmarshal(dis);
-        padding1 = dis.readInt();
+        padding1 = (int) dis.readInt();
         uPosition += 4;
-        padding2 = dis.readShort();
-        uPosition += 4;
+        padding2 = (short) dis.readShort();
+        uPosition += 2;
         attributeRecordPduType = DisPduType.unmarshalEnum(dis);
         uPosition += attributeRecordPduType.getMarshalledSize();
         attributeRecordProtocolVersion = DISProtocolFamily.unmarshalEnum(dis);
@@ -373,21 +370,17 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += masterAttributeRecordType.getMarshalledSize();
         actionCode = DISAttributeActionCode.unmarshalEnum(dis);
         uPosition += actionCode.getMarshalledSize();
-        padding3 = (byte)dis.readUnsignedByte();
+        padding3 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberAttributeRecordSet = (short)dis.readUnsignedShort();
+        numberAttributeRecordSet = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < numberAttributeRecordSet; idx++)
+        for (int idx = 0; idx < ((Number) numberAttributeRecordSet).intValue(); idx++)
         {
             AttributeRecordSet anX = new AttributeRecordSet();
             uPosition += anX.unmarshal(dis);
             attributeRecordSets.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -405,13 +398,13 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    originatingSimulationAddress.marshal(byteBuffer);
-   byteBuffer.putInt( (int)padding1);
-   byteBuffer.putShort( (short)padding2);
+   byteBuffer.putInt(padding1);
+   byteBuffer.putShort(padding2);
    attributeRecordPduType.marshal(byteBuffer);
    attributeRecordProtocolVersion.marshal(byteBuffer);
    masterAttributeRecordType.marshal(byteBuffer);
    actionCode.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding3);
+   byteBuffer.put((byte) padding3);
    byteBuffer.putShort( (short)attributeRecordSets.size());
 
    for (int idx = 0; idx < attributeRecordSets.size(); idx++)
@@ -436,40 +429,114 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute originatingSimulationAddress marked as not serialized
         originatingSimulationAddress.unmarshal(byteBuffer);
-        // attribute padding1 marked as not serialized
-        padding1 = byteBuffer.getInt();
-        // attribute padding2 marked as not serialized
-        padding2 = byteBuffer.getShort();
-        // attribute attributeRecordPduType marked as not serialized
+        padding1 = (int) byteBuffer.getInt();
+        padding2 = (short) byteBuffer.getShort();
         attributeRecordPduType = DisPduType.unmarshalEnum(byteBuffer);
-        // attribute attributeRecordProtocolVersion marked as not serialized
         attributeRecordProtocolVersion = DISProtocolFamily.unmarshalEnum(byteBuffer);
-        // attribute masterAttributeRecordType marked as not serialized
         masterAttributeRecordType = VariableRecordType.unmarshalEnum(byteBuffer);
-        // attribute actionCode marked as not serialized
         actionCode = DISAttributeActionCode.unmarshalEnum(byteBuffer);
-        // attribute padding3 marked as not serialized
-        padding3 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberAttributeRecordSet marked as not serialized
-        numberAttributeRecordSet = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute attributeRecordSets marked as not serialized
-        for (int idx = 0; idx < numberAttributeRecordSet; idx++)
+        padding3 = Byte.toUnsignedInt(byteBuffer.get());
+        numberAttributeRecordSet = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) numberAttributeRecordSet).intValue(); idx++)
         {
-        AttributeRecordSet anX = new AttributeRecordSet();
-        anX.unmarshal(byteBuffer);
-        attributeRecordSets.add(anX);
+            AttributeRecordSet anX = new AttributeRecordSet();
+            anX.unmarshal(byteBuffer);
+            attributeRecordSets.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = EntityInformationInteractionFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("originatingSimulationAddress", SimulationAddress.fromBufferToMap(byteBuffer));
+    map.put("padding1", (int) byteBuffer.getInt());
+    map.put("padding2", (short) byteBuffer.getShort());
+    map.put("attributeRecordPduType", DisPduType.unmarshalEnum(byteBuffer).getValue());
+    map.put("attributeRecordProtocolVersion", DISProtocolFamily.unmarshalEnum(byteBuffer).getValue());
+    map.put("masterAttributeRecordType", VariableRecordType.unmarshalEnum(byteBuffer).getValue());
+    map.put("actionCode", DISAttributeActionCode.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding3", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberAttributeRecordSet", Short.toUnsignedInt(byteBuffer.getShort()));
+    List attributeRecordSets = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberAttributeRecordSet")).intValue(); idx++)
+    {
+        attributeRecordSets.add(AttributeRecordSet.fromBufferToMap(byteBuffer));
+    }
+    map.put("attributeRecordSets", attributeRecordSets);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityInformationInteractionFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    SimulationAddress.fromMapToBuffer((PduMap) map.get("originatingSimulationAddress"), byteBuffer);
+    byteBuffer.putInt(((Number) map.get("padding1")).intValue());
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+    DisPduType.getEnumForValue(((Number) map.get("attributeRecordPduType")).intValue()).marshal(byteBuffer);
+    DISProtocolFamily.getEnumForValue(((Number) map.get("attributeRecordProtocolVersion")).intValue()).marshal(byteBuffer);
+    VariableRecordType.getEnumForValue(((Number) map.get("masterAttributeRecordType")).intValue()).marshal(byteBuffer);
+    DISAttributeActionCode.getEnumForValue(((Number) map.get("actionCode")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding3")).byteValue());
+    byteBuffer.putShort(((Number) map.get("numberAttributeRecordSet")).shortValue());
+
+    List attributeRecordSets = (List) map.get("attributeRecordSets");
+    for (int idx = 0; idx < ((Number) map.get("numberAttributeRecordSet")).intValue(); idx++)
+    {
+        AttributeRecordSet.fromMapToBuffer((PduMap) attributeRecordSets.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityInformationInteractionFamilyPdu.getMarshalledSize(map);
+    marshalSize += SimulationAddress.getMarshalledSize((PduMap) map.get("originatingSimulationAddress"));
+    marshalSize += 4;  // padding1
+    marshalSize += 2;  // padding2
+    marshalSize += DisPduType.getEnumForValue(((Number) map.get("attributeRecordPduType")).intValue()).getMarshalledSize();
+    marshalSize += DISProtocolFamily.getEnumForValue(((Number) map.get("attributeRecordProtocolVersion")).intValue()).getMarshalledSize();
+    marshalSize += VariableRecordType.getEnumForValue(((Number) map.get("masterAttributeRecordType")).intValue()).getMarshalledSize();
+    marshalSize += DISAttributeActionCode.getEnumForValue(((Number) map.get("actionCode")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding3
+    marshalSize += 2;  // numberAttributeRecordSet
+    List attributeRecordSets = (List) map.get("attributeRecordSets");
+    for (int idx = 0; idx < ((Number) map.get("numberAttributeRecordSet")).intValue(); idx++)
+        marshalSize += AttributeRecordSet.getMarshalledSize((PduMap) attributeRecordSets.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -512,7 +579,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" originatingSimulationAddress:").append(originatingSimulationAddress); // writeOneToString
     sb.append(" padding1:").append(padding1); // writeOneToString
     sb.append(" padding2:").append(padding2); // writeOneToString

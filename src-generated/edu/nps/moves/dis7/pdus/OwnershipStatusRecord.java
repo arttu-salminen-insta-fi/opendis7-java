@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * used to convey entity and conflict status information associated with transferring ownership of an entity. Section 6.2.65
@@ -25,8 +27,9 @@ public class OwnershipStatusRecord extends Object implements Serializable, Marsh
    /** The ownership and/or ownership conflict status of the entity represented by the Entity ID field. uid 332 */
    protected OwnershipStatus ownershipStatus = OwnershipStatus.values()[0];
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected byte padding = (byte)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint8 */
+   protected int padding = (int) 0;
 
 
 /** Constructor creates and configures a new instance object */
@@ -86,23 +89,18 @@ public OwnershipStatus getOwnershipStatus()
 }
 
 /** Setter for {@link OwnershipStatusRecord#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized OwnershipStatusRecord setPadding(byte pPadding)
+public synchronized OwnershipStatusRecord setPadding(int pPadding)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 255, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link OwnershipStatusRecord#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized OwnershipStatusRecord setPadding(int pPadding){
-    padding = (byte) pPadding;
     return this;
 }
 /** Getter for {@link OwnershipStatusRecord#padding}
   * @return value of interest */
-public byte getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -116,15 +114,11 @@ public byte getPadding()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        entityId.marshal(dos);
        ownershipStatus.marshal(dos);
-       dos.writeByte(padding);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) padding);
     }
 }
 
@@ -140,17 +134,13 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         uPosition += entityId.unmarshal(dis);
         ownershipStatus = OwnershipStatus.unmarshalEnum(dis);
         uPosition += ownershipStatus.getMarshalledSize();
-        padding = (byte)dis.readUnsignedByte();
+        padding = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -168,7 +158,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    entityId.marshal(byteBuffer);
    ownershipStatus.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding);
+   byteBuffer.put((byte) padding);
 }
 
 /**
@@ -183,20 +173,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute entityId marked as not serialized
         entityId.unmarshal(byteBuffer);
-        // attribute ownershipStatus marked as not serialized
         ownershipStatus = OwnershipStatus.unmarshalEnum(byteBuffer);
-        // attribute padding marked as not serialized
-        padding = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("entityId", EntityID.fromBufferToMap(byteBuffer));
+    map.put("ownershipStatus", OwnershipStatus.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityID.fromMapToBuffer((PduMap) map.get("entityId"), byteBuffer);
+    OwnershipStatus.getEnumForValue(((Number) map.get("ownershipStatus")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("entityId"));
+    marshalSize += OwnershipStatus.getEnumForValue(((Number) map.get("ownershipStatus")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding
+
+    return marshalSize;
 }
 
  /*

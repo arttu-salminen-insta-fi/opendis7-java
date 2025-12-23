@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Identifies an event in the world. Use this format for ONLY the LiveEntityPdu. Section 6.2.34.
@@ -19,14 +21,17 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class EventIdentifierLiveEntity extends Object implements Serializable, Marshaller
 {
-   /** siteNumber is an undescribed parameter... */
-   protected byte siteNumber;
+   /** siteNumber is an undescribed parameter...
+   Value space: uint8 */
+   protected int siteNumber;
 
-   /** applicationNumber is an undescribed parameter... */
-   protected byte applicationNumber;
+   /** applicationNumber is an undescribed parameter...
+   Value space: uint8 */
+   protected int applicationNumber;
 
-   /** eventNumber is an undescribed parameter... */
-   protected short eventNumber;
+   /** eventNumber is an undescribed parameter...
+   Value space: uint16 */
+   protected int eventNumber;
 
 
 /** Constructor creates and configures a new instance object */
@@ -53,67 +58,52 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link EventIdentifierLiveEntity#siteNumber}
-  * @param pSiteNumber new value of interest
+  * @param pSiteNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized EventIdentifierLiveEntity setSiteNumber(byte pSiteNumber)
+public synchronized EventIdentifierLiveEntity setSiteNumber(int pSiteNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSiteNumber >= 0 && pSiteNumber <= 255, "Value outside valid value space");
     siteNumber = pSiteNumber;
-    return this;
-}
-/** Utility setter for {@link EventIdentifierLiveEntity#siteNumber}
-  * @param pSiteNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EventIdentifierLiveEntity setSiteNumber(int pSiteNumber){
-    siteNumber = (byte) pSiteNumber;
     return this;
 }
 /** Getter for {@link EventIdentifierLiveEntity#siteNumber}
   * @return value of interest */
-public byte getSiteNumber()
+public int getSiteNumber()
 {
     return siteNumber; 
 }
 
 /** Setter for {@link EventIdentifierLiveEntity#applicationNumber}
-  * @param pApplicationNumber new value of interest
+  * @param pApplicationNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized EventIdentifierLiveEntity setApplicationNumber(byte pApplicationNumber)
+public synchronized EventIdentifierLiveEntity setApplicationNumber(int pApplicationNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pApplicationNumber >= 0 && pApplicationNumber <= 255, "Value outside valid value space");
     applicationNumber = pApplicationNumber;
-    return this;
-}
-/** Utility setter for {@link EventIdentifierLiveEntity#applicationNumber}
-  * @param pApplicationNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EventIdentifierLiveEntity setApplicationNumber(int pApplicationNumber){
-    applicationNumber = (byte) pApplicationNumber;
     return this;
 }
 /** Getter for {@link EventIdentifierLiveEntity#applicationNumber}
   * @return value of interest */
-public byte getApplicationNumber()
+public int getApplicationNumber()
 {
     return applicationNumber; 
 }
 
 /** Setter for {@link EventIdentifierLiveEntity#eventNumber}
-  * @param pEventNumber new value of interest
+  * @param pEventNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized EventIdentifierLiveEntity setEventNumber(short pEventNumber)
+public synchronized EventIdentifierLiveEntity setEventNumber(int pEventNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pEventNumber >= 0 && pEventNumber <= 65535, "Value outside valid value space");
     eventNumber = pEventNumber;
-    return this;
-}
-/** Utility setter for {@link EventIdentifierLiveEntity#eventNumber}
-  * @param pEventNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EventIdentifierLiveEntity setEventNumber(int pEventNumber){
-    eventNumber = (short) pEventNumber;
     return this;
 }
 /** Getter for {@link EventIdentifierLiveEntity#eventNumber}
   * @return value of interest */
-public short getEventNumber()
+public int getEventNumber()
 {
     return eventNumber; 
 }
@@ -127,15 +117,11 @@ public short getEventNumber()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeByte(siteNumber);
-       dos.writeByte(applicationNumber);
-       dos.writeShort(eventNumber);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) siteNumber);
+       dos.writeByte((byte) applicationNumber);
+       dos.writeShort((short) eventNumber);
     }
 }
 
@@ -151,18 +137,14 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        siteNumber = (byte)dis.readUnsignedByte();
+        siteNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        applicationNumber = (byte)dis.readUnsignedByte();
+        applicationNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        eventNumber = (short)dis.readUnsignedShort();
+        eventNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -178,9 +160,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.put( (byte)siteNumber);
-   byteBuffer.put( (byte)applicationNumber);
-   byteBuffer.putShort( (short)eventNumber);
+   byteBuffer.put((byte) siteNumber);
+   byteBuffer.put((byte) applicationNumber);
+   byteBuffer.putShort((short) eventNumber);
 }
 
 /**
@@ -195,20 +177,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute siteNumber marked as not serialized
-        siteNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute applicationNumber marked as not serialized
-        applicationNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute eventNumber marked as not serialized
-        eventNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        siteNumber = Byte.toUnsignedInt(byteBuffer.get());
+        applicationNumber = Byte.toUnsignedInt(byteBuffer.get());
+        eventNumber = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("siteNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("applicationNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("eventNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.put(((Number) map.get("siteNumber")).byteValue());
+    byteBuffer.put(((Number) map.get("applicationNumber")).byteValue());
+    byteBuffer.putShort(((Number) map.get("eventNumber")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 1;  // siteNumber
+    marshalSize += 1;  // applicationNumber
+    marshalSize += 2;  // eventNumber
+
+    return marshalSize;
 }
 
  /*

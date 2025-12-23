@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Requires hand coding to be useful. Section 6.2.43
@@ -19,8 +21,9 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class IFFDataSpecification extends Object implements Serializable, Marshaller
 {
-   /** Number of IFF records */
-   protected short numberOfIFFDataRecords;
+   /** Number of IFF records 
+   Value space: uint16 */
+   protected int numberOfIFFDataRecords;
 
    /** IFF data records */
    protected List< IFFData > iffDataRecords = new ArrayList<>();
@@ -77,7 +80,7 @@ public List<IFFData> getIffDataRecords()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        dos.writeShort(iffDataRecords.size());
 
@@ -87,10 +90,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aIFFData.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -106,21 +105,17 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        numberOfIFFDataRecords = (short)dis.readUnsignedShort();
+        numberOfIFFDataRecords = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < numberOfIFFDataRecords; idx++)
+        for (int idx = 0; idx < ((Number) numberOfIFFDataRecords).intValue(); idx++)
         {
             IFFData anX = new IFFData();
             uPosition += anX.unmarshal(dis);
             iffDataRecords.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -158,24 +153,80 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute numberOfIFFDataRecords marked as not serialized
-        numberOfIFFDataRecords = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute iffDataRecords marked as not serialized
-        for (int idx = 0; idx < numberOfIFFDataRecords; idx++)
+        numberOfIFFDataRecords = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) numberOfIFFDataRecords).intValue(); idx++)
         {
-        IFFData anX = new IFFData();
-        anX.unmarshal(byteBuffer);
-        iffDataRecords.add(anX);
+            IFFData anX = new IFFData();
+            anX.unmarshal(byteBuffer);
+            iffDataRecords.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("numberOfIFFDataRecords", Short.toUnsignedInt(byteBuffer.getShort()));
+    List iffDataRecords = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfIFFDataRecords")).intValue(); idx++)
+    {
+        iffDataRecords.add(IFFData.fromBufferToMap(byteBuffer));
+    }
+    map.put("iffDataRecords", iffDataRecords);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("numberOfIFFDataRecords")).shortValue());
+
+    List iffDataRecords = (List) map.get("iffDataRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfIFFDataRecords")).intValue(); idx++)
+    {
+        IFFData.fromMapToBuffer((PduMap) iffDataRecords.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // numberOfIFFDataRecords
+    List iffDataRecords = (List) map.get("iffDataRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfIFFDataRecords")).intValue(); idx++)
+        marshalSize += IFFData.getMarshalledSize((PduMap) iffDataRecords.get(idx));
+
+    return marshalSize;
 }
 
  /*

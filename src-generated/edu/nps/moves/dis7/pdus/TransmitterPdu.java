@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -36,8 +38,9 @@ public class TransmitterPdu extends RadioCommunicationsFamilyPdu implements Seri
    /** input source uid 165 */
    protected TransmitterInputSource inputSource = TransmitterInputSource.values()[0];
 
-   /** count field */
-   protected short variableTransmitterParameterCount;
+   /** count field 
+   Value space: uint16 */
+   protected int variableTransmitterParameterCount;
 
    /** Location of antenna */
    protected Vector3Double  antennaLocation = new Vector3Double(); 
@@ -48,16 +51,20 @@ public class TransmitterPdu extends RadioCommunicationsFamilyPdu implements Seri
    /** antenna pattern type uid 167 */
    protected TransmitterAntennaPatternType antennaPatternType = TransmitterAntennaPatternType.values()[0];
 
-   /** atenna pattern length */
-   protected short antennaPatternCount;
+   /** antenna pattern record length in octets 
+   Value space: uint16 */
+   protected int antennaPatternOctets;
 
-   /** frequency */
-   protected long frequency;
+   /** frequency 
+   Value space: uint64 */
+   protected UnsignedLong frequency = UnsignedLong.ZERO;
 
-   /** transmit frequency Bandwidth */
+   /** transmit frequency Bandwidth 
+   Value space: float32 */
    protected float transmitFrequencyBandwidth;
 
-   /** transmission power */
+   /** transmission power 
+   Value space: float32 */
    protected float power;
 
    /** modulation */
@@ -66,23 +73,30 @@ public class TransmitterPdu extends RadioCommunicationsFamilyPdu implements Seri
    /** crypto system enumeration uid 166 */
    protected TransmitterCryptoSystem cryptoSystem = TransmitterCryptoSystem.values()[0];
 
-   /** crypto system key identifer */
-   protected short cryptoKeyId;
+   /** crypto system key identifer 
+   Value space: uint16 */
+   protected int cryptoKeyId;
 
-   /** how many modulation parameters we have */
-   protected byte modulationParameterCount;
+   /** how many modulation parameters we have 
+   Value space: uint8 */
+   protected int modulationParameterOctets;
 
-   /** padding1 is an undescribed parameter... */
-   protected byte padding1 = (byte)0;
+   /** padding1 is an undescribed parameter...
+   Value space: uint8 */
+   protected int padding1 = (int) 0;
 
-   /** padding2 is an undescribed parameter... */
-   protected short padding2 = (short)0;
+   /** padding2 is an undescribed parameter...
+   Value space: uint16 */
+   protected int padding2 = (int) 0;
 
    /** variable length list of modulation parameters */
-   protected List< ModulationParameters > modulationParametersList = new ArrayList<>();
- 
+   protected byte[]  modulationParametersList = new byte[0]; 
+
    /** variable length list of antenna pattern records */
-   protected List< VariableTransmitterParameters > antennaPatternList = new ArrayList<>();
+   protected byte[]  antennaPatternList = new byte[0]; 
+
+   /** variable length list of antenna pattern records */
+   protected List< VariableTransmitterParameters > variableTransmitterParameterRecordsList = new ArrayList<>();
  
 
 /** Constructor creates and configures a new instance object */
@@ -179,7 +193,7 @@ public synchronized int getMarshalledSize()
        marshalSize += relativeAntennaLocation.getMarshalledSize();
    if (antennaPatternType != null)
        marshalSize += antennaPatternType.getMarshalledSize();
-   marshalSize += 2;  // antennaPatternCount
+   marshalSize += 2;  // antennaPatternOctets
    marshalSize += 8;  // frequency
    marshalSize += 4;  // transmitFrequencyBandwidth
    marshalSize += 4;  // power
@@ -188,19 +202,17 @@ public synchronized int getMarshalledSize()
    if (cryptoSystem != null)
        marshalSize += cryptoSystem.getMarshalledSize();
    marshalSize += 2;  // cryptoKeyId
-   marshalSize += 1;  // modulationParameterCount
+   marshalSize += 1;  // modulationParameterOctets
    marshalSize += 1;  // padding1
    marshalSize += 2;  // padding2
    if (modulationParametersList != null)
-       for (int idx=0; idx < modulationParametersList.size(); idx++)
-       {
-            ModulationParameters listElement = modulationParametersList.get(idx);
-            marshalSize += listElement.getMarshalledSize();
-       }
+       marshalSize += modulationParametersList.length * 1;
    if (antennaPatternList != null)
-       for (int idx=0; idx < antennaPatternList.size(); idx++)
+       marshalSize += antennaPatternList.length * 1;
+   if (variableTransmitterParameterRecordsList != null)
+       for (int idx=0; idx < variableTransmitterParameterRecordsList.size(); idx++)
        {
-            VariableTransmitterParameters listElement = antennaPatternList.get(idx);
+            VariableTransmitterParameters listElement = variableTransmitterParameterRecordsList.get(idx);
             marshalSize += listElement.getMarshalledSize();
        }
 
@@ -270,28 +282,6 @@ public TransmitterInputSource getInputSource()
     return inputSource; 
 }
 
-/** Setter for {@link TransmitterPdu#variableTransmitterParameterCount}
-  * @param pVariableTransmitterParameterCount new value of interest
-  * @return same object to permit progressive setters */
-public synchronized TransmitterPdu setVariableTransmitterParameterCount(short pVariableTransmitterParameterCount)
-{
-    variableTransmitterParameterCount = pVariableTransmitterParameterCount;
-    return this;
-}
-/** Utility setter for {@link TransmitterPdu#variableTransmitterParameterCount}
-  * @param pVariableTransmitterParameterCount new value of interest
-  * @return same object to permit progressive setters */
-public synchronized TransmitterPdu setVariableTransmitterParameterCount(int pVariableTransmitterParameterCount){
-    variableTransmitterParameterCount = (short) pVariableTransmitterParameterCount;
-    return this;
-}
-/** Getter for {@link TransmitterPdu#variableTransmitterParameterCount}
-  * @return value of interest */
-public short getVariableTransmitterParameterCount()
-{
-    return variableTransmitterParameterCount; 
-}
-
 /** Setter for {@link TransmitterPdu#antennaLocation}
   * @param pAntennaLocation new value of interest
   * @return same object to permit progressive setters */
@@ -340,29 +330,22 @@ public TransmitterAntennaPatternType getAntennaPatternType()
 }
 
 /** Setter for {@link TransmitterPdu#frequency}
-  * @param pFrequency new value of interest
+  * @param pFrequency new value of interest. Value space uint64
   * @return same object to permit progressive setters */
-public synchronized TransmitterPdu setFrequency(long pFrequency)
+public synchronized TransmitterPdu setFrequency(UnsignedLong pFrequency)
 {
     frequency = pFrequency;
     return this;
 }
-/** Utility setter for {@link TransmitterPdu#frequency}
-  * @param pFrequency new value of interest
-  * @return same object to permit progressive setters */
-public synchronized TransmitterPdu setFrequency(int pFrequency){
-    frequency = (long) pFrequency;
-    return this;
-}
 /** Getter for {@link TransmitterPdu#frequency}
   * @return value of interest */
-public long getFrequency()
+public UnsignedLong getFrequency()
 {
     return frequency; 
 }
 
 /** Setter for {@link TransmitterPdu#transmitFrequencyBandwidth}
-  * @param pTransmitFrequencyBandwidth new value of interest
+  * @param pTransmitFrequencyBandwidth new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized TransmitterPdu setTransmitFrequencyBandwidth(float pTransmitFrequencyBandwidth)
 {
@@ -377,7 +360,7 @@ public float getTransmitFrequencyBandwidth()
 }
 
 /** Setter for {@link TransmitterPdu#power}
-  * @param pPower new value of interest
+  * @param pPower new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized TransmitterPdu setPower(float pPower)
 {
@@ -423,67 +406,52 @@ public TransmitterCryptoSystem getCryptoSystem()
 }
 
 /** Setter for {@link TransmitterPdu#cryptoKeyId}
-  * @param pCryptoKeyId new value of interest
+  * @param pCryptoKeyId new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized TransmitterPdu setCryptoKeyId(short pCryptoKeyId)
+public synchronized TransmitterPdu setCryptoKeyId(int pCryptoKeyId)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pCryptoKeyId >= 0 && pCryptoKeyId <= 65535, "Value outside valid value space");
     cryptoKeyId = pCryptoKeyId;
-    return this;
-}
-/** Utility setter for {@link TransmitterPdu#cryptoKeyId}
-  * @param pCryptoKeyId new value of interest
-  * @return same object to permit progressive setters */
-public synchronized TransmitterPdu setCryptoKeyId(int pCryptoKeyId){
-    cryptoKeyId = (short) pCryptoKeyId;
     return this;
 }
 /** Getter for {@link TransmitterPdu#cryptoKeyId}
   * @return value of interest */
-public short getCryptoKeyId()
+public int getCryptoKeyId()
 {
     return cryptoKeyId; 
 }
 
 /** Setter for {@link TransmitterPdu#padding1}
-  * @param pPadding1 new value of interest
+  * @param pPadding1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized TransmitterPdu setPadding1(byte pPadding1)
+public synchronized TransmitterPdu setPadding1(int pPadding1)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 255, "Value outside valid value space");
     padding1 = pPadding1;
-    return this;
-}
-/** Utility setter for {@link TransmitterPdu#padding1}
-  * @param pPadding1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized TransmitterPdu setPadding1(int pPadding1){
-    padding1 = (byte) pPadding1;
     return this;
 }
 /** Getter for {@link TransmitterPdu#padding1}
   * @return value of interest */
-public byte getPadding1()
+public int getPadding1()
 {
     return padding1; 
 }
 
 /** Setter for {@link TransmitterPdu#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized TransmitterPdu setPadding2(short pPadding2)
+public synchronized TransmitterPdu setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 65535, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link TransmitterPdu#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized TransmitterPdu setPadding2(int pPadding2){
-    padding2 = (short) pPadding2;
     return this;
 }
 /** Getter for {@link TransmitterPdu#padding2}
   * @return value of interest */
-public short getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
@@ -491,14 +459,14 @@ public short getPadding2()
 /** Setter for {@link TransmitterPdu#modulationParametersList}
   * @param pModulationParametersList new value of interest
   * @return same object to permit progressive setters */
-public synchronized TransmitterPdu setModulationParametersList(List<ModulationParameters> pModulationParametersList)
+public synchronized TransmitterPdu setModulationParametersList(byte[] pModulationParametersList)
 {
     modulationParametersList = pModulationParametersList;
     return this;
 }
 /** Getter for {@link TransmitterPdu#modulationParametersList}
   * @return value of interest */
-public List<ModulationParameters> getModulationParametersList()
+public byte[] getModulationParametersList()
 {
     return modulationParametersList; 
 }
@@ -506,16 +474,31 @@ public List<ModulationParameters> getModulationParametersList()
 /** Setter for {@link TransmitterPdu#antennaPatternList}
   * @param pAntennaPatternList new value of interest
   * @return same object to permit progressive setters */
-public synchronized TransmitterPdu setAntennaPatternList(List<VariableTransmitterParameters> pAntennaPatternList)
+public synchronized TransmitterPdu setAntennaPatternList(byte[] pAntennaPatternList)
 {
     antennaPatternList = pAntennaPatternList;
     return this;
 }
 /** Getter for {@link TransmitterPdu#antennaPatternList}
   * @return value of interest */
-public List<VariableTransmitterParameters> getAntennaPatternList()
+public byte[] getAntennaPatternList()
 {
     return antennaPatternList; 
+}
+
+/** Setter for {@link TransmitterPdu#variableTransmitterParameterRecordsList}
+  * @param pVariableTransmitterParameterRecordsList new value of interest
+  * @return same object to permit progressive setters */
+public synchronized TransmitterPdu setVariableTransmitterParameterRecordsList(List<VariableTransmitterParameters> pVariableTransmitterParameterRecordsList)
+{
+    variableTransmitterParameterRecordsList = pVariableTransmitterParameterRecordsList;
+    return this;
+}
+/** Getter for {@link TransmitterPdu#variableTransmitterParameterRecordsList}
+  * @return value of interest */
+public List<VariableTransmitterParameters> getVariableTransmitterParameterRecordsList()
+{
+    return variableTransmitterParameterRecordsList; 
 }
 
 /**
@@ -528,44 +511,43 @@ public List<VariableTransmitterParameters> getAntennaPatternList()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        header.marshal(dos);
        radioEntityType.marshal(dos);
        transmitState.marshal(dos);
        inputSource.marshal(dos);
-       dos.writeShort(variableTransmitterParameterCount);
+       dos.writeShort(variableTransmitterParameterRecordsList.size());
        antennaLocation.marshal(dos);
        relativeAntennaLocation.marshal(dos);
        antennaPatternType.marshal(dos);
-       dos.writeShort(antennaPatternList.size());
-       dos.writeLong(frequency);
+       // Count in primitive instances
+       dos.writeShort(antennaPatternList.length);
+       dos.writeLong(frequency.longValue());
        dos.writeFloat(transmitFrequencyBandwidth);
        dos.writeFloat(power);
        modulationType.marshal(dos);
        cryptoSystem.marshal(dos);
-       dos.writeShort(cryptoKeyId);
-       dos.writeByte(modulationParametersList.size());
-       dos.writeByte(padding1);
-       dos.writeShort(padding2);
+       dos.writeShort((short) cryptoKeyId);
+       // Count in primitive instances
+       dos.writeByte(modulationParametersList.length);
+       dos.writeByte((byte) padding1);
+       dos.writeShort((short) padding2);
 
-       for (int idx = 0; idx < modulationParametersList.size(); idx++)
+       for (int idx = 0; idx < modulationParametersList.length; idx++)
+           dos.writeByte(modulationParametersList[idx]);
+
+
+       for (int idx = 0; idx < antennaPatternList.length; idx++)
+           dos.writeByte(antennaPatternList[idx]);
+
+
+       for (int idx = 0; idx < variableTransmitterParameterRecordsList.size(); idx++)
        {
-            ModulationParameters aModulationParameters = modulationParametersList.get(idx);
-            aModulationParameters.marshal(dos);
-       }
-
-
-       for (int idx = 0; idx < antennaPatternList.size(); idx++)
-       {
-            VariableTransmitterParameters aVariableTransmitterParameters = antennaPatternList.get(idx);
+            VariableTransmitterParameters aVariableTransmitterParameters = variableTransmitterParameterRecordsList.get(idx);
             aVariableTransmitterParameters.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -583,7 +565,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += header.unmarshal(dis);
         uPosition += radioEntityType.unmarshal(dis);
@@ -591,49 +573,46 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += transmitState.getMarshalledSize();
         inputSource = TransmitterInputSource.unmarshalEnum(dis);
         uPosition += inputSource.getMarshalledSize();
-        variableTransmitterParameterCount = (short)dis.readUnsignedShort();
+        variableTransmitterParameterCount = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += antennaLocation.unmarshal(dis);
         uPosition += relativeAntennaLocation.unmarshal(dis);
         antennaPatternType = TransmitterAntennaPatternType.unmarshalEnum(dis);
         uPosition += antennaPatternType.getMarshalledSize();
-        antennaPatternCount = (short)dis.readUnsignedShort();
+        antennaPatternOctets = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        frequency = dis.readLong();
+        frequency = UnsignedLong.fromLongBits(dis.readLong());
+        uPosition += 8;
+        transmitFrequencyBandwidth = (float) dis.readFloat();
         uPosition += 4;
-        transmitFrequencyBandwidth = dis.readFloat();
-        uPosition += 4;
-        power = dis.readFloat();
+        power = (float) dis.readFloat();
         uPosition += 4;
         uPosition += modulationType.unmarshal(dis);
         cryptoSystem = TransmitterCryptoSystem.unmarshalEnum(dis);
         uPosition += cryptoSystem.getMarshalledSize();
-        cryptoKeyId = (short)dis.readUnsignedShort();
+        cryptoKeyId = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        modulationParameterCount = (byte)dis.readUnsignedByte();
+        modulationParameterOctets = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding1 = (byte)dis.readUnsignedByte();
+        padding1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding2 = (short)dis.readUnsignedShort();
+        padding2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < modulationParameterCount; idx++)
-        {
-            ModulationParameters anX = new ModulationParameters();
-            uPosition += anX.unmarshal(dis);
-            modulationParametersList.add(anX);
-        }
-
-        for (int idx = 0; idx < antennaPatternCount; idx++)
+        modulationParametersList = new byte[((Number) modulationParameterOctets).intValue()];
+        for (int idx = 0; idx < ((Number) modulationParameterOctets).intValue(); idx++)
+            modulationParametersList[idx] = dis.readByte();
+        uPosition += (modulationParametersList.length * 1);
+        antennaPatternList = new byte[((Number) antennaPatternOctets).intValue()];
+        for (int idx = 0; idx < ((Number) antennaPatternOctets).intValue(); idx++)
+            antennaPatternList[idx] = dis.readByte();
+        uPosition += (antennaPatternList.length * 1);
+        for (int idx = 0; idx < ((Number) variableTransmitterParameterCount).intValue(); idx++)
         {
             VariableTransmitterParameters anX = new VariableTransmitterParameters();
             uPosition += anX.unmarshal(dis);
-            antennaPatternList.add(anX);
+            variableTransmitterParameterRecordsList.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -654,31 +633,34 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    radioEntityType.marshal(byteBuffer);
    transmitState.marshal(byteBuffer);
    inputSource.marshal(byteBuffer);
-   byteBuffer.putShort( (short)variableTransmitterParameterCount);
+   byteBuffer.putShort( (short)variableTransmitterParameterRecordsList.size());
    antennaLocation.marshal(byteBuffer);
    relativeAntennaLocation.marshal(byteBuffer);
    antennaPatternType.marshal(byteBuffer);
-   byteBuffer.putShort( (short)antennaPatternList.size());
-   byteBuffer.putLong( (long)frequency);
-   byteBuffer.putFloat( (float)transmitFrequencyBandwidth);
-   byteBuffer.putFloat( (float)power);
+   // Count in primitive instances
+   byteBuffer.putShort((short) antennaPatternList.length);
+   byteBuffer.putLong(frequency.longValue());
+   byteBuffer.putFloat(transmitFrequencyBandwidth);
+   byteBuffer.putFloat(power);
    modulationType.marshal(byteBuffer);
    cryptoSystem.marshal(byteBuffer);
-   byteBuffer.putShort( (short)cryptoKeyId);
-   byteBuffer.put( (byte)modulationParametersList.size());
-   byteBuffer.put( (byte)padding1);
-   byteBuffer.putShort( (short)padding2);
+   byteBuffer.putShort((short) cryptoKeyId);
+   // Count in primitive instances
+   byteBuffer.put((byte) modulationParametersList.length);
+   byteBuffer.put((byte) padding1);
+   byteBuffer.putShort((short) padding2);
 
-   for (int idx = 0; idx < modulationParametersList.size(); idx++)
+   for (int idx = 0; idx < modulationParametersList.length; idx++)
+       byteBuffer.put((byte)modulationParametersList[idx]);
+
+
+   for (int idx = 0; idx < antennaPatternList.length; idx++)
+       byteBuffer.put((byte)antennaPatternList[idx]);
+
+
+   for (int idx = 0; idx < variableTransmitterParameterRecordsList.size(); idx++)
    {
-        ModulationParameters aModulationParameters = modulationParametersList.get(idx);
-        aModulationParameters.marshal(byteBuffer);
-   }
-
-
-   for (int idx = 0; idx < antennaPatternList.size(); idx++)
-   {
-        VariableTransmitterParameters aVariableTransmitterParameters = antennaPatternList.get(idx);
+        VariableTransmitterParameters aVariableTransmitterParameters = variableTransmitterParameterRecordsList.get(idx);
         aVariableTransmitterParameters.marshal(byteBuffer);
    }
 
@@ -698,66 +680,182 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute header marked as not serialized
         header.unmarshal(byteBuffer);
-        // attribute radioEntityType marked as not serialized
         radioEntityType.unmarshal(byteBuffer);
-        // attribute transmitState marked as not serialized
         transmitState = TransmitterTransmitState.unmarshalEnum(byteBuffer);
-        // attribute inputSource marked as not serialized
         inputSource = TransmitterInputSource.unmarshalEnum(byteBuffer);
-        // attribute variableTransmitterParameterCount marked as not serialized
-        variableTransmitterParameterCount = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute antennaLocation marked as not serialized
+        variableTransmitterParameterCount = Short.toUnsignedInt(byteBuffer.getShort());
         antennaLocation.unmarshal(byteBuffer);
-        // attribute relativeAntennaLocation marked as not serialized
         relativeAntennaLocation.unmarshal(byteBuffer);
-        // attribute antennaPatternType marked as not serialized
         antennaPatternType = TransmitterAntennaPatternType.unmarshalEnum(byteBuffer);
-        // attribute antennaPatternCount marked as not serialized
-        antennaPatternCount = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute frequency marked as not serialized
-        frequency = byteBuffer.getLong();
-        // attribute transmitFrequencyBandwidth marked as not serialized
-        transmitFrequencyBandwidth = byteBuffer.getFloat();
-        // attribute power marked as not serialized
-        power = byteBuffer.getFloat();
-        // attribute modulationType marked as not serialized
+        antennaPatternOctets = Short.toUnsignedInt(byteBuffer.getShort());
+        frequency = UnsignedLong.fromLongBits(byteBuffer.getLong());
+        transmitFrequencyBandwidth = (float) byteBuffer.getFloat();
+        power = (float) byteBuffer.getFloat();
         modulationType.unmarshal(byteBuffer);
-        // attribute cryptoSystem marked as not serialized
         cryptoSystem = TransmitterCryptoSystem.unmarshalEnum(byteBuffer);
-        // attribute cryptoKeyId marked as not serialized
-        cryptoKeyId = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute modulationParameterCount marked as not serialized
-        modulationParameterCount = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding1 marked as not serialized
-        padding1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding2 marked as not serialized
-        padding2 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute modulationParametersList marked as not serialized
-        for (int idx = 0; idx < modulationParameterCount; idx++)
+        cryptoKeyId = Short.toUnsignedInt(byteBuffer.getShort());
+        modulationParameterOctets = Byte.toUnsignedInt(byteBuffer.get());
+        padding1 = Byte.toUnsignedInt(byteBuffer.get());
+        padding2 = Short.toUnsignedInt(byteBuffer.getShort());
+        modulationParametersList = new byte[((Number) modulationParameterOctets).intValue()];
+        for (int idx = 0; idx < ((Number) modulationParameterOctets).intValue(); idx++)
+            modulationParametersList[idx] = byteBuffer.get();
+        antennaPatternList = new byte[((Number) antennaPatternOctets).intValue()];
+        for (int idx = 0; idx < ((Number) antennaPatternOctets).intValue(); idx++)
+            antennaPatternList[idx] = byteBuffer.get();
+        for (int idx = 0; idx < ((Number) variableTransmitterParameterCount).intValue(); idx++)
         {
-        ModulationParameters anX = new ModulationParameters();
-        anX.unmarshal(byteBuffer);
-        modulationParametersList.add(anX);
+            VariableTransmitterParameters anX = new VariableTransmitterParameters();
+            anX.unmarshal(byteBuffer);
+            variableTransmitterParameterRecordsList.add(anX);
         }
 
-        // attribute antennaPatternList marked as not serialized
-        for (int idx = 0; idx < antennaPatternCount; idx++)
-        {
-        VariableTransmitterParameters anX = new VariableTransmitterParameters();
-        anX.unmarshal(byteBuffer);
-        antennaPatternList.add(anX);
-        }
-
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = RadioCommunicationsFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("header", RadioCommsHeader.fromBufferToMap(byteBuffer));
+    map.put("radioEntityType", RadioType.fromBufferToMap(byteBuffer));
+    map.put("transmitState", TransmitterTransmitState.unmarshalEnum(byteBuffer).getValue());
+    map.put("inputSource", TransmitterInputSource.unmarshalEnum(byteBuffer).getValue());
+    map.put("variableTransmitterParameterCount", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("antennaLocation", Vector3Double.fromBufferToMap(byteBuffer));
+    map.put("relativeAntennaLocation", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("antennaPatternType", TransmitterAntennaPatternType.unmarshalEnum(byteBuffer).getValue());
+    map.put("antennaPatternOctets", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("frequency", UnsignedLong.fromLongBits(byteBuffer.getLong()));
+    map.put("transmitFrequencyBandwidth", (float) byteBuffer.getFloat());
+    map.put("power", (float) byteBuffer.getFloat());
+    map.put("modulationType", ModulationType.fromBufferToMap(byteBuffer));
+    map.put("cryptoSystem", TransmitterCryptoSystem.unmarshalEnum(byteBuffer).getValue());
+    map.put("cryptoKeyId", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("modulationParameterOctets", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
+    // Valid primitive list varying length
+    byte[] modulationParametersList = new byte[((Number) map.get("modulationParameterOctets")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("modulationParameterOctets")).intValue(); idx++)
+        modulationParametersList[idx] = byteBuffer.get();
+    map.put("modulationParametersList", modulationParametersList);
+    // Valid primitive list varying length
+    byte[] antennaPatternList = new byte[((Number) map.get("antennaPatternOctets")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("antennaPatternOctets")).intValue(); idx++)
+        antennaPatternList[idx] = byteBuffer.get();
+    map.put("antennaPatternList", antennaPatternList);
+    List variableTransmitterParameterRecordsList = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("variableTransmitterParameterCount")).intValue(); idx++)
+    {
+        variableTransmitterParameterRecordsList.add(VariableTransmitterParameters.fromBufferToMap(byteBuffer));
+    }
+    map.put("variableTransmitterParameterRecordsList", variableTransmitterParameterRecordsList);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    RadioCommunicationsFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    RadioCommsHeader.fromMapToBuffer((PduMap) map.get("header"), byteBuffer);
+    RadioType.fromMapToBuffer((PduMap) map.get("radioEntityType"), byteBuffer);
+    TransmitterTransmitState.getEnumForValue(((Number) map.get("transmitState")).intValue()).marshal(byteBuffer);
+    TransmitterInputSource.getEnumForValue(((Number) map.get("inputSource")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("variableTransmitterParameterCount")).shortValue());
+    Vector3Double.fromMapToBuffer((PduMap) map.get("antennaLocation"), byteBuffer);
+    Vector3Float.fromMapToBuffer((PduMap) map.get("relativeAntennaLocation"), byteBuffer);
+    TransmitterAntennaPatternType.getEnumForValue(((Number) map.get("antennaPatternType")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("antennaPatternOctets")).shortValue());
+    byteBuffer.putLong(((Number) map.get("frequency")).longValue());
+    byteBuffer.putFloat(((Number) map.get("transmitFrequencyBandwidth")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("power")).floatValue());
+    ModulationType.fromMapToBuffer((PduMap) map.get("modulationType"), byteBuffer);
+    TransmitterCryptoSystem.getEnumForValue(((Number) map.get("cryptoSystem")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("cryptoKeyId")).shortValue());
+    byteBuffer.put(((Number) map.get("modulationParameterOctets")).byteValue());
+    byteBuffer.put(((Number) map.get("padding1")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+
+    byte[] modulationParametersList = (byte[]) map.get("modulationParametersList");
+    for (int idx = 0; idx < modulationParametersList.length; idx++)
+        byteBuffer.put(modulationParametersList[idx]);
+
+
+    byte[] antennaPatternList = (byte[]) map.get("antennaPatternList");
+    for (int idx = 0; idx < antennaPatternList.length; idx++)
+        byteBuffer.put(antennaPatternList[idx]);
+
+
+    List variableTransmitterParameterRecordsList = (List) map.get("variableTransmitterParameterRecordsList");
+    for (int idx = 0; idx < ((Number) map.get("variableTransmitterParameterCount")).intValue(); idx++)
+    {
+        VariableTransmitterParameters.fromMapToBuffer((PduMap) variableTransmitterParameterRecordsList.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += RadioCommunicationsFamilyPdu.getMarshalledSize(map);
+    marshalSize += RadioCommsHeader.getMarshalledSize((PduMap) map.get("header"));
+    marshalSize += RadioType.getMarshalledSize((PduMap) map.get("radioEntityType"));
+    marshalSize += TransmitterTransmitState.getEnumForValue(((Number) map.get("transmitState")).intValue()).getMarshalledSize();
+    marshalSize += TransmitterInputSource.getEnumForValue(((Number) map.get("inputSource")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // variableTransmitterParameterCount
+    marshalSize += Vector3Double.getMarshalledSize((PduMap) map.get("antennaLocation"));
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("relativeAntennaLocation"));
+    marshalSize += TransmitterAntennaPatternType.getEnumForValue(((Number) map.get("antennaPatternType")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // antennaPatternOctets
+    marshalSize += 8;  // frequency
+    marshalSize += 4;  // transmitFrequencyBandwidth
+    marshalSize += 4;  // power
+    marshalSize += ModulationType.getMarshalledSize((PduMap) map.get("modulationType"));
+    marshalSize += TransmitterCryptoSystem.getEnumForValue(((Number) map.get("cryptoSystem")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // cryptoKeyId
+    marshalSize += 1;  // modulationParameterOctets
+    marshalSize += 1;  // padding1
+    marshalSize += 2;  // padding2
+    byte[] modulationParametersList = (byte[]) map.get("modulationParametersList");
+    for (int idx = 0; idx < modulationParametersList.length; idx++)
+        marshalSize += 1;
+    byte[] antennaPatternList = (byte[]) map.get("antennaPatternList");
+    for (int idx = 0; idx < antennaPatternList.length; idx++)
+        marshalSize += 1;
+    List variableTransmitterParameterRecordsList = (List) map.get("variableTransmitterParameterRecordsList");
+    for (int idx = 0; idx < ((Number) map.get("variableTransmitterParameterCount")).intValue(); idx++)
+        marshalSize += VariableTransmitterParameters.getMarshalledSize((PduMap) variableTransmitterParameterRecordsList.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -799,8 +897,19 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
      if( ! (cryptoKeyId == rhs.cryptoKeyId)) return false;
      if( ! (padding1 == rhs.padding1)) return false;
      if( ! (padding2 == rhs.padding2)) return false;
-     if( ! Objects.equals(modulationParametersList, rhs.modulationParametersList) ) return false;
-     if( ! Objects.equals(antennaPatternList, rhs.antennaPatternList) ) return false;
+
+     for (int idx = 0; idx < 0; idx++)
+     {
+          if(!(modulationParametersList[idx] == rhs.modulationParametersList[idx])) return false;
+     }
+
+
+     for (int idx = 0; idx < 0; idx++)
+     {
+          if(!(antennaPatternList[idx] == rhs.antennaPatternList[idx])) return false;
+     }
+
+     if( ! Objects.equals(variableTransmitterParameterRecordsList, rhs.variableTransmitterParameterRecordsList) ) return false;
     return super.equalsImpl(rhs);
  }
 
@@ -809,7 +918,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" header:").append(header); // writeOneToString
     sb.append(" radioEntityType:").append(radioEntityType); // writeOneToString
     sb.append(" transmitState:").append(transmitState); // writeOneToString
@@ -826,13 +935,12 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     sb.append(" cryptoKeyId:").append(cryptoKeyId); // writeOneToString
     sb.append(" padding1:").append(padding1); // writeOneToString
     sb.append(" padding2:").append(padding2); // writeOneToString
-    sb.append(" modulationParametersList: ");
-    modulationParametersList.forEach(r->{ sb2.append(" ").append(r);}); // writeList
-    sb.append(sb2.toString().trim());
-    // https://stackoverflow.com/questions/2242471/clearing-a-string-buffer-builder-after-loop
-    sb2.setLength(0); // reset
-    sb.append(" antennaPatternList: ");
-    antennaPatternList.forEach(r->{ sb2.append(" ").append(r);}); // writeList
+    sb.append(" modulationParametersList:");
+    sb.append(Arrays.toString(modulationParametersList)); // writePrimitiveList
+    sb.append(" antennaPatternList:");
+    sb.append(Arrays.toString(antennaPatternList)); // writePrimitiveList
+    sb.append(" variableTransmitterParameterRecordsList: ");
+    variableTransmitterParameterRecordsList.forEach(r->{ sb2.append(" ").append(r);}); // writeList
     sb.append(sb2.toString().trim());
     // https://stackoverflow.com/questions/2242471/clearing-a-string-buffer-builder-after-loop
     sb2.setLength(0); // reset
@@ -851,17 +959,18 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	                     this.antennaLocation,
 	                     this.relativeAntennaLocation,
 	                     this.antennaPatternType,
-	                     this.antennaPatternCount,
+	                     this.antennaPatternOctets,
 	                     this.frequency,
 	                     this.transmitFrequencyBandwidth,
 	                     this.power,
 	                     this.modulationType,
 	                     this.cryptoSystem,
 	                     this.cryptoKeyId,
-	                     this.modulationParameterCount,
+	                     this.modulationParameterOctets,
 	                     this.padding1,
 	                     this.padding2,
 	                     this.modulationParametersList,
-	                     this.antennaPatternList);
+	                     this.antennaPatternList,
+	                     this.variableTransmitterParameterRecordsList);
  }
 } // end of TransmitterPdu

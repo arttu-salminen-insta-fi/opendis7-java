@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -36,25 +38,31 @@ public class DirectedEnergyFirePdu extends WarfareFamilyPdu implements Serializa
    /** Field shall indicate the simulation time at start of the shot, Section 7.3.4  */
    protected ClockTime  shotStartTime = new ClockTime(); 
 
-   /** Field shall indicate the current cumulative duration of the shot, Section 7.3.4  */
+   /** Field shall indicate the current cumulative duration of the shot, Section 7.3.4  
+   Value space: float32 */
    protected float commulativeShotTime;
 
    /** Field shall identify the location of the DE weapon aperture/emitter, Section 7.3.4  */
    protected Vector3Float  apertureEmitterLocation = new Vector3Float(); 
 
-   /** Field shall identify the beam diameter at the aperture/emitter, Section 7.3.4  */
+   /** Field shall identify the beam diameter at the aperture/emitter, Section 7.3.4  
+   Value space: float32 */
    protected float apertureDiameter;
 
-   /** Field shall identify the emissions wavelength in units of meters, Section 7.3.4  */
+   /** Field shall identify the emissions wavelength in units of meters, Section 7.3.4  
+   Value space: float32 */
    protected float wavelength;
 
-   /** pad1 is an undescribed parameter... */
-   protected int pad1;
+   /** padding1 is an undescribed parameter...
+   Value space: uint32 */
+   protected UnsignedInteger padding1 = UnsignedInteger.ZERO;
 
-   /** pulseRepititionFrequency is an undescribed parameter... */
+   /** pulseRepititionFrequency is an undescribed parameter...
+   Value space: float32 */
    protected float pulseRepititionFrequency;
 
-   /** field shall identify the pulse width emissions in units of seconds, Section 7.3.4 */
+   /** field shall identify the pulse width emissions in units of seconds, Section 7.3.4 
+   Value space: float32 */
    protected float pulseWidth;
 
    /** 16bit Boolean field shall contain various flags to indicate status information needed to process a DE, Section 7.3.4  uid 313 */
@@ -63,21 +71,21 @@ public class DirectedEnergyFirePdu extends WarfareFamilyPdu implements Serializa
    /** Field shall identify the pulse shape and shall be represented as an 8-bit enumeration, Section 7.3.4  uid 312 */
    protected DEFirePulseShape pulseShape = DEFirePulseShape.values()[0];
 
-   /** pad2 is an undescribed parameter... */
-   protected byte pad2;
+   /** padding2 is an undescribed parameter...
+   Value space: uint8 */
+   protected int padding2;
 
-   /** pad3 is an undescribed parameter... */
-   protected int pad3;
+   /** padding3 is an undescribed parameter...
+   Value space: uint32 */
+   protected UnsignedInteger padding3 = UnsignedInteger.ZERO;
 
-   /** pad4 is an undescribed parameter... */
-   protected short pad4;
+   /** padding4 is an undescribed parameter...
+   Value space: uint16 */
+   protected int padding4;
 
-   /** Field shall specify the number of DE records, Section 7.3.4  */
-   protected short numberOfDERecords;
+   /** May contain 0 or more DE records, records shall conform to the variable record format (Section6.2.82), Section 7.3.4 */
+   protected StandardVariableSpecification  dERecords = new StandardVariableSpecification(); 
 
-   /** Fields shall contain one or more DE records, records shall conform to the variable record format (Section6.2.82), Section 7.3.4 */
-   protected List< StandardVariableSpecification > dERecords = new ArrayList<>();
- 
 
 /** Constructor creates and configures a new instance object */
  public DirectedEnergyFirePdu()
@@ -171,23 +179,18 @@ public synchronized int getMarshalledSize()
        marshalSize += apertureEmitterLocation.getMarshalledSize();
    marshalSize += 4;  // apertureDiameter
    marshalSize += 4;  // wavelength
-   marshalSize += 4;  // pad1
+   marshalSize += 4;  // padding1
    marshalSize += 4;  // pulseRepititionFrequency
    marshalSize += 4;  // pulseWidth
    if (flags != null)
        marshalSize += flags.getMarshalledSize();
    if (pulseShape != null)
        marshalSize += pulseShape.getMarshalledSize();
-   marshalSize += 1;  // pad2
-   marshalSize += 4;  // pad3
-   marshalSize += 2;  // pad4
-   marshalSize += 2;  // numberOfDERecords
+   marshalSize += 1;  // padding2
+   marshalSize += 4;  // padding3
+   marshalSize += 2;  // padding4
    if (dERecords != null)
-       for (int idx=0; idx < dERecords.size(); idx++)
-       {
-            StandardVariableSpecification listElement = dERecords.get(idx);
-            marshalSize += listElement.getMarshalledSize();
-       }
+       marshalSize += dERecords.getMarshalledSize();
 
    return marshalSize;
 }
@@ -258,7 +261,7 @@ public ClockTime getShotStartTime()
 
 
 /** Setter for {@link DirectedEnergyFirePdu#commulativeShotTime}
-  * @param pCommulativeShotTime new value of interest
+  * @param pCommulativeShotTime new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DirectedEnergyFirePdu setCommulativeShotTime(float pCommulativeShotTime)
 {
@@ -289,7 +292,7 @@ public Vector3Float getApertureEmitterLocation()
 
 
 /** Setter for {@link DirectedEnergyFirePdu#apertureDiameter}
-  * @param pApertureDiameter new value of interest
+  * @param pApertureDiameter new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DirectedEnergyFirePdu setApertureDiameter(float pApertureDiameter)
 {
@@ -304,7 +307,7 @@ public float getApertureDiameter()
 }
 
 /** Setter for {@link DirectedEnergyFirePdu#wavelength}
-  * @param pWavelength new value of interest
+  * @param pWavelength new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DirectedEnergyFirePdu setWavelength(float pWavelength)
 {
@@ -318,23 +321,23 @@ public float getWavelength()
     return wavelength; 
 }
 
-/** Setter for {@link DirectedEnergyFirePdu#pad1}
-  * @param pPad1 new value of interest
+/** Setter for {@link DirectedEnergyFirePdu#padding1}
+  * @param pPadding1 new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyFirePdu setPad1(int pPad1)
+public synchronized DirectedEnergyFirePdu setPadding1(UnsignedInteger pPadding1)
 {
-    pad1 = pPad1;
+    padding1 = pPadding1;
     return this;
 }
-/** Getter for {@link DirectedEnergyFirePdu#pad1}
+/** Getter for {@link DirectedEnergyFirePdu#padding1}
   * @return value of interest */
-public int getPad1()
+public UnsignedInteger getPadding1()
 {
-    return pad1; 
+    return padding1; 
 }
 
 /** Setter for {@link DirectedEnergyFirePdu#pulseRepititionFrequency}
-  * @param pPulseRepititionFrequency new value of interest
+  * @param pPulseRepititionFrequency new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DirectedEnergyFirePdu setPulseRepititionFrequency(float pPulseRepititionFrequency)
 {
@@ -349,7 +352,7 @@ public float getPulseRepititionFrequency()
 }
 
 /** Setter for {@link DirectedEnergyFirePdu#pulseWidth}
-  * @param pPulseWidth new value of interest
+  * @param pPulseWidth new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized DirectedEnergyFirePdu setPulseWidth(float pPulseWidth)
 {
@@ -393,79 +396,70 @@ public DEFirePulseShape getPulseShape()
     return pulseShape; 
 }
 
-/** Setter for {@link DirectedEnergyFirePdu#pad2}
-  * @param pPad2 new value of interest
+/** Setter for {@link DirectedEnergyFirePdu#padding2}
+  * @param pPadding2 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyFirePdu setPad2(byte pPad2)
+public synchronized DirectedEnergyFirePdu setPadding2(int pPadding2)
 {
-    pad2 = pPad2;
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 255, "Value outside valid value space");
+    padding2 = pPadding2;
     return this;
 }
-/** Utility setter for {@link DirectedEnergyFirePdu#pad2}
-  * @param pPad2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DirectedEnergyFirePdu setPad2(int pPad2){
-    pad2 = (byte) pPad2;
-    return this;
-}
-/** Getter for {@link DirectedEnergyFirePdu#pad2}
+/** Getter for {@link DirectedEnergyFirePdu#padding2}
   * @return value of interest */
-public byte getPad2()
+public int getPadding2()
 {
-    return pad2; 
+    return padding2; 
 }
 
-/** Setter for {@link DirectedEnergyFirePdu#pad3}
-  * @param pPad3 new value of interest
+/** Setter for {@link DirectedEnergyFirePdu#padding3}
+  * @param pPadding3 new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyFirePdu setPad3(int pPad3)
+public synchronized DirectedEnergyFirePdu setPadding3(UnsignedInteger pPadding3)
 {
-    pad3 = pPad3;
+    padding3 = pPadding3;
     return this;
 }
-/** Getter for {@link DirectedEnergyFirePdu#pad3}
+/** Getter for {@link DirectedEnergyFirePdu#padding3}
   * @return value of interest */
-public int getPad3()
+public UnsignedInteger getPadding3()
 {
-    return pad3; 
+    return padding3; 
 }
 
-/** Setter for {@link DirectedEnergyFirePdu#pad4}
-  * @param pPad4 new value of interest
+/** Setter for {@link DirectedEnergyFirePdu#padding4}
+  * @param pPadding4 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyFirePdu setPad4(short pPad4)
+public synchronized DirectedEnergyFirePdu setPadding4(int pPadding4)
 {
-    pad4 = pPad4;
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding4 >= 0 && pPadding4 <= 65535, "Value outside valid value space");
+    padding4 = pPadding4;
     return this;
 }
-/** Utility setter for {@link DirectedEnergyFirePdu#pad4}
-  * @param pPad4 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized DirectedEnergyFirePdu setPad4(int pPad4){
-    pad4 = (short) pPad4;
-    return this;
-}
-/** Getter for {@link DirectedEnergyFirePdu#pad4}
+/** Getter for {@link DirectedEnergyFirePdu#padding4}
   * @return value of interest */
-public short getPad4()
+public int getPadding4()
 {
-    return pad4; 
+    return padding4; 
 }
 
 /** Setter for {@link DirectedEnergyFirePdu#dERecords}
   * @param pDERecords new value of interest
   * @return same object to permit progressive setters */
-public synchronized DirectedEnergyFirePdu setDERecords(List<StandardVariableSpecification> pDERecords)
+public synchronized DirectedEnergyFirePdu setDERecords(StandardVariableSpecification pDERecords)
 {
     dERecords = pDERecords;
     return this;
 }
 /** Getter for {@link DirectedEnergyFirePdu#dERecords}
   * @return value of interest */
-public List<StandardVariableSpecification> getDERecords()
+public StandardVariableSpecification getDERecords()
 {
-    return dERecords; 
+    return dERecords;
 }
+
 
 /**
  * Serializes an object to a DataOutputStream.
@@ -477,7 +471,7 @@ public List<StandardVariableSpecification> getDERecords()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        firingEntityID.marshal(dos);
        eventID.marshal(dos);
@@ -487,26 +481,15 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        apertureEmitterLocation.marshal(dos);
        dos.writeFloat(apertureDiameter);
        dos.writeFloat(wavelength);
-       dos.writeInt(pad1);
+       dos.writeInt(padding1.intValue());
        dos.writeFloat(pulseRepititionFrequency);
        dos.writeFloat(pulseWidth);
        flags.marshal(dos);
        pulseShape.marshal(dos);
-       dos.writeByte(pad2);
-       dos.writeInt(pad3);
-       dos.writeShort(pad4);
-       dos.writeShort(dERecords.size());
-
-       for (int idx = 0; idx < dERecords.size(); idx++)
-       {
-            StandardVariableSpecification aStandardVariableSpecification = dERecords.get(idx);
-            aStandardVariableSpecification.marshal(dos);
-       }
-
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) padding2);
+       dos.writeInt(padding3.intValue());
+       dos.writeShort((short) padding4);
+       dERecords.marshal(dos);
     }
 }
 
@@ -524,47 +507,35 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += firingEntityID.unmarshal(dis);
         uPosition += eventID.unmarshal(dis);
         uPosition += munitionType.unmarshal(dis);
         uPosition += shotStartTime.unmarshal(dis);
-        commulativeShotTime = dis.readFloat();
+        commulativeShotTime = (float) dis.readFloat();
         uPosition += 4;
         uPosition += apertureEmitterLocation.unmarshal(dis);
-        apertureDiameter = dis.readFloat();
+        apertureDiameter = (float) dis.readFloat();
         uPosition += 4;
-        wavelength = dis.readFloat();
+        wavelength = (float) dis.readFloat();
         uPosition += 4;
-        pad1 = dis.readInt();
+        padding1 = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        pulseRepititionFrequency = dis.readFloat();
+        pulseRepititionFrequency = (float) dis.readFloat();
         uPosition += 4;
-        pulseWidth = dis.readFloat();
+        pulseWidth = (float) dis.readFloat();
         uPosition += 4;
         uPosition += flags.unmarshal(dis);
         pulseShape = DEFirePulseShape.unmarshalEnum(dis);
         uPosition += pulseShape.getMarshalledSize();
-        pad2 = (byte)dis.readUnsignedByte();
+        padding2 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        pad3 = dis.readInt();
+        padding3 = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        pad4 = (short)dis.readUnsignedShort();
+        padding4 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        numberOfDERecords = (short)dis.readUnsignedShort();
-        uPosition += 2;
-        for (int idx = 0; idx < numberOfDERecords; idx++)
-        {
-            StandardVariableSpecification anX = new StandardVariableSpecification();
-            uPosition += anX.unmarshal(dis);
-            dERecords.add(anX);
-        }
-
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
+        uPosition += dERecords.unmarshal(dis);
     }
     return getMarshalledSize();
 }
@@ -585,26 +556,19 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    eventID.marshal(byteBuffer);
    munitionType.marshal(byteBuffer);
    shotStartTime.marshal(byteBuffer);
-   byteBuffer.putFloat( (float)commulativeShotTime);
+   byteBuffer.putFloat(commulativeShotTime);
    apertureEmitterLocation.marshal(byteBuffer);
-   byteBuffer.putFloat( (float)apertureDiameter);
-   byteBuffer.putFloat( (float)wavelength);
-   byteBuffer.putInt( (int)pad1);
-   byteBuffer.putFloat( (float)pulseRepititionFrequency);
-   byteBuffer.putFloat( (float)pulseWidth);
+   byteBuffer.putFloat(apertureDiameter);
+   byteBuffer.putFloat(wavelength);
+   byteBuffer.putInt(padding1.intValue());
+   byteBuffer.putFloat(pulseRepititionFrequency);
+   byteBuffer.putFloat(pulseWidth);
    flags.marshal(byteBuffer);
    pulseShape.marshal(byteBuffer);
-   byteBuffer.put( (byte)pad2);
-   byteBuffer.putInt( (int)pad3);
-   byteBuffer.putShort( (short)pad4);
-   byteBuffer.putShort( (short)dERecords.size());
-
-   for (int idx = 0; idx < dERecords.size(); idx++)
-   {
-        StandardVariableSpecification aStandardVariableSpecification = dERecords.get(idx);
-        aStandardVariableSpecification.marshal(byteBuffer);
-   }
-
+   byteBuffer.put((byte) padding2);
+   byteBuffer.putInt(padding3.intValue());
+   byteBuffer.putShort((short) padding4);
+   dERecords.marshal(byteBuffer);
 }
 
 /**
@@ -621,56 +585,122 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute firingEntityID marked as not serialized
         firingEntityID.unmarshal(byteBuffer);
-        // attribute eventID marked as not serialized
         eventID.unmarshal(byteBuffer);
-        // attribute munitionType marked as not serialized
         munitionType.unmarshal(byteBuffer);
-        // attribute shotStartTime marked as not serialized
         shotStartTime.unmarshal(byteBuffer);
-        // attribute commulativeShotTime marked as not serialized
-        commulativeShotTime = byteBuffer.getFloat();
-        // attribute apertureEmitterLocation marked as not serialized
+        commulativeShotTime = (float) byteBuffer.getFloat();
         apertureEmitterLocation.unmarshal(byteBuffer);
-        // attribute apertureDiameter marked as not serialized
-        apertureDiameter = byteBuffer.getFloat();
-        // attribute wavelength marked as not serialized
-        wavelength = byteBuffer.getFloat();
-        // attribute pad1 marked as not serialized
-        pad1 = byteBuffer.getInt();
-        // attribute pulseRepititionFrequency marked as not serialized
-        pulseRepititionFrequency = byteBuffer.getFloat();
-        // attribute pulseWidth marked as not serialized
-        pulseWidth = byteBuffer.getFloat();
-        // attribute flags marked as not serialized
+        apertureDiameter = (float) byteBuffer.getFloat();
+        wavelength = (float) byteBuffer.getFloat();
+        padding1 = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        pulseRepititionFrequency = (float) byteBuffer.getFloat();
+        pulseWidth = (float) byteBuffer.getFloat();
         flags.unmarshal(byteBuffer);
-        // attribute pulseShape marked as not serialized
         pulseShape = DEFirePulseShape.unmarshalEnum(byteBuffer);
-        // attribute pad2 marked as not serialized
-        pad2 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute pad3 marked as not serialized
-        pad3 = byteBuffer.getInt();
-        // attribute pad4 marked as not serialized
-        pad4 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute numberOfDERecords marked as not serialized
-        numberOfDERecords = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute dERecords marked as not serialized
-        for (int idx = 0; idx < numberOfDERecords; idx++)
-        {
-        StandardVariableSpecification anX = new StandardVariableSpecification();
-        anX.unmarshal(byteBuffer);
-        dERecords.add(anX);
-        }
-
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding2 = Byte.toUnsignedInt(byteBuffer.get());
+        padding3 = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        padding4 = Short.toUnsignedInt(byteBuffer.getShort());
+        dERecords.unmarshal(byteBuffer);
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = WarfareFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("firingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("eventID", EventIdentifier.fromBufferToMap(byteBuffer));
+    map.put("munitionType", EntityType.fromBufferToMap(byteBuffer));
+    map.put("shotStartTime", ClockTime.fromBufferToMap(byteBuffer));
+    map.put("commulativeShotTime", (float) byteBuffer.getFloat());
+    map.put("apertureEmitterLocation", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("apertureDiameter", (float) byteBuffer.getFloat());
+    map.put("wavelength", (float) byteBuffer.getFloat());
+    map.put("padding1", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("pulseRepititionFrequency", (float) byteBuffer.getFloat());
+    map.put("pulseWidth", (float) byteBuffer.getFloat());
+    map.put("flags", DEFireFlags.unmarshallRawValue(byteBuffer));
+    map.put("pulseShape", DEFirePulseShape.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding2", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding3", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("padding4", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("dERecords", StandardVariableSpecification.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    WarfareFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("firingEntityID"), byteBuffer);
+    EventIdentifier.fromMapToBuffer((PduMap) map.get("eventID"), byteBuffer);
+    EntityType.fromMapToBuffer((PduMap) map.get("munitionType"), byteBuffer);
+    ClockTime.fromMapToBuffer((PduMap) map.get("shotStartTime"), byteBuffer);
+    byteBuffer.putFloat(((Number) map.get("commulativeShotTime")).floatValue());
+    Vector3Float.fromMapToBuffer((PduMap) map.get("apertureEmitterLocation"), byteBuffer);
+    byteBuffer.putFloat(((Number) map.get("apertureDiameter")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("wavelength")).floatValue());
+    byteBuffer.putInt(((Number) map.get("padding1")).intValue());
+    byteBuffer.putFloat(((Number) map.get("pulseRepititionFrequency")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("pulseWidth")).floatValue());
+    DEFireFlags.marshallRawValue(((Number) map.get("flags")).intValue(), byteBuffer);
+    DEFirePulseShape.getEnumForValue(((Number) map.get("pulseShape")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding2")).byteValue());
+    byteBuffer.putInt(((Number) map.get("padding3")).intValue());
+    byteBuffer.putShort(((Number) map.get("padding4")).shortValue());
+    StandardVariableSpecification.fromMapToBuffer((PduMap) map.get("dERecords"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += WarfareFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("firingEntityID"));
+    marshalSize += EventIdentifier.getMarshalledSize((PduMap) map.get("eventID"));
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("munitionType"));
+    marshalSize += ClockTime.getMarshalledSize((PduMap) map.get("shotStartTime"));
+    marshalSize += 4;  // commulativeShotTime
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("apertureEmitterLocation"));
+    marshalSize += 4;  // apertureDiameter
+    marshalSize += 4;  // wavelength
+    marshalSize += 4;  // padding1
+    marshalSize += 4;  // pulseRepititionFrequency
+    marshalSize += 4;  // pulseWidth
+    marshalSize += DEFireFlags.getByteLength();
+    marshalSize += DEFirePulseShape.getEnumForValue(((Number) map.get("pulseShape")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding2
+    marshalSize += 4;  // padding3
+    marshalSize += 2;  // padding4
+    marshalSize += StandardVariableSpecification.getMarshalledSize((PduMap) map.get("dERecords"));
+
+    return marshalSize;
 }
 
  /*
@@ -704,14 +734,14 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
      if( ! Objects.equals(apertureEmitterLocation, rhs.apertureEmitterLocation) ) return false;
      if( ! (apertureDiameter == rhs.apertureDiameter)) return false;
      if( ! (wavelength == rhs.wavelength)) return false;
-     if( ! (pad1 == rhs.pad1)) return false;
+     if( ! (padding1 == rhs.padding1)) return false;
      if( ! (pulseRepititionFrequency == rhs.pulseRepititionFrequency)) return false;
      if( ! (pulseWidth == rhs.pulseWidth)) return false;
      if( ! Objects.equals(flags, rhs.flags) ) return false;
      if( ! (pulseShape == rhs.pulseShape)) return false;
-     if( ! (pad2 == rhs.pad2)) return false;
-     if( ! (pad3 == rhs.pad3)) return false;
-     if( ! (pad4 == rhs.pad4)) return false;
+     if( ! (padding2 == rhs.padding2)) return false;
+     if( ! (padding3 == rhs.padding3)) return false;
+     if( ! (padding4 == rhs.padding4)) return false;
      if( ! Objects.equals(dERecords, rhs.dERecords) ) return false;
     return super.equalsImpl(rhs);
  }
@@ -721,7 +751,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" firingEntityID:").append(firingEntityID); // writeOneToString
     sb.append(" eventID:").append(eventID); // writeOneToString
     sb.append(" munitionType:").append(munitionType); // writeOneToString
@@ -730,19 +760,15 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     sb.append(" apertureEmitterLocation:").append(apertureEmitterLocation); // writeOneToString
     sb.append(" apertureDiameter:").append(apertureDiameter); // writeOneToString
     sb.append(" wavelength:").append(wavelength); // writeOneToString
-    sb.append(" pad1:").append(pad1); // writeOneToString
+    sb.append(" padding1:").append(padding1); // writeOneToString
     sb.append(" pulseRepititionFrequency:").append(pulseRepititionFrequency); // writeOneToString
     sb.append(" pulseWidth:").append(pulseWidth); // writeOneToString
     sb.append(" flags:").append(flags); // writeOneToString
     sb.append(" pulseShape:").append(pulseShape); // writeOneToString
-    sb.append(" pad2:").append(pad2); // writeOneToString
-    sb.append(" pad3:").append(pad3); // writeOneToString
-    sb.append(" pad4:").append(pad4); // writeOneToString
-    sb.append(" dERecords: ");
-    dERecords.forEach(r->{ sb2.append(" ").append(r);}); // writeList
-    sb.append(sb2.toString().trim());
-    // https://stackoverflow.com/questions/2242471/clearing-a-string-buffer-builder-after-loop
-    sb2.setLength(0); // reset
+    sb.append(" padding2:").append(padding2); // writeOneToString
+    sb.append(" padding3:").append(padding3); // writeOneToString
+    sb.append(" padding4:").append(padding4); // writeOneToString
+    sb.append(" dERecords:").append(dERecords); // writeOneToString
 
    return sb.toString();
  }
@@ -758,15 +784,14 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	                     this.apertureEmitterLocation,
 	                     this.apertureDiameter,
 	                     this.wavelength,
-	                     this.pad1,
+	                     this.padding1,
 	                     this.pulseRepititionFrequency,
 	                     this.pulseWidth,
 	                     this.flags,
 	                     this.pulseShape,
-	                     this.pad2,
-	                     this.pad3,
-	                     this.pad4,
-	                     this.numberOfDERecords,
+	                     this.padding2,
+	                     this.padding3,
+	                     this.padding4,
 	                     this.dERecords);
  }
 } // end of DirectedEnergyFirePdu

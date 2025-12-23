@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * An entity's sensor information.  Section 6.2.77.
@@ -25,17 +27,21 @@ public class Sensor extends Object implements Serializable, Marshaller
    /** The on/off status of the sensor uid 331 */
    protected SensorOnOffStatus sensorOnOffStatus = SensorOnOffStatus.values()[0];
 
-   /** for Source 'other':SensorRecordOtherActiveSensors/325,'em':EmitterName/75,'passive':SensorRecordSensorTypePassiveSensors/326,'mine':6.2.57,'ua':UAAcousticSystemName/144,'lasers':DesignatorSystemName/80 */
-   protected short sensorType;
+   /** for Source 'other':SensorRecordOtherActiveSensors/325,'em':EmitterName/75,'passive':SensorRecordSensorTypePassiveSensors/326,'mine':6.2.57,'ua':UAAcousticSystemName/144,'lasers':DesignatorSystemName/80 
+   Value space: uint16 */
+   protected int sensorType;
 
-   /**  the station to which the sensor is assigned. A zero value shall indi- cate that this Sensor record is not associated with any particular station and represents the total quan- tity of this sensor for this entity. If this field is non-zero, it shall either reference an attached part or an articulated part */
-   protected int station;
+   /**  the station to which the sensor is assigned. A zero value shall indi- cate that this Sensor record is not associated with any particular station and represents the total quan- tity of this sensor for this entity. If this field is non-zero, it shall either reference an attached part or an articulated part 
+   Value space: uint32 */
+   protected UnsignedInteger station = UnsignedInteger.ZERO;
 
-   /** quantity of the sensor  */
-   protected short quantity;
+   /** quantity of the sensor  
+   Value space: uint16 */
+   protected int quantity;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding = (short)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding = (int) 0;
 
 
 /** Constructor creates and configures a new instance object */
@@ -97,82 +103,67 @@ public SensorOnOffStatus getSensorOnOffStatus()
 }
 
 /** Setter for {@link Sensor#sensorType}
-  * @param pSensorType new value of interest
+  * @param pSensorType new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized Sensor setSensorType(short pSensorType)
+public synchronized Sensor setSensorType(int pSensorType)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pSensorType >= 0 && pSensorType <= 65535, "Value outside valid value space");
     sensorType = pSensorType;
-    return this;
-}
-/** Utility setter for {@link Sensor#sensorType}
-  * @param pSensorType new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Sensor setSensorType(int pSensorType){
-    sensorType = (short) pSensorType;
     return this;
 }
 /** Getter for {@link Sensor#sensorType}
   * @return value of interest */
-public short getSensorType()
+public int getSensorType()
 {
     return sensorType; 
 }
 
 /** Setter for {@link Sensor#station}
-  * @param pStation new value of interest
+  * @param pStation new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized Sensor setStation(int pStation)
+public synchronized Sensor setStation(UnsignedInteger pStation)
 {
     station = pStation;
     return this;
 }
 /** Getter for {@link Sensor#station}
   * @return value of interest */
-public int getStation()
+public UnsignedInteger getStation()
 {
     return station; 
 }
 
 /** Setter for {@link Sensor#quantity}
-  * @param pQuantity new value of interest
+  * @param pQuantity new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized Sensor setQuantity(short pQuantity)
+public synchronized Sensor setQuantity(int pQuantity)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pQuantity >= 0 && pQuantity <= 65535, "Value outside valid value space");
     quantity = pQuantity;
-    return this;
-}
-/** Utility setter for {@link Sensor#quantity}
-  * @param pQuantity new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Sensor setQuantity(int pQuantity){
-    quantity = (short) pQuantity;
     return this;
 }
 /** Getter for {@link Sensor#quantity}
   * @return value of interest */
-public short getQuantity()
+public int getQuantity()
 {
     return quantity; 
 }
 
 /** Setter for {@link Sensor#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized Sensor setPadding(short pPadding)
+public synchronized Sensor setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link Sensor#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Sensor setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link Sensor#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -186,18 +177,14 @@ public short getPadding()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        sensorTypeSource.marshal(dos);
        sensorOnOffStatus.marshal(dos);
-       dos.writeShort(sensorType);
-       dos.writeInt(station);
-       dos.writeShort(quantity);
-       dos.writeShort(padding);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) sensorType);
+       dos.writeInt(station.intValue());
+       dos.writeShort((short) quantity);
+       dos.writeShort((short) padding);
     }
 }
 
@@ -213,24 +200,20 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         sensorTypeSource = SensorTypeSource.unmarshalEnum(dis);
         uPosition += sensorTypeSource.getMarshalledSize();
         sensorOnOffStatus = SensorOnOffStatus.unmarshalEnum(dis);
         uPosition += sensorOnOffStatus.getMarshalledSize();
-        sensorType = (short)dis.readUnsignedShort();
+        sensorType = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        station = dis.readInt();
+        station = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        quantity = (short)dis.readUnsignedShort();
+        quantity = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -248,10 +231,10 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    sensorTypeSource.marshal(byteBuffer);
    sensorOnOffStatus.marshal(byteBuffer);
-   byteBuffer.putShort( (short)sensorType);
-   byteBuffer.putInt( (int)station);
-   byteBuffer.putShort( (short)quantity);
-   byteBuffer.putShort( (short)padding);
+   byteBuffer.putShort((short) sensorType);
+   byteBuffer.putInt(station.intValue());
+   byteBuffer.putShort((short) quantity);
+   byteBuffer.putShort((short) padding);
 }
 
 /**
@@ -266,26 +249,76 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute sensorTypeSource marked as not serialized
         sensorTypeSource = SensorTypeSource.unmarshalEnum(byteBuffer);
-        // attribute sensorOnOffStatus marked as not serialized
         sensorOnOffStatus = SensorOnOffStatus.unmarshalEnum(byteBuffer);
-        // attribute sensorType marked as not serialized
-        sensorType = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute station marked as not serialized
-        station = byteBuffer.getInt();
-        // attribute quantity marked as not serialized
-        quantity = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        sensorType = Short.toUnsignedInt(byteBuffer.getShort());
+        station = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        quantity = Short.toUnsignedInt(byteBuffer.getShort());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("sensorTypeSource", SensorTypeSource.unmarshalEnum(byteBuffer).getValue());
+    map.put("sensorOnOffStatus", SensorOnOffStatus.unmarshalEnum(byteBuffer).getValue());
+    map.put("sensorType", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("station", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("quantity", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    SensorTypeSource.getEnumForValue(((Number) map.get("sensorTypeSource")).intValue()).marshal(byteBuffer);
+    SensorOnOffStatus.getEnumForValue(((Number) map.get("sensorOnOffStatus")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("sensorType")).shortValue());
+    byteBuffer.putInt(((Number) map.get("station")).intValue());
+    byteBuffer.putShort(((Number) map.get("quantity")).shortValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += SensorTypeSource.getEnumForValue(((Number) map.get("sensorTypeSource")).intValue()).getMarshalledSize();
+    marshalSize += SensorOnOffStatus.getEnumForValue(((Number) map.get("sensorOnOffStatus")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // sensorType
+    marshalSize += 4;  // station
+    marshalSize += 2;  // quantity
+    marshalSize += 2;  // padding
+
+    return marshalSize;
 }
 
  /*

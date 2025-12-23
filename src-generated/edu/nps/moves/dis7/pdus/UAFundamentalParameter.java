@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Regeneration parameters for active emission systems that are variable throughout a scenario. Section 6.2.91
@@ -25,16 +27,20 @@ public class UAFundamentalParameter extends Object implements Serializable, Mars
    /** The type of scan pattern, If not used, zero uid 147 */
    protected UAScanPattern scanPattern = UAScanPattern.values()[0];
 
-   /** center azimuth bearing of th emain beam. In radians. */
+   /** center azimuth bearing of th emain beam. In radians. 
+   Value space: float32 */
    protected float beamCenterAzimuthHorizontal;
 
-   /** Horizontal beamwidth of th emain beam Meastued at the 3dB down point of peak radiated power. In radians. */
+   /** Horizontal beamwidth of th emain beam Meastued at the 3dB down point of peak radiated power. In radians. 
+   Value space: float32 */
    protected float azimuthalBeamwidthHorizontal;
 
-   /** center of the d/e angle of th emain beam relative to the stablised de angle of the target. In radians. */
+   /** center of the d/e angle of th emain beam relative to the stablised de angle of the target. In radians. 
+   Value space: float32 */
    protected float beamCenterDepressionElevation;
 
-   /** vertical beamwidth of the main beam. Meastured at the 3dB down point of peak radiated power. In radians. */
+   /** vertical beamwidth of the main beam. Meastured at the 3dB down point of peak radiated power. In radians. 
+   Value space: float32 */
    protected float depressionElevationBeamWidth;
 
 
@@ -97,7 +103,7 @@ public UAScanPattern getScanPattern()
 }
 
 /** Setter for {@link UAFundamentalParameter#beamCenterAzimuthHorizontal}
-  * @param pBeamCenterAzimuthHorizontal new value of interest
+  * @param pBeamCenterAzimuthHorizontal new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized UAFundamentalParameter setBeamCenterAzimuthHorizontal(float pBeamCenterAzimuthHorizontal)
 {
@@ -112,7 +118,7 @@ public float getBeamCenterAzimuthHorizontal()
 }
 
 /** Setter for {@link UAFundamentalParameter#azimuthalBeamwidthHorizontal}
-  * @param pAzimuthalBeamwidthHorizontal new value of interest
+  * @param pAzimuthalBeamwidthHorizontal new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized UAFundamentalParameter setAzimuthalBeamwidthHorizontal(float pAzimuthalBeamwidthHorizontal)
 {
@@ -127,7 +133,7 @@ public float getAzimuthalBeamwidthHorizontal()
 }
 
 /** Setter for {@link UAFundamentalParameter#beamCenterDepressionElevation}
-  * @param pBeamCenterDepressionElevation new value of interest
+  * @param pBeamCenterDepressionElevation new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized UAFundamentalParameter setBeamCenterDepressionElevation(float pBeamCenterDepressionElevation)
 {
@@ -142,7 +148,7 @@ public float getBeamCenterDepressionElevation()
 }
 
 /** Setter for {@link UAFundamentalParameter#depressionElevationBeamWidth}
-  * @param pDepressionElevationBeamWidth new value of interest
+  * @param pDepressionElevationBeamWidth new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized UAFundamentalParameter setDepressionElevationBeamWidth(float pDepressionElevationBeamWidth)
 {
@@ -165,7 +171,7 @@ public float getDepressionElevationBeamWidth()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        activeEmissionParameterIndex.marshal(dos);
        scanPattern.marshal(dos);
@@ -173,10 +179,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        dos.writeFloat(azimuthalBeamwidthHorizontal);
        dos.writeFloat(beamCenterDepressionElevation);
        dos.writeFloat(depressionElevationBeamWidth);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -192,24 +194,20 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         activeEmissionParameterIndex = UAActiveEmissionParameterIndex.unmarshalEnum(dis);
         uPosition += activeEmissionParameterIndex.getMarshalledSize();
         scanPattern = UAScanPattern.unmarshalEnum(dis);
         uPosition += scanPattern.getMarshalledSize();
-        beamCenterAzimuthHorizontal = dis.readFloat();
+        beamCenterAzimuthHorizontal = (float) dis.readFloat();
         uPosition += 4;
-        azimuthalBeamwidthHorizontal = dis.readFloat();
+        azimuthalBeamwidthHorizontal = (float) dis.readFloat();
         uPosition += 4;
-        beamCenterDepressionElevation = dis.readFloat();
+        beamCenterDepressionElevation = (float) dis.readFloat();
         uPosition += 4;
-        depressionElevationBeamWidth = dis.readFloat();
+        depressionElevationBeamWidth = (float) dis.readFloat();
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -227,10 +225,10 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    activeEmissionParameterIndex.marshal(byteBuffer);
    scanPattern.marshal(byteBuffer);
-   byteBuffer.putFloat( (float)beamCenterAzimuthHorizontal);
-   byteBuffer.putFloat( (float)azimuthalBeamwidthHorizontal);
-   byteBuffer.putFloat( (float)beamCenterDepressionElevation);
-   byteBuffer.putFloat( (float)depressionElevationBeamWidth);
+   byteBuffer.putFloat(beamCenterAzimuthHorizontal);
+   byteBuffer.putFloat(azimuthalBeamwidthHorizontal);
+   byteBuffer.putFloat(beamCenterDepressionElevation);
+   byteBuffer.putFloat(depressionElevationBeamWidth);
 }
 
 /**
@@ -245,26 +243,76 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute activeEmissionParameterIndex marked as not serialized
         activeEmissionParameterIndex = UAActiveEmissionParameterIndex.unmarshalEnum(byteBuffer);
-        // attribute scanPattern marked as not serialized
         scanPattern = UAScanPattern.unmarshalEnum(byteBuffer);
-        // attribute beamCenterAzimuthHorizontal marked as not serialized
-        beamCenterAzimuthHorizontal = byteBuffer.getFloat();
-        // attribute azimuthalBeamwidthHorizontal marked as not serialized
-        azimuthalBeamwidthHorizontal = byteBuffer.getFloat();
-        // attribute beamCenterDepressionElevation marked as not serialized
-        beamCenterDepressionElevation = byteBuffer.getFloat();
-        // attribute depressionElevationBeamWidth marked as not serialized
-        depressionElevationBeamWidth = byteBuffer.getFloat();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        beamCenterAzimuthHorizontal = (float) byteBuffer.getFloat();
+        azimuthalBeamwidthHorizontal = (float) byteBuffer.getFloat();
+        beamCenterDepressionElevation = (float) byteBuffer.getFloat();
+        depressionElevationBeamWidth = (float) byteBuffer.getFloat();
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("activeEmissionParameterIndex", UAActiveEmissionParameterIndex.unmarshalEnum(byteBuffer).getValue());
+    map.put("scanPattern", UAScanPattern.unmarshalEnum(byteBuffer).getValue());
+    map.put("beamCenterAzimuthHorizontal", (float) byteBuffer.getFloat());
+    map.put("azimuthalBeamwidthHorizontal", (float) byteBuffer.getFloat());
+    map.put("beamCenterDepressionElevation", (float) byteBuffer.getFloat());
+    map.put("depressionElevationBeamWidth", (float) byteBuffer.getFloat());
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    UAActiveEmissionParameterIndex.getEnumForValue(((Number) map.get("activeEmissionParameterIndex")).intValue()).marshal(byteBuffer);
+    UAScanPattern.getEnumForValue(((Number) map.get("scanPattern")).intValue()).marshal(byteBuffer);
+    byteBuffer.putFloat(((Number) map.get("beamCenterAzimuthHorizontal")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("azimuthalBeamwidthHorizontal")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("beamCenterDepressionElevation")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("depressionElevationBeamWidth")).floatValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += UAActiveEmissionParameterIndex.getEnumForValue(((Number) map.get("activeEmissionParameterIndex")).intValue()).getMarshalledSize();
+    marshalSize += UAScanPattern.getEnumForValue(((Number) map.get("scanPattern")).intValue()).getMarshalledSize();
+    marshalSize += 4;  // beamCenterAzimuthHorizontal
+    marshalSize += 4;  // azimuthalBeamwidthHorizontal
+    marshalSize += 4;  // beamCenterDepressionElevation
+    marshalSize += 4;  // depressionElevationBeamWidth
+
+    return marshalSize;
 }
 
  /*

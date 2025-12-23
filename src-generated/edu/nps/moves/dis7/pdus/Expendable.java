@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * An entity's expendable (chaff, flares, etc.) information. Section 6.2.36
@@ -22,17 +24,20 @@ public class Expendable extends Object implements Serializable, Marshaller
    /** Type of expendable */
    protected EntityType  expendable = new EntityType(); 
 
-   /** station is an undescribed parameter... */
-   protected int station;
+   /** station is an undescribed parameter...
+   Value space: uint32 */
+   protected UnsignedInteger station = UnsignedInteger.ZERO;
 
-   /** quantity is an undescribed parameter... */
-   protected short quantity;
+   /** quantity is an undescribed parameter...
+   Value space: uint16 */
+   protected int quantity;
 
    /**  uid 327 */
    protected MunitionExpendableStatus expendableStatus = MunitionExpendableStatus.values()[0];
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected byte padding = (byte)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint8 */
+   protected int padding = (int) 0;
 
 
 /** Constructor creates and configures a new instance object */
@@ -79,38 +84,33 @@ public EntityType getExpendable()
 
 
 /** Setter for {@link Expendable#station}
-  * @param pStation new value of interest
+  * @param pStation new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized Expendable setStation(int pStation)
+public synchronized Expendable setStation(UnsignedInteger pStation)
 {
     station = pStation;
     return this;
 }
 /** Getter for {@link Expendable#station}
   * @return value of interest */
-public int getStation()
+public UnsignedInteger getStation()
 {
     return station; 
 }
 
 /** Setter for {@link Expendable#quantity}
-  * @param pQuantity new value of interest
+  * @param pQuantity new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized Expendable setQuantity(short pQuantity)
+public synchronized Expendable setQuantity(int pQuantity)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pQuantity >= 0 && pQuantity <= 65535, "Value outside valid value space");
     quantity = pQuantity;
-    return this;
-}
-/** Utility setter for {@link Expendable#quantity}
-  * @param pQuantity new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Expendable setQuantity(int pQuantity){
-    quantity = (short) pQuantity;
     return this;
 }
 /** Getter for {@link Expendable#quantity}
   * @return value of interest */
-public short getQuantity()
+public int getQuantity()
 {
     return quantity; 
 }
@@ -131,23 +131,18 @@ public MunitionExpendableStatus getExpendableStatus()
 }
 
 /** Setter for {@link Expendable#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized Expendable setPadding(byte pPadding)
+public synchronized Expendable setPadding(int pPadding)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 255, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link Expendable#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Expendable setPadding(int pPadding){
-    padding = (byte) pPadding;
     return this;
 }
 /** Getter for {@link Expendable#padding}
   * @return value of interest */
-public byte getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -161,17 +156,13 @@ public byte getPadding()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        expendable.marshal(dos);
-       dos.writeInt(station);
-       dos.writeShort(quantity);
+       dos.writeInt(station.intValue());
+       dos.writeShort((short) quantity);
        expendableStatus.marshal(dos);
-       dos.writeByte(padding);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) padding);
     }
 }
 
@@ -187,21 +178,17 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         uPosition += expendable.unmarshal(dis);
-        station = dis.readInt();
+        station = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        quantity = (short)dis.readUnsignedShort();
+        quantity = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         expendableStatus = MunitionExpendableStatus.unmarshalEnum(dis);
         uPosition += expendableStatus.getMarshalledSize();
-        padding = (byte)dis.readUnsignedByte();
+        padding = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -218,10 +205,10 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    expendable.marshal(byteBuffer);
-   byteBuffer.putInt( (int)station);
-   byteBuffer.putShort( (short)quantity);
+   byteBuffer.putInt(station.intValue());
+   byteBuffer.putShort((short) quantity);
    expendableStatus.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding);
+   byteBuffer.put((byte) padding);
 }
 
 /**
@@ -236,24 +223,72 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute expendable marked as not serialized
         expendable.unmarshal(byteBuffer);
-        // attribute station marked as not serialized
-        station = byteBuffer.getInt();
-        // attribute quantity marked as not serialized
-        quantity = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute expendableStatus marked as not serialized
+        station = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        quantity = Short.toUnsignedInt(byteBuffer.getShort());
         expendableStatus = MunitionExpendableStatus.unmarshalEnum(byteBuffer);
-        // attribute padding marked as not serialized
-        padding = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("expendable", EntityType.fromBufferToMap(byteBuffer));
+    map.put("station", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("quantity", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("expendableStatus", MunitionExpendableStatus.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityType.fromMapToBuffer((PduMap) map.get("expendable"), byteBuffer);
+    byteBuffer.putInt(((Number) map.get("station")).intValue());
+    byteBuffer.putShort(((Number) map.get("quantity")).shortValue());
+    MunitionExpendableStatus.getEnumForValue(((Number) map.get("expendableStatus")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("expendable"));
+    marshalSize += 4;  // station
+    marshalSize += 2;  // quantity
+    marshalSize += MunitionExpendableStatus.getEnumForValue(((Number) map.get("expendableStatus")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding
+
+    return marshalSize;
 }
 
  /*

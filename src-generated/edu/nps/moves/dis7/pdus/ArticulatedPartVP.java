@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  *  articulated parts for movable parts and a combination of moveable/attached parts of an entity. Section 6.2.94.2
@@ -22,20 +24,25 @@ public class ArticulatedPartVP extends Object implements Serializable, Marshalle
    /** The identification of the Variable Parameter record. Enumeration from EBV uid 56 */
    protected VariableParameterRecordType recordType = VariableParameterRecordType.ARTICULATED_PART;
 
-   /** indicate the change of any parameter for any articulated part. Starts at zero, incremented for each change  */
-   protected byte changeIndicator = (byte)0;
+   /** indicate the change of any parameter for any articulated part. Starts at zero, incremented for each change  
+   Value space: uint8 */
+   protected int changeIndicator = (int) 0;
 
-   /** The identification of the articulated part to which this articulation parameter is attached. This field shall be specified by a 16-bit unsigned integer. This field shall contain the value zero if the articulated part is attached directly to the entity. */
-   protected short partAttachedTo = (short)0;
+   /** The identification of the articulated part to which this articulation parameter is attached. This field shall be specified by a 16-bit unsigned integer. This field shall contain the value zero if the articulated part is attached directly to the entity. 
+   Value space: uint16 */
+   protected int partAttachedTo = (int) 0;
 
-   /** The type of parameter represented, 32-bit enumeration */
-   protected int parameterType;
+   /** The type of parameter represented, 32-bit enumeration 
+   Value space: uint32 */
+   protected UnsignedInteger parameterType = UnsignedInteger.ZERO;
 
-   /** The definition of the 64-bits shall be determined based on the type of parameter specified in the Parameter Type field  */
+   /** The definition of the 64-bits shall be determined based on the type of parameter specified in the Parameter Type field  
+   Value space: float32 */
    protected float parameterValue;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected int padding;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint32 */
+   protected UnsignedInteger padding = UnsignedInteger.ZERO;
 
 
 /** Constructor creates and configures a new instance object */
@@ -81,66 +88,56 @@ public VariableParameterRecordType getRecordType()
 }
 
 /** Setter for {@link ArticulatedPartVP#changeIndicator}
-  * @param pChangeIndicator new value of interest
+  * @param pChangeIndicator new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized ArticulatedPartVP setChangeIndicator(byte pChangeIndicator)
+public synchronized ArticulatedPartVP setChangeIndicator(int pChangeIndicator)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pChangeIndicator >= 0 && pChangeIndicator <= 255, "Value outside valid value space");
     changeIndicator = pChangeIndicator;
-    return this;
-}
-/** Utility setter for {@link ArticulatedPartVP#changeIndicator}
-  * @param pChangeIndicator new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ArticulatedPartVP setChangeIndicator(int pChangeIndicator){
-    changeIndicator = (byte) pChangeIndicator;
     return this;
 }
 /** Getter for {@link ArticulatedPartVP#changeIndicator}
   * @return value of interest */
-public byte getChangeIndicator()
+public int getChangeIndicator()
 {
     return changeIndicator; 
 }
 
 /** Setter for {@link ArticulatedPartVP#partAttachedTo}
-  * @param pPartAttachedTo new value of interest
+  * @param pPartAttachedTo new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized ArticulatedPartVP setPartAttachedTo(short pPartAttachedTo)
+public synchronized ArticulatedPartVP setPartAttachedTo(int pPartAttachedTo)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPartAttachedTo >= 0 && pPartAttachedTo <= 65535, "Value outside valid value space");
     partAttachedTo = pPartAttachedTo;
-    return this;
-}
-/** Utility setter for {@link ArticulatedPartVP#partAttachedTo}
-  * @param pPartAttachedTo new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ArticulatedPartVP setPartAttachedTo(int pPartAttachedTo){
-    partAttachedTo = (short) pPartAttachedTo;
     return this;
 }
 /** Getter for {@link ArticulatedPartVP#partAttachedTo}
   * @return value of interest */
-public short getPartAttachedTo()
+public int getPartAttachedTo()
 {
     return partAttachedTo; 
 }
 
 /** Setter for {@link ArticulatedPartVP#parameterType}
-  * @param pParameterType new value of interest
+  * @param pParameterType new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized ArticulatedPartVP setParameterType(int pParameterType)
+public synchronized ArticulatedPartVP setParameterType(UnsignedInteger pParameterType)
 {
     parameterType = pParameterType;
     return this;
 }
 /** Getter for {@link ArticulatedPartVP#parameterType}
   * @return value of interest */
-public int getParameterType()
+public UnsignedInteger getParameterType()
 {
     return parameterType; 
 }
 
 /** Setter for {@link ArticulatedPartVP#parameterValue}
-  * @param pParameterValue new value of interest
+  * @param pParameterValue new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized ArticulatedPartVP setParameterValue(float pParameterValue)
 {
@@ -155,16 +152,16 @@ public float getParameterValue()
 }
 
 /** Setter for {@link ArticulatedPartVP#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized ArticulatedPartVP setPadding(int pPadding)
+public synchronized ArticulatedPartVP setPadding(UnsignedInteger pPadding)
 {
     padding = pPadding;
     return this;
 }
 /** Getter for {@link ArticulatedPartVP#padding}
   * @return value of interest */
-public int getPadding()
+public UnsignedInteger getPadding()
 {
     return padding; 
 }
@@ -178,18 +175,14 @@ public int getPadding()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        recordType.marshal(dos);
-       dos.writeByte(changeIndicator);
-       dos.writeShort(partAttachedTo);
-       dos.writeInt(parameterType);
+       dos.writeByte((byte) changeIndicator);
+       dos.writeShort((short) partAttachedTo);
+       dos.writeInt(parameterType.intValue());
        dos.writeFloat(parameterValue);
-       dos.writeInt(padding);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeInt(padding.intValue());
     }
 }
 
@@ -205,24 +198,20 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         recordType = VariableParameterRecordType.unmarshalEnum(dis);
         uPosition += recordType.getMarshalledSize();
-        changeIndicator = (byte)dis.readUnsignedByte();
+        changeIndicator = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        partAttachedTo = (short)dis.readUnsignedShort();
+        partAttachedTo = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        parameterType = dis.readInt();
+        parameterType = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        parameterValue = dis.readFloat();
+        parameterValue = (float) dis.readFloat();
         uPosition += 4;
-        padding = dis.readInt();
+        padding = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -239,11 +228,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    recordType.marshal(byteBuffer);
-   byteBuffer.put( (byte)changeIndicator);
-   byteBuffer.putShort( (short)partAttachedTo);
-   byteBuffer.putInt( (int)parameterType);
-   byteBuffer.putFloat( (float)parameterValue);
-   byteBuffer.putInt( (int)padding);
+   byteBuffer.put((byte) changeIndicator);
+   byteBuffer.putShort((short) partAttachedTo);
+   byteBuffer.putInt(parameterType.intValue());
+   byteBuffer.putFloat(parameterValue);
+   byteBuffer.putInt(padding.intValue());
 }
 
 /**
@@ -258,26 +247,76 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute recordType marked as not serialized
         recordType = VariableParameterRecordType.unmarshalEnum(byteBuffer);
-        // attribute changeIndicator marked as not serialized
-        changeIndicator = (byte)(byteBuffer.get() & 0xFF);
-        // attribute partAttachedTo marked as not serialized
-        partAttachedTo = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute parameterType marked as not serialized
-        parameterType = byteBuffer.getInt();
-        // attribute parameterValue marked as not serialized
-        parameterValue = byteBuffer.getFloat();
-        // attribute padding marked as not serialized
-        padding = byteBuffer.getInt();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        changeIndicator = Byte.toUnsignedInt(byteBuffer.get());
+        partAttachedTo = Short.toUnsignedInt(byteBuffer.getShort());
+        parameterType = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        parameterValue = (float) byteBuffer.getFloat();
+        padding = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("recordType", VariableParameterRecordType.unmarshalEnum(byteBuffer).getValue());
+    map.put("changeIndicator", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("partAttachedTo", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("parameterType", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("parameterValue", (float) byteBuffer.getFloat());
+    map.put("padding", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    VariableParameterRecordType.getEnumForValue(((Number) map.get("recordType")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("changeIndicator")).byteValue());
+    byteBuffer.putShort(((Number) map.get("partAttachedTo")).shortValue());
+    byteBuffer.putInt(((Number) map.get("parameterType")).intValue());
+    byteBuffer.putFloat(((Number) map.get("parameterValue")).floatValue());
+    byteBuffer.putInt(((Number) map.get("padding")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += VariableParameterRecordType.getEnumForValue(((Number) map.get("recordType")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // changeIndicator
+    marshalSize += 2;  // partAttachedTo
+    marshalSize += 4;  // parameterType
+    marshalSize += 4;  // parameterValue
+    marshalSize += 4;  // padding
+
+    return marshalSize;
 }
 
  /*

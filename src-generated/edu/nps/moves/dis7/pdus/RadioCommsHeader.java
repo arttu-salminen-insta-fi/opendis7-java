@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Common PDU fields for Radio Communications family
@@ -22,8 +24,9 @@ public class RadioCommsHeader extends Object implements Serializable, Marshaller
    /** ID of the entitythat is the source of the communication */
    protected EntityID  radioReferenceID = new EntityID(); 
 
-   /** particular radio within an entity */
-   protected short radioNumber;
+   /** particular radio within an entity 
+   Value space: uint16 */
+   protected int radioNumber;
 
 
 /** Constructor creates and configures a new instance object */
@@ -66,23 +69,18 @@ public EntityID getRadioReferenceID()
 
 
 /** Setter for {@link RadioCommsHeader#radioNumber}
-  * @param pRadioNumber new value of interest
+  * @param pRadioNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized RadioCommsHeader setRadioNumber(short pRadioNumber)
+public synchronized RadioCommsHeader setRadioNumber(int pRadioNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pRadioNumber >= 0 && pRadioNumber <= 65535, "Value outside valid value space");
     radioNumber = pRadioNumber;
-    return this;
-}
-/** Utility setter for {@link RadioCommsHeader#radioNumber}
-  * @param pRadioNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RadioCommsHeader setRadioNumber(int pRadioNumber){
-    radioNumber = (short) pRadioNumber;
     return this;
 }
 /** Getter for {@link RadioCommsHeader#radioNumber}
   * @return value of interest */
-public short getRadioNumber()
+public int getRadioNumber()
 {
     return radioNumber; 
 }
@@ -96,14 +94,10 @@ public short getRadioNumber()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        radioReferenceID.marshal(dos);
-       dos.writeShort(radioNumber);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) radioNumber);
     }
 }
 
@@ -119,15 +113,11 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         uPosition += radioReferenceID.unmarshal(dis);
-        radioNumber = (short)dis.readUnsignedShort();
+        radioNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -144,7 +134,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    radioReferenceID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)radioNumber);
+   byteBuffer.putShort((short) radioNumber);
 }
 
 /**
@@ -159,18 +149,60 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute radioReferenceID marked as not serialized
         radioReferenceID.unmarshal(byteBuffer);
-        // attribute radioNumber marked as not serialized
-        radioNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        radioNumber = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("radioReferenceID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("radioNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityID.fromMapToBuffer((PduMap) map.get("radioReferenceID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("radioNumber")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("radioReferenceID"));
+    marshalSize += 2;  // radioNumber
+
+    return marshalSize;
 }
 
  /*

@@ -181,6 +181,49 @@ public class PduStatus
       return 1;
     }
 
+  /**
+   * Unpacks a Pdu into a map from the underlying data.
+   * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+   * @see java.nio.ByteBuffer
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @param byteBuffer The ByteBuffer at the position to begin reading
+   * @return marshalled serialized size in bytes
+   * @throws Exception ByteBuffer-generated exception
+   */
+  public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+    PduMap map = new PduMap();
+    map.put("value", byteBuffer.get());
+    return map;
+  }
+
+  /**
+   * Packs a Pdu represented in map into the ByteBuffer.
+   * @throws java.nio.BufferOverflowException if byteBuffer is too small
+   * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+   * @see java.nio.ByteBuffer
+   * @param byteBuffer The ByteBuffer at the position to begin writing
+   * @throws Exception ByteBuffer-generated exception
+   */
+  public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+  {
+    byteBuffer.put(((Number) map.get("value")).byteValue());
+  }
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   */
+  public static int getMarshalledSize(PduMap map)
+  {
+    int marshalSize = 0;
+
+    marshalSize += 1; // value
+
+    return marshalSize;
+  }
+
     /**
      * Object equality comparison
      * @param obj object to compare

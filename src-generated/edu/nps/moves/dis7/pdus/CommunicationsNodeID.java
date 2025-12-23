@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Identity of a communications node. Section 6.2.48.4
@@ -22,8 +24,9 @@ public class CommunicationsNodeID extends Object implements Serializable, Marsha
    /** entityID is an undescribed parameter... */
    protected EntityID  entityID = new EntityID(); 
 
-   /** elementID is an undescribed parameter... */
-   protected short elementID;
+   /** elementID is an undescribed parameter...
+   Value space: uint16 */
+   protected int elementID;
 
 
 /** Constructor creates and configures a new instance object */
@@ -66,23 +69,18 @@ public EntityID getEntityID()
 
 
 /** Setter for {@link CommunicationsNodeID#elementID}
-  * @param pElementID new value of interest
+  * @param pElementID new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized CommunicationsNodeID setElementID(short pElementID)
+public synchronized CommunicationsNodeID setElementID(int pElementID)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pElementID >= 0 && pElementID <= 65535, "Value outside valid value space");
     elementID = pElementID;
-    return this;
-}
-/** Utility setter for {@link CommunicationsNodeID#elementID}
-  * @param pElementID new value of interest
-  * @return same object to permit progressive setters */
-public synchronized CommunicationsNodeID setElementID(int pElementID){
-    elementID = (short) pElementID;
     return this;
 }
 /** Getter for {@link CommunicationsNodeID#elementID}
   * @return value of interest */
-public short getElementID()
+public int getElementID()
 {
     return elementID; 
 }
@@ -96,14 +94,10 @@ public short getElementID()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        entityID.marshal(dos);
-       dos.writeShort(elementID);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) elementID);
     }
 }
 
@@ -119,15 +113,11 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         uPosition += entityID.unmarshal(dis);
-        elementID = (short)dis.readUnsignedShort();
+        elementID = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -144,7 +134,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    entityID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)elementID);
+   byteBuffer.putShort((short) elementID);
 }
 
 /**
@@ -159,18 +149,60 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute entityID marked as not serialized
         entityID.unmarshal(byteBuffer);
-        // attribute elementID marked as not serialized
-        elementID = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        elementID = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("entityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("elementID", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityID.fromMapToBuffer((PduMap) map.get("entityID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("elementID")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("entityID"));
+    marshalSize += 2;  // elementID
+
+    return marshalSize;
 }
 
  /*

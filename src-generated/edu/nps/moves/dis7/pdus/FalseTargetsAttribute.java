@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * The False Targets attribute record shall be used to communicate discrete values that are associated with false targets jamming that cannot be referenced to an emitter mode. The values provided in the False Targets attri- bute record shall be considered valid only for the victim radar beams listed in the jamming beam's Track/Jam Data records (provided in the associated Electromagnetic Emission PDU). Section 6.2.21.3
@@ -19,49 +21,63 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class FalseTargetsAttribute extends Object implements Serializable, Marshaller
 {
-   /** record type */
-   protected int recordType = (int)3502;
+   /** record type 
+   Value space: uint32 */
+   protected UnsignedInteger recordType = UnsignedInteger.valueOf(3502);
 
-   /** The length of the record in octets. */
-   protected short recordLength = (short)40;
+   /** The length of the record in octets. 
+   Value space: uint16 */
+   protected int recordLength = (int) 40;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding = (short)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding = (int) 0;
 
-   /** This field indicates the emitter system generating the false targets. */
-   protected byte emitterNumber;
+   /** This field indicates the emitter system generating the false targets. 
+   Value space: uint8 */
+   protected int emitterNumber;
 
-   /** This field indicates the jamming beam generating the false targets.  */
-   protected byte beamNumber;
+   /** This field indicates the jamming beam generating the false targets.  
+   Value space: uint8 */
+   protected int beamNumber;
 
    /** This field shall be used to indicate if false target data have changed since issuance of the last False Targets attribute record for this beam, if the False Targets attribute record is part of a heartbeat update to meet periodic update requirements or if false target data for the beam has ceased. uid 300 */
    protected EEAttributeStateIndicator stateIndicator = EEAttributeStateIndicator.values()[0];
 
-   /** padding */
-   protected byte padding2 = (byte)0;
+   /** padding 
+   Value space: uint8 */
+   protected int padding2 = (int) 0;
 
-   /** padding3 is an undescribed parameter... */
-   protected short padding3 = (short)0;
+   /** padding3 is an undescribed parameter...
+   Value space: uint16 */
+   protected int padding3 = (int) 0;
 
-   /** This field indicates the jamming beam generating the false targets.  */
-   protected short falseTargetCount;
+   /** This field indicates the jamming beam generating the false targets.  
+   Value space: uint16 */
+   protected int falseTargetCount;
 
-   /** This field shall specify the speed (in meters per second) at which false targets move toward the victim radar. Negative values shall indicate a velocity away from the victim radar.  */
+   /** This field shall specify the speed (in meters per second) at which false targets move toward the victim radar. Negative values shall indicate a velocity away from the victim radar.  
+   Value space: float32 */
    protected float walkSpeed;
 
-   /** This field shall specify the rate (in meters per second squared) at which false tar- gets accelerate toward the victim radar. Negative values shall indicate an acceleration direction away from the victim radar.  */
+   /** This field shall specify the rate (in meters per second squared) at which false tar- gets accelerate toward the victim radar. Negative values shall indicate an acceleration direction away from the victim radar.  
+   Value space: float32 */
    protected float walkAcceleration;
 
-   /** This field shall specify the distance (in meters) that a false target is to walk before it pauses in range.  */
+   /** This field shall specify the distance (in meters) that a false target is to walk before it pauses in range.  
+   Value space: float32 */
    protected float maximumWalkDistance;
 
-   /** This field shall specify the time (in seconds) that a false target is to be held at the Maxi- mum Walk Distance before it resets to its initial position.  */
+   /** This field shall specify the time (in seconds) that a false target is to be held at the Maxi- mum Walk Distance before it resets to its initial position.  
+   Value space: float32 */
    protected float keepTime;
 
-   /** This field shall specify the distance between false targets in meters. Positive values for this field shall indicate that second and subsequent false targets are initially placed at increasing ranges from the victim radar.  */
+   /** This field shall specify the distance between false targets in meters. Positive values for this field shall indicate that second and subsequent false targets are initially placed at increasing ranges from the victim radar.  
+   Value space: float32 */
    protected float echoSpacing;
 
-   /** Sets the position of the first false target relative to the jamming entity in meters. */
+   /** Sets the position of the first false target relative to the jamming entity in meters. 
+   Value space: float32 */
    protected float firstTargetOffset;
 
 
@@ -102,104 +118,84 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link FalseTargetsAttribute#recordType}
-  * @param pRecordType new value of interest
+  * @param pRecordType new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setRecordType(int pRecordType)
+public synchronized FalseTargetsAttribute setRecordType(UnsignedInteger pRecordType)
 {
     recordType = pRecordType;
     return this;
 }
 /** Getter for {@link FalseTargetsAttribute#recordType}
   * @return value of interest */
-public int getRecordType()
+public UnsignedInteger getRecordType()
 {
     return recordType; 
 }
 
 /** Setter for {@link FalseTargetsAttribute#recordLength}
-  * @param pRecordLength new value of interest
+  * @param pRecordLength new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setRecordLength(short pRecordLength)
+public synchronized FalseTargetsAttribute setRecordLength(int pRecordLength)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pRecordLength >= 0 && pRecordLength <= 65535, "Value outside valid value space");
     recordLength = pRecordLength;
-    return this;
-}
-/** Utility setter for {@link FalseTargetsAttribute#recordLength}
-  * @param pRecordLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setRecordLength(int pRecordLength){
-    recordLength = (short) pRecordLength;
     return this;
 }
 /** Getter for {@link FalseTargetsAttribute#recordLength}
   * @return value of interest */
-public short getRecordLength()
+public int getRecordLength()
 {
     return recordLength; 
 }
 
 /** Setter for {@link FalseTargetsAttribute#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setPadding(short pPadding)
+public synchronized FalseTargetsAttribute setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link FalseTargetsAttribute#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link FalseTargetsAttribute#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
 
 /** Setter for {@link FalseTargetsAttribute#emitterNumber}
-  * @param pEmitterNumber new value of interest
+  * @param pEmitterNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setEmitterNumber(byte pEmitterNumber)
+public synchronized FalseTargetsAttribute setEmitterNumber(int pEmitterNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pEmitterNumber >= 0 && pEmitterNumber <= 255, "Value outside valid value space");
     emitterNumber = pEmitterNumber;
-    return this;
-}
-/** Utility setter for {@link FalseTargetsAttribute#emitterNumber}
-  * @param pEmitterNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setEmitterNumber(int pEmitterNumber){
-    emitterNumber = (byte) pEmitterNumber;
     return this;
 }
 /** Getter for {@link FalseTargetsAttribute#emitterNumber}
   * @return value of interest */
-public byte getEmitterNumber()
+public int getEmitterNumber()
 {
     return emitterNumber; 
 }
 
 /** Setter for {@link FalseTargetsAttribute#beamNumber}
-  * @param pBeamNumber new value of interest
+  * @param pBeamNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setBeamNumber(byte pBeamNumber)
+public synchronized FalseTargetsAttribute setBeamNumber(int pBeamNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pBeamNumber >= 0 && pBeamNumber <= 255, "Value outside valid value space");
     beamNumber = pBeamNumber;
-    return this;
-}
-/** Utility setter for {@link FalseTargetsAttribute#beamNumber}
-  * @param pBeamNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setBeamNumber(int pBeamNumber){
-    beamNumber = (byte) pBeamNumber;
     return this;
 }
 /** Getter for {@link FalseTargetsAttribute#beamNumber}
   * @return value of interest */
-public byte getBeamNumber()
+public int getBeamNumber()
 {
     return beamNumber; 
 }
@@ -220,73 +216,58 @@ public EEAttributeStateIndicator getStateIndicator()
 }
 
 /** Setter for {@link FalseTargetsAttribute#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setPadding2(byte pPadding2)
+public synchronized FalseTargetsAttribute setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 255, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link FalseTargetsAttribute#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setPadding2(int pPadding2){
-    padding2 = (byte) pPadding2;
     return this;
 }
 /** Getter for {@link FalseTargetsAttribute#padding2}
   * @return value of interest */
-public byte getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
 
 /** Setter for {@link FalseTargetsAttribute#padding3}
-  * @param pPadding3 new value of interest
+  * @param pPadding3 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setPadding3(short pPadding3)
+public synchronized FalseTargetsAttribute setPadding3(int pPadding3)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding3 >= 0 && pPadding3 <= 65535, "Value outside valid value space");
     padding3 = pPadding3;
-    return this;
-}
-/** Utility setter for {@link FalseTargetsAttribute#padding3}
-  * @param pPadding3 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setPadding3(int pPadding3){
-    padding3 = (short) pPadding3;
     return this;
 }
 /** Getter for {@link FalseTargetsAttribute#padding3}
   * @return value of interest */
-public short getPadding3()
+public int getPadding3()
 {
     return padding3; 
 }
 
 /** Setter for {@link FalseTargetsAttribute#falseTargetCount}
-  * @param pFalseTargetCount new value of interest
+  * @param pFalseTargetCount new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setFalseTargetCount(short pFalseTargetCount)
+public synchronized FalseTargetsAttribute setFalseTargetCount(int pFalseTargetCount)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pFalseTargetCount >= 0 && pFalseTargetCount <= 65535, "Value outside valid value space");
     falseTargetCount = pFalseTargetCount;
-    return this;
-}
-/** Utility setter for {@link FalseTargetsAttribute#falseTargetCount}
-  * @param pFalseTargetCount new value of interest
-  * @return same object to permit progressive setters */
-public synchronized FalseTargetsAttribute setFalseTargetCount(int pFalseTargetCount){
-    falseTargetCount = (short) pFalseTargetCount;
     return this;
 }
 /** Getter for {@link FalseTargetsAttribute#falseTargetCount}
   * @return value of interest */
-public short getFalseTargetCount()
+public int getFalseTargetCount()
 {
     return falseTargetCount; 
 }
 
 /** Setter for {@link FalseTargetsAttribute#walkSpeed}
-  * @param pWalkSpeed new value of interest
+  * @param pWalkSpeed new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized FalseTargetsAttribute setWalkSpeed(float pWalkSpeed)
 {
@@ -301,7 +282,7 @@ public float getWalkSpeed()
 }
 
 /** Setter for {@link FalseTargetsAttribute#walkAcceleration}
-  * @param pWalkAcceleration new value of interest
+  * @param pWalkAcceleration new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized FalseTargetsAttribute setWalkAcceleration(float pWalkAcceleration)
 {
@@ -316,7 +297,7 @@ public float getWalkAcceleration()
 }
 
 /** Setter for {@link FalseTargetsAttribute#maximumWalkDistance}
-  * @param pMaximumWalkDistance new value of interest
+  * @param pMaximumWalkDistance new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized FalseTargetsAttribute setMaximumWalkDistance(float pMaximumWalkDistance)
 {
@@ -331,7 +312,7 @@ public float getMaximumWalkDistance()
 }
 
 /** Setter for {@link FalseTargetsAttribute#keepTime}
-  * @param pKeepTime new value of interest
+  * @param pKeepTime new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized FalseTargetsAttribute setKeepTime(float pKeepTime)
 {
@@ -346,7 +327,7 @@ public float getKeepTime()
 }
 
 /** Setter for {@link FalseTargetsAttribute#echoSpacing}
-  * @param pEchoSpacing new value of interest
+  * @param pEchoSpacing new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized FalseTargetsAttribute setEchoSpacing(float pEchoSpacing)
 {
@@ -361,7 +342,7 @@ public float getEchoSpacing()
 }
 
 /** Setter for {@link FalseTargetsAttribute#firstTargetOffset}
-  * @param pFirstTargetOffset new value of interest
+  * @param pFirstTargetOffset new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized FalseTargetsAttribute setFirstTargetOffset(float pFirstTargetOffset)
 {
@@ -384,27 +365,23 @@ public float getFirstTargetOffset()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeInt(recordType);
-       dos.writeShort(recordLength);
-       dos.writeShort(padding);
-       dos.writeByte(emitterNumber);
-       dos.writeByte(beamNumber);
+       dos.writeInt(recordType.intValue());
+       dos.writeShort((short) recordLength);
+       dos.writeShort((short) padding);
+       dos.writeByte((byte) emitterNumber);
+       dos.writeByte((byte) beamNumber);
        stateIndicator.marshal(dos);
-       dos.writeByte(padding2);
-       dos.writeShort(padding3);
-       dos.writeShort(falseTargetCount);
+       dos.writeByte((byte) padding2);
+       dos.writeShort((short) padding3);
+       dos.writeShort((short) falseTargetCount);
        dos.writeFloat(walkSpeed);
        dos.writeFloat(walkAcceleration);
        dos.writeFloat(maximumWalkDistance);
        dos.writeFloat(keepTime);
        dos.writeFloat(echoSpacing);
        dos.writeFloat(firstTargetOffset);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -420,42 +397,38 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        recordType = dis.readInt();
+        recordType = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        recordLength = (short)dis.readUnsignedShort();
+        recordLength = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        emitterNumber = (byte)dis.readUnsignedByte();
+        emitterNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        beamNumber = (byte)dis.readUnsignedByte();
+        beamNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         stateIndicator = EEAttributeStateIndicator.unmarshalEnum(dis);
         uPosition += stateIndicator.getMarshalledSize();
-        padding2 = (byte)dis.readUnsignedByte();
+        padding2 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding3 = (short)dis.readUnsignedShort();
+        padding3 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        falseTargetCount = (short)dis.readUnsignedShort();
+        falseTargetCount = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        walkSpeed = dis.readFloat();
+        walkSpeed = (float) dis.readFloat();
         uPosition += 4;
-        walkAcceleration = dis.readFloat();
+        walkAcceleration = (float) dis.readFloat();
         uPosition += 4;
-        maximumWalkDistance = dis.readFloat();
+        maximumWalkDistance = (float) dis.readFloat();
         uPosition += 4;
-        keepTime = dis.readFloat();
+        keepTime = (float) dis.readFloat();
         uPosition += 4;
-        echoSpacing = dis.readFloat();
+        echoSpacing = (float) dis.readFloat();
         uPosition += 4;
-        firstTargetOffset = dis.readFloat();
+        firstTargetOffset = (float) dis.readFloat();
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -471,21 +444,21 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putInt( (int)recordType);
-   byteBuffer.putShort( (short)recordLength);
-   byteBuffer.putShort( (short)padding);
-   byteBuffer.put( (byte)emitterNumber);
-   byteBuffer.put( (byte)beamNumber);
+   byteBuffer.putInt(recordType.intValue());
+   byteBuffer.putShort((short) recordLength);
+   byteBuffer.putShort((short) padding);
+   byteBuffer.put((byte) emitterNumber);
+   byteBuffer.put((byte) beamNumber);
    stateIndicator.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding2);
-   byteBuffer.putShort( (short)padding3);
-   byteBuffer.putShort( (short)falseTargetCount);
-   byteBuffer.putFloat( (float)walkSpeed);
-   byteBuffer.putFloat( (float)walkAcceleration);
-   byteBuffer.putFloat( (float)maximumWalkDistance);
-   byteBuffer.putFloat( (float)keepTime);
-   byteBuffer.putFloat( (float)echoSpacing);
-   byteBuffer.putFloat( (float)firstTargetOffset);
+   byteBuffer.put((byte) padding2);
+   byteBuffer.putShort((short) padding3);
+   byteBuffer.putShort((short) falseTargetCount);
+   byteBuffer.putFloat(walkSpeed);
+   byteBuffer.putFloat(walkAcceleration);
+   byteBuffer.putFloat(maximumWalkDistance);
+   byteBuffer.putFloat(keepTime);
+   byteBuffer.putFloat(echoSpacing);
+   byteBuffer.putFloat(firstTargetOffset);
 }
 
 /**
@@ -500,44 +473,112 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute recordType marked as not serialized
-        recordType = byteBuffer.getInt();
-        // attribute recordLength marked as not serialized
-        recordLength = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute emitterNumber marked as not serialized
-        emitterNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute beamNumber marked as not serialized
-        beamNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute stateIndicator marked as not serialized
+        recordType = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        recordLength = Short.toUnsignedInt(byteBuffer.getShort());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
+        emitterNumber = Byte.toUnsignedInt(byteBuffer.get());
+        beamNumber = Byte.toUnsignedInt(byteBuffer.get());
         stateIndicator = EEAttributeStateIndicator.unmarshalEnum(byteBuffer);
-        // attribute padding2 marked as not serialized
-        padding2 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding3 marked as not serialized
-        padding3 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute falseTargetCount marked as not serialized
-        falseTargetCount = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute walkSpeed marked as not serialized
-        walkSpeed = byteBuffer.getFloat();
-        // attribute walkAcceleration marked as not serialized
-        walkAcceleration = byteBuffer.getFloat();
-        // attribute maximumWalkDistance marked as not serialized
-        maximumWalkDistance = byteBuffer.getFloat();
-        // attribute keepTime marked as not serialized
-        keepTime = byteBuffer.getFloat();
-        // attribute echoSpacing marked as not serialized
-        echoSpacing = byteBuffer.getFloat();
-        // attribute firstTargetOffset marked as not serialized
-        firstTargetOffset = byteBuffer.getFloat();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding2 = Byte.toUnsignedInt(byteBuffer.get());
+        padding3 = Short.toUnsignedInt(byteBuffer.getShort());
+        falseTargetCount = Short.toUnsignedInt(byteBuffer.getShort());
+        walkSpeed = (float) byteBuffer.getFloat();
+        walkAcceleration = (float) byteBuffer.getFloat();
+        maximumWalkDistance = (float) byteBuffer.getFloat();
+        keepTime = (float) byteBuffer.getFloat();
+        echoSpacing = (float) byteBuffer.getFloat();
+        firstTargetOffset = (float) byteBuffer.getFloat();
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("recordType", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("recordLength", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("emitterNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("beamNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("stateIndicator", EEAttributeStateIndicator.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding2", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding3", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("falseTargetCount", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("walkSpeed", (float) byteBuffer.getFloat());
+    map.put("walkAcceleration", (float) byteBuffer.getFloat());
+    map.put("maximumWalkDistance", (float) byteBuffer.getFloat());
+    map.put("keepTime", (float) byteBuffer.getFloat());
+    map.put("echoSpacing", (float) byteBuffer.getFloat());
+    map.put("firstTargetOffset", (float) byteBuffer.getFloat());
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putInt(((Number) map.get("recordType")).intValue());
+    byteBuffer.putShort(((Number) map.get("recordLength")).shortValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+    byteBuffer.put(((Number) map.get("emitterNumber")).byteValue());
+    byteBuffer.put(((Number) map.get("beamNumber")).byteValue());
+    EEAttributeStateIndicator.getEnumForValue(((Number) map.get("stateIndicator")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding2")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding3")).shortValue());
+    byteBuffer.putShort(((Number) map.get("falseTargetCount")).shortValue());
+    byteBuffer.putFloat(((Number) map.get("walkSpeed")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("walkAcceleration")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("maximumWalkDistance")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("keepTime")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("echoSpacing")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("firstTargetOffset")).floatValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // recordType
+    marshalSize += 2;  // recordLength
+    marshalSize += 2;  // padding
+    marshalSize += 1;  // emitterNumber
+    marshalSize += 1;  // beamNumber
+    marshalSize += EEAttributeStateIndicator.getEnumForValue(((Number) map.get("stateIndicator")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding2
+    marshalSize += 2;  // padding3
+    marshalSize += 2;  // falseTargetCount
+    marshalSize += 4;  // walkSpeed
+    marshalSize += 4;  // walkAcceleration
+    marshalSize += 4;  // maximumWalkDistance
+    marshalSize += 4;  // keepTime
+    marshalSize += 4;  // echoSpacing
+    marshalSize += 4;  // firstTargetOffset
+
+    return marshalSize;
 }
 
  /*

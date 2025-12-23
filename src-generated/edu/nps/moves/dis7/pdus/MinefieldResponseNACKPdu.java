@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -30,14 +32,20 @@ public class MinefieldResponseNACKPdu extends MinefieldFamilyPdu implements Seri
    /** entity ID making the request */
    protected SimulationIdentifier  requestingEntityID = new SimulationIdentifier(); 
 
-   /** request ID provides a unique identifier */
-   protected byte requestID;
+   /** request ID provides a unique identifier 
+   Value space: uint8 */
+   protected int requestID;
 
-   /** how many pdus were missing */
-   protected byte numberOfMissingPdus;
+   /** how many pdus were missing 
+   Value space: uint8 */
+   protected int numberOfMissingPdus;
 
    /** PDU sequence numbers that were missing */
    protected byte[]  missingPduSequenceNumbers = new byte[0]; 
+
+   /** pad to 32-bit boundary */
+
+   private byte[] padding = new byte[0];
 
 
 /** Constructor creates and configures a new instance object */
@@ -127,6 +135,8 @@ public synchronized int getMarshalledSize()
    marshalSize += 1;  // numberOfMissingPdus
    if (missingPduSequenceNumbers != null)
        marshalSize += missingPduSequenceNumbers.length * 1;
+   if (padding != null)
+       marshalSize += padding.length;
 
    return marshalSize;
 }
@@ -165,23 +175,18 @@ public SimulationIdentifier getRequestingEntityID()
 
 
 /** Setter for {@link MinefieldResponseNACKPdu#requestID}
-  * @param pRequestID new value of interest
+  * @param pRequestID new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized MinefieldResponseNACKPdu setRequestID(byte pRequestID)
+public synchronized MinefieldResponseNACKPdu setRequestID(int pRequestID)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pRequestID >= 0 && pRequestID <= 255, "Value outside valid value space");
     requestID = pRequestID;
-    return this;
-}
-/** Utility setter for {@link MinefieldResponseNACKPdu#requestID}
-  * @param pRequestID new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MinefieldResponseNACKPdu setRequestID(int pRequestID){
-    requestID = (byte) pRequestID;
     return this;
 }
 /** Getter for {@link MinefieldResponseNACKPdu#requestID}
   * @return value of interest */
-public byte getRequestID()
+public int getRequestID()
 {
     return requestID; 
 }
@@ -211,20 +216,18 @@ public byte[] getMissingPduSequenceNumbers()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        minefieldID.marshal(dos);
        requestingEntityID.marshal(dos);
-       dos.writeByte(requestID);
+       dos.writeByte((byte) requestID);
+       // Count in primitive instances
        dos.writeByte(missingPduSequenceNumbers.length);
 
        for (int idx = 0; idx < missingPduSequenceNumbers.length; idx++)
            dos.writeByte(missingPduSequenceNumbers[idx]);
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       padding = new byte[Align.to32bits(dos)];
     }
 }
 
@@ -242,21 +245,20 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += minefieldID.unmarshal(dis);
         uPosition += requestingEntityID.unmarshal(dis);
-        requestID = (byte)dis.readUnsignedByte();
+        requestID = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfMissingPdus = (byte)dis.readUnsignedByte();
+        numberOfMissingPdus = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        for (int idx = 0; idx < missingPduSequenceNumbers.length; idx++)
+        missingPduSequenceNumbers = new byte[((Number) numberOfMissingPdus).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMissingPdus).intValue(); idx++)
             missingPduSequenceNumbers[idx] = dis.readByte();
         uPosition += (missingPduSequenceNumbers.length * 1);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
+        padding = new byte[Align.from32bits(uPosition,dis)];
+        uPosition += padding.length;
     }
     return getMarshalledSize();
 }
@@ -275,12 +277,14 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    super.marshal(byteBuffer);
    minefieldID.marshal(byteBuffer);
    requestingEntityID.marshal(byteBuffer);
-   byteBuffer.put( (byte)requestID);
-   byteBuffer.put( (byte)missingPduSequenceNumbers.length);
+   byteBuffer.put((byte) requestID);
+   // Count in primitive instances
+   byteBuffer.put((byte) missingPduSequenceNumbers.length);
 
    for (int idx = 0; idx < missingPduSequenceNumbers.length; idx++)
        byteBuffer.put((byte)missingPduSequenceNumbers[idx]);
 
+   padding = new byte[Align.to32bits(byteBuffer)];
 }
 
 /**
@@ -297,25 +301,90 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute minefieldID marked as not serialized
         minefieldID.unmarshal(byteBuffer);
-        // attribute requestingEntityID marked as not serialized
         requestingEntityID.unmarshal(byteBuffer);
-        // attribute requestID marked as not serialized
-        requestID = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfMissingPdus marked as not serialized
-        numberOfMissingPdus = (byte)(byteBuffer.get() & 0xFF);
-        // attribute missingPduSequenceNumbers marked as not serialized
-        for (int idx = 0; idx < missingPduSequenceNumbers.length; idx++)
+        requestID = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfMissingPdus = Byte.toUnsignedInt(byteBuffer.get());
+        missingPduSequenceNumbers = new byte[((Number) numberOfMissingPdus).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMissingPdus).intValue(); idx++)
             missingPduSequenceNumbers[idx] = byteBuffer.get();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding = new byte[Align.from32bits(byteBuffer)];
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = MinefieldFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("minefieldID", MinefieldIdentifier.fromBufferToMap(byteBuffer));
+    map.put("requestingEntityID", SimulationIdentifier.fromBufferToMap(byteBuffer));
+    map.put("requestID", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfMissingPdus", Byte.toUnsignedInt(byteBuffer.get()));
+    // Valid primitive list varying length
+    byte[] missingPduSequenceNumbers = new byte[((Number) map.get("numberOfMissingPdus")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("numberOfMissingPdus")).intValue(); idx++)
+        missingPduSequenceNumbers[idx] = byteBuffer.get();
+    map.put("missingPduSequenceNumbers", missingPduSequenceNumbers);
+    map.put("padding", new byte[Align.from32bits(byteBuffer)]);
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    MinefieldFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    MinefieldIdentifier.fromMapToBuffer((PduMap) map.get("minefieldID"), byteBuffer);
+    SimulationIdentifier.fromMapToBuffer((PduMap) map.get("requestingEntityID"), byteBuffer);
+    byteBuffer.put(((Number) map.get("requestID")).byteValue());
+    byteBuffer.put(((Number) map.get("numberOfMissingPdus")).byteValue());
+
+    byte[] missingPduSequenceNumbers = (byte[]) map.get("missingPduSequenceNumbers");
+    for (int idx = 0; idx < missingPduSequenceNumbers.length; idx++)
+        byteBuffer.put(missingPduSequenceNumbers[idx]);
+
+    byte[] padding = new byte[Align.to32bits(byteBuffer)];
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += MinefieldFamilyPdu.getMarshalledSize(map);
+    marshalSize += MinefieldIdentifier.getMarshalledSize((PduMap) map.get("minefieldID"));
+    marshalSize += SimulationIdentifier.getMarshalledSize((PduMap) map.get("requestingEntityID"));
+    marshalSize += 1;  // requestID
+    marshalSize += 1;  // numberOfMissingPdus
+    byte[] missingPduSequenceNumbers = (byte[]) map.get("missingPduSequenceNumbers");
+    for (int idx = 0; idx < missingPduSequenceNumbers.length; idx++)
+        marshalSize += 1;
+    marshalSize += ((byte[]) map.get("padding")).length;
+
+    return marshalSize;
 }
 
  /*
@@ -358,12 +427,13 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" minefieldID:").append(minefieldID); // writeOneToString
     sb.append(" requestingEntityID:").append(requestingEntityID); // writeOneToString
     sb.append(" requestID:").append(requestID); // writeOneToString
     sb.append(" missingPduSequenceNumbers:");
     sb.append(Arrays.toString(missingPduSequenceNumbers)); // writePrimitiveList
+    sb.append(" padding:").append(padding); // writeOneToString
 
    return sb.toString();
  }
@@ -375,6 +445,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	                     this.requestingEntityID,
 	                     this.requestID,
 	                     this.numberOfMissingPdus,
-	                     this.missingPduSequenceNumbers);
+	                     this.missingPduSequenceNumbers,
+	                     this.padding);
  }
 } // end of MinefieldResponseNACKPdu

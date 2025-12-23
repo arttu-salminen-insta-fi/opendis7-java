@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Describes the scan volue of an emitter beam. Section 6.2.11.
@@ -19,19 +21,24 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class BeamData extends Object implements Serializable, Marshaller
 {
-   /** Specifies the beam azimuth an elevation centers and corresponding half-angles to describe the scan volume */
+   /** Specifies the beam azimuth an elevation centers and corresponding half-angles to describe the scan volume 
+   Value space: float32 */
    protected float beamAzimuthCenter;
 
-   /** Specifies the beam azimuth sweep to determine scan volume */
+   /** Specifies the beam azimuth sweep to determine scan volume 
+   Value space: float32 */
    protected float beamAzimuthSweep;
 
-   /** Specifies the beam elevation center to determine scan volume */
+   /** Specifies the beam elevation center to determine scan volume 
+   Value space: float32 */
    protected float beamElevationCenter;
 
-   /** Specifies the beam elevation sweep to determine scan volume */
+   /** Specifies the beam elevation sweep to determine scan volume 
+   Value space: float32 */
    protected float beamElevationSweep;
 
-   /** allows receiver to synchronize its regenerated scan pattern to that of the emmitter. Specifies the percentage of time a scan is through its pattern from its origion. */
+   /** allows receiver to synchronize its regenerated scan pattern to that of the emmitter. Specifies the percentage of time a scan is through its pattern from its origion. 
+   Value space: float32 */
    protected float beamSweepSync;
 
 
@@ -61,7 +68,7 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link BeamData#beamAzimuthCenter}
-  * @param pBeamAzimuthCenter new value of interest
+  * @param pBeamAzimuthCenter new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BeamData setBeamAzimuthCenter(float pBeamAzimuthCenter)
 {
@@ -76,7 +83,7 @@ public float getBeamAzimuthCenter()
 }
 
 /** Setter for {@link BeamData#beamAzimuthSweep}
-  * @param pBeamAzimuthSweep new value of interest
+  * @param pBeamAzimuthSweep new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BeamData setBeamAzimuthSweep(float pBeamAzimuthSweep)
 {
@@ -91,7 +98,7 @@ public float getBeamAzimuthSweep()
 }
 
 /** Setter for {@link BeamData#beamElevationCenter}
-  * @param pBeamElevationCenter new value of interest
+  * @param pBeamElevationCenter new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BeamData setBeamElevationCenter(float pBeamElevationCenter)
 {
@@ -106,7 +113,7 @@ public float getBeamElevationCenter()
 }
 
 /** Setter for {@link BeamData#beamElevationSweep}
-  * @param pBeamElevationSweep new value of interest
+  * @param pBeamElevationSweep new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BeamData setBeamElevationSweep(float pBeamElevationSweep)
 {
@@ -121,7 +128,7 @@ public float getBeamElevationSweep()
 }
 
 /** Setter for {@link BeamData#beamSweepSync}
-  * @param pBeamSweepSync new value of interest
+  * @param pBeamSweepSync new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BeamData setBeamSweepSync(float pBeamSweepSync)
 {
@@ -144,17 +151,13 @@ public float getBeamSweepSync()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        dos.writeFloat(beamAzimuthCenter);
        dos.writeFloat(beamAzimuthSweep);
        dos.writeFloat(beamElevationCenter);
        dos.writeFloat(beamElevationSweep);
        dos.writeFloat(beamSweepSync);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -170,22 +173,18 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        beamAzimuthCenter = dis.readFloat();
+        beamAzimuthCenter = (float) dis.readFloat();
         uPosition += 4;
-        beamAzimuthSweep = dis.readFloat();
+        beamAzimuthSweep = (float) dis.readFloat();
         uPosition += 4;
-        beamElevationCenter = dis.readFloat();
+        beamElevationCenter = (float) dis.readFloat();
         uPosition += 4;
-        beamElevationSweep = dis.readFloat();
+        beamElevationSweep = (float) dis.readFloat();
         uPosition += 4;
-        beamSweepSync = dis.readFloat();
+        beamSweepSync = (float) dis.readFloat();
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -201,11 +200,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putFloat( (float)beamAzimuthCenter);
-   byteBuffer.putFloat( (float)beamAzimuthSweep);
-   byteBuffer.putFloat( (float)beamElevationCenter);
-   byteBuffer.putFloat( (float)beamElevationSweep);
-   byteBuffer.putFloat( (float)beamSweepSync);
+   byteBuffer.putFloat(beamAzimuthCenter);
+   byteBuffer.putFloat(beamAzimuthSweep);
+   byteBuffer.putFloat(beamElevationCenter);
+   byteBuffer.putFloat(beamElevationSweep);
+   byteBuffer.putFloat(beamSweepSync);
 }
 
 /**
@@ -220,24 +219,72 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute beamAzimuthCenter marked as not serialized
-        beamAzimuthCenter = byteBuffer.getFloat();
-        // attribute beamAzimuthSweep marked as not serialized
-        beamAzimuthSweep = byteBuffer.getFloat();
-        // attribute beamElevationCenter marked as not serialized
-        beamElevationCenter = byteBuffer.getFloat();
-        // attribute beamElevationSweep marked as not serialized
-        beamElevationSweep = byteBuffer.getFloat();
-        // attribute beamSweepSync marked as not serialized
-        beamSweepSync = byteBuffer.getFloat();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        beamAzimuthCenter = (float) byteBuffer.getFloat();
+        beamAzimuthSweep = (float) byteBuffer.getFloat();
+        beamElevationCenter = (float) byteBuffer.getFloat();
+        beamElevationSweep = (float) byteBuffer.getFloat();
+        beamSweepSync = (float) byteBuffer.getFloat();
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("beamAzimuthCenter", (float) byteBuffer.getFloat());
+    map.put("beamAzimuthSweep", (float) byteBuffer.getFloat());
+    map.put("beamElevationCenter", (float) byteBuffer.getFloat());
+    map.put("beamElevationSweep", (float) byteBuffer.getFloat());
+    map.put("beamSweepSync", (float) byteBuffer.getFloat());
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putFloat(((Number) map.get("beamAzimuthCenter")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("beamAzimuthSweep")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("beamElevationCenter")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("beamElevationSweep")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("beamSweepSync")).floatValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // beamAzimuthCenter
+    marshalSize += 4;  // beamAzimuthSweep
+    marshalSize += 4;  // beamElevationCenter
+    marshalSize += 4;  // beamElevationSweep
+    marshalSize += 4;  // beamSweepSync
+
+    return marshalSize;
 }
 
  /*

@@ -3,6 +3,8 @@
 package edu.nps.moves.dis7.enumerations;
 
 import edu.nps.moves.dis7.pdus.*;
+import java.nio.ByteBuffer;
+
 
 /**
  * Generated from XML,
@@ -117,10 +119,13 @@ public class MunitionAppearance extends DisBitSet
     }
   }
 
+  private static int BIT_LENGTH = 32; // length from bitfield element
+  private static int BYTE_LENGTH = (BIT_LENGTH + Byte.SIZE - 1) / Byte.SIZE;
+
   /** Default constructor */
   public MunitionAppearance()
   {
-    super(32); // length from bitfield element
+    super(BIT_LENGTH);
   }
 
   /** Default constructor with parameters
@@ -173,4 +178,31 @@ public class MunitionAppearance extends DisBitSet
   {
       return "MunitionAppearance: " + super.toString();
   }
+
+  /**
+   * Unmarshall raw value from byteBuffer. Unmarshalled number of bytes depends on bit set implementation.
+   */
+  public static int unmarshallRawValue(ByteBuffer byteBuffer) throws Exception
+  {
+      byte[] bytes = new byte[BYTE_LENGTH];
+      byteBuffer.get(bytes);
+      return bytesToInt(bytes);
+  }
+
+  /**
+   * Marshall raw value to byteBuffer. Marshalled number of bytes depends on bit set implementation.
+   */
+  public static void marshallRawValue(int rawValue, ByteBuffer byteBuffer) throws Exception
+  {
+      byte[] bytes = intToBytes(rawValue, BYTE_LENGTH);
+      byteBuffer.put(bytes);
+  }
+
+  /**
+   * Get length of this bit set in bytes.
+   */
+  public static int getByteLength() {
+      return BYTE_LENGTH;
+  }
+
 }

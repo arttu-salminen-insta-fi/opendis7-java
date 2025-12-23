@@ -4,6 +4,7 @@
  */
 package edu.nps.moves.dis7.test;
 
+import com.google.common.primitives.UnsignedInteger;
 import edu.nps.moves.dis7.pdus.FirePdu;
 import edu.nps.moves.dis7.pdus.Pdu;
 import org.junit.jupiter.api.*;
@@ -42,10 +43,10 @@ public class FirePduTest extends PduTest
         FirePdu    firePdu = pduFactory.makeFirePdu();
         eventIdentifier.setEventNumber(incrementMasterEventNumber()); // simulationAddress already set in superclass PduTest
         firePdu.setEventID(eventIdentifier);
-        testOnePdu(firePdu.setFireMissionIndex(1));
+        testOnePdu(firePdu.setFireMissionIndex(UnsignedInteger.ONE));
 
         firePdu.setEventID(eventIdentifier.setEventNumber(incrementMasterEventNumber())); // pipelining, TODO utility method seems needed in class Pdu 
-        testOnePdu(firePdu.setFireMissionIndex(2).setRange(1000.0f)); // pipelining
+        testOnePdu(firePdu.setFireMissionIndex(UnsignedInteger.valueOf(2)).setRange(1000.0f)); // pipelining
         
         // TODO additional PDU-specific tests
         // TODO test various alternate constructors and utility methods
@@ -75,7 +76,7 @@ public class FirePduTest extends PduTest
      assertEquals (createdFirePdu.getFireMissionIndex(),          receivedFirePdu.getFireMissionIndex(),          "mismatched  FireMissionIndex");
      assertEquals (createdFirePdu.getMunitionExpendibleID(),      receivedFirePdu.getMunitionExpendibleID(),      "mismatched  MunitionExpendibleID");
      // TODO Munition Descriptor
-     assertEquals (createdFirePdu.getPadding(),                   receivedFirePdu.getPadding(),                   "mismatched  Padding");
+     assertEquals (createdFirePdu.getPaddingHeader(),                   receivedFirePdu.getPaddingHeader(),                   "mismatched  Padding");
      assertEquals (createdFirePdu.getRange(),                     receivedFirePdu.getRange(),                     "mismatched  Range");
      // TODO Fire Type, Padding2, Num Variable Records
      // TODO Variable Records

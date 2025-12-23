@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -36,13 +38,15 @@ public class CollisionPdu extends EntityInformationInteractionFamilyPdu implemen
    /** This field shall identify the type of collision. The Collision Type field shall be represented by an 8-bit record of enumerations uid 189 */
    protected CollisionType collisionType = CollisionType.values()[0];
 
-   /** some padding */
-   protected byte pad = (byte)0;
+   /** some padding 
+   Value space: uint8 */
+   protected int padding = (int) 0;
 
    /** This field shall contain the velocity (at the time the collision is detected) of the issuing entity. The velocity shall be represented in world coordinates. This field shall be represented by the Linear Velocity Vector record [see 6.2.95 item c)]. */
    protected Vector3Float  velocity = new Vector3Float(); 
 
-   /** This field shall contain the mass of the issuing entity, and shall be represented by a 32-bit floating point number representing kilograms. */
+   /** This field shall contain the mass of the issuing entity, and shall be represented by a 32-bit floating point number representing kilograms. 
+   Value space: float32 */
    protected float mass;
 
    /** This field shall specify the location of the collision with respect to the entity with which the issuing entity collided. The Location field shall be represented by an Entity Coordinate Vector record [see 6.2.95 item a)]. */
@@ -136,7 +140,7 @@ public synchronized int getMarshalledSize()
        marshalSize += eventID.getMarshalledSize();
    if (collisionType != null)
        marshalSize += collisionType.getMarshalledSize();
-   marshalSize += 1;  // pad
+   marshalSize += 1;  // padding
    if (velocity != null)
        marshalSize += velocity.getMarshalledSize();
    marshalSize += 4;  // mass
@@ -210,26 +214,21 @@ public CollisionType getCollisionType()
     return collisionType; 
 }
 
-/** Setter for {@link CollisionPdu#pad}
-  * @param pPad new value of interest
+/** Setter for {@link CollisionPdu#padding}
+  * @param pPadding new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized CollisionPdu setPad(byte pPad)
+public synchronized CollisionPdu setPadding(int pPadding)
 {
-    pad = pPad;
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 255, "Value outside valid value space");
+    padding = pPadding;
     return this;
 }
-/** Utility setter for {@link CollisionPdu#pad}
-  * @param pPad new value of interest
-  * @return same object to permit progressive setters */
-public synchronized CollisionPdu setPad(int pPad){
-    pad = (byte) pPad;
-    return this;
-}
-/** Getter for {@link CollisionPdu#pad}
+/** Getter for {@link CollisionPdu#padding}
   * @return value of interest */
-public byte getPad()
+public int getPadding()
 {
-    return pad; 
+    return padding; 
 }
 
 /** Setter for {@link CollisionPdu#velocity}
@@ -249,7 +248,7 @@ public Vector3Float getVelocity()
 
 
 /** Setter for {@link CollisionPdu#mass}
-  * @param pMass new value of interest
+  * @param pMass new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized CollisionPdu setMass(float pMass)
 {
@@ -289,20 +288,16 @@ public Vector3Float getLocation()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        issuingEntityID.marshal(dos);
        collidingEntityID.marshal(dos);
        eventID.marshal(dos);
        collisionType.marshal(dos);
-       dos.writeByte(pad);
+       dos.writeByte((byte) padding);
        velocity.marshal(dos);
        dos.writeFloat(mass);
        location.marshal(dos);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -320,23 +315,19 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += issuingEntityID.unmarshal(dis);
         uPosition += collidingEntityID.unmarshal(dis);
         uPosition += eventID.unmarshal(dis);
         collisionType = CollisionType.unmarshalEnum(dis);
         uPosition += collisionType.getMarshalledSize();
-        pad = (byte)dis.readUnsignedByte();
+        padding = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += velocity.unmarshal(dis);
-        mass = dis.readFloat();
+        mass = (float) dis.readFloat();
         uPosition += 4;
         uPosition += location.unmarshal(dis);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -357,9 +348,9 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    collidingEntityID.marshal(byteBuffer);
    eventID.marshal(byteBuffer);
    collisionType.marshal(byteBuffer);
-   byteBuffer.put( (byte)pad);
+   byteBuffer.put((byte) padding);
    velocity.marshal(byteBuffer);
-   byteBuffer.putFloat( (float)mass);
+   byteBuffer.putFloat(mass);
    location.marshal(byteBuffer);
 }
 
@@ -377,30 +368,86 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute issuingEntityID marked as not serialized
         issuingEntityID.unmarshal(byteBuffer);
-        // attribute collidingEntityID marked as not serialized
         collidingEntityID.unmarshal(byteBuffer);
-        // attribute eventID marked as not serialized
         eventID.unmarshal(byteBuffer);
-        // attribute collisionType marked as not serialized
         collisionType = CollisionType.unmarshalEnum(byteBuffer);
-        // attribute pad marked as not serialized
-        pad = (byte)(byteBuffer.get() & 0xFF);
-        // attribute velocity marked as not serialized
+        padding = Byte.toUnsignedInt(byteBuffer.get());
         velocity.unmarshal(byteBuffer);
-        // attribute mass marked as not serialized
-        mass = byteBuffer.getFloat();
-        // attribute location marked as not serialized
+        mass = (float) byteBuffer.getFloat();
         location.unmarshal(byteBuffer);
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = EntityInformationInteractionFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("issuingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("collidingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("eventID", EventIdentifier.fromBufferToMap(byteBuffer));
+    map.put("collisionType", CollisionType.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("velocity", Vector3Float.fromBufferToMap(byteBuffer));
+    map.put("mass", (float) byteBuffer.getFloat());
+    map.put("location", Vector3Float.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityInformationInteractionFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("issuingEntityID"), byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("collidingEntityID"), byteBuffer);
+    EventIdentifier.fromMapToBuffer((PduMap) map.get("eventID"), byteBuffer);
+    CollisionType.getEnumForValue(((Number) map.get("collisionType")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding")).byteValue());
+    Vector3Float.fromMapToBuffer((PduMap) map.get("velocity"), byteBuffer);
+    byteBuffer.putFloat(((Number) map.get("mass")).floatValue());
+    Vector3Float.fromMapToBuffer((PduMap) map.get("location"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityInformationInteractionFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("issuingEntityID"));
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("collidingEntityID"));
+    marshalSize += EventIdentifier.getMarshalledSize((PduMap) map.get("eventID"));
+    marshalSize += CollisionType.getEnumForValue(((Number) map.get("collisionType")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("velocity"));
+    marshalSize += 4;  // mass
+    marshalSize += Vector3Float.getMarshalledSize((PduMap) map.get("location"));
+
+    return marshalSize;
 }
 
  /*
@@ -430,7 +477,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
      if( ! Objects.equals(collidingEntityID, rhs.collidingEntityID) ) return false;
      if( ! Objects.equals(eventID, rhs.eventID) ) return false;
      if( ! (collisionType == rhs.collisionType)) return false;
-     if( ! (pad == rhs.pad)) return false;
+     if( ! (padding == rhs.padding)) return false;
      if( ! Objects.equals(velocity, rhs.velocity) ) return false;
      if( ! (mass == rhs.mass)) return false;
      if( ! Objects.equals(location, rhs.location) ) return false;
@@ -442,12 +489,12 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" issuingEntityID:").append(issuingEntityID); // writeOneToString
     sb.append(" collidingEntityID:").append(collidingEntityID); // writeOneToString
     sb.append(" eventID:").append(eventID); // writeOneToString
     sb.append(" collisionType:").append(collisionType); // writeOneToString
-    sb.append(" pad:").append(pad); // writeOneToString
+    sb.append(" padding:").append(padding); // writeOneToString
     sb.append(" velocity:").append(velocity); // writeOneToString
     sb.append(" mass:").append(mass); // writeOneToString
     sb.append(" location:").append(location); // writeOneToString
@@ -462,7 +509,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	                     this.collidingEntityID,
 	                     this.eventID,
 	                     this.collisionType,
-	                     this.pad,
+	                     this.padding,
 	                     this.velocity,
 	                     this.mass,
 	                     this.location);

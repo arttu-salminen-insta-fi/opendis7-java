@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -30,17 +32,21 @@ public class MinefieldQueryPdu extends MinefieldFamilyPdu implements Serializabl
    /** EID of entity making the request */
    protected EntityID  requestingEntityID = new EntityID(); 
 
-   /** request ID provides a unique identifier */
-   protected byte requestID;
+   /** request ID provides a unique identifier 
+   Value space: uint8 */
+   protected int requestID;
 
-   /** Number of perimeter points for the minefield */
-   protected byte numberOfPerimeterPoints;
+   /** Number of perimeter points for the minefield 
+   Value space: uint8 */
+   protected int numberOfPerimeterPoints;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected byte padding;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint8 */
+   protected int padding;
 
-   /** Number of sensor types */
-   protected byte numberOfSensorTypes;
+   /** Number of sensor types 
+   Value space: uint8 */
+   protected int numberOfSensorTypes;
 
    /** data filter, 32 boolean fields */
    protected DataFilterRecord  dataFilter = new DataFilterRecord(); 
@@ -196,45 +202,35 @@ public EntityID getRequestingEntityID()
 
 
 /** Setter for {@link MinefieldQueryPdu#requestID}
-  * @param pRequestID new value of interest
+  * @param pRequestID new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized MinefieldQueryPdu setRequestID(byte pRequestID)
+public synchronized MinefieldQueryPdu setRequestID(int pRequestID)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pRequestID >= 0 && pRequestID <= 255, "Value outside valid value space");
     requestID = pRequestID;
-    return this;
-}
-/** Utility setter for {@link MinefieldQueryPdu#requestID}
-  * @param pRequestID new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MinefieldQueryPdu setRequestID(int pRequestID){
-    requestID = (byte) pRequestID;
     return this;
 }
 /** Getter for {@link MinefieldQueryPdu#requestID}
   * @return value of interest */
-public byte getRequestID()
+public int getRequestID()
 {
     return requestID; 
 }
 
 /** Setter for {@link MinefieldQueryPdu#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized MinefieldQueryPdu setPadding(byte pPadding)
+public synchronized MinefieldQueryPdu setPadding(int pPadding)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 255, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link MinefieldQueryPdu#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MinefieldQueryPdu setPadding(int pPadding){
-    padding = (byte) pPadding;
     return this;
 }
 /** Getter for {@link MinefieldQueryPdu#padding}
   * @return value of interest */
-public byte getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -311,13 +307,13 @@ public List<MinefieldSensorType> getSensorTypes()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        minefieldID.marshal(dos);
        requestingEntityID.marshal(dos);
-       dos.writeByte(requestID);
+       dos.writeByte((byte) requestID);
        dos.writeByte(requestedPerimeterPoints.size());
-       dos.writeByte(padding);
+       dos.writeByte((byte) padding);
        dos.writeByte(sensorTypes.size());
        dataFilter.marshal(dos);
        requestedMineType.marshal(dos);
@@ -336,10 +332,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        }
 
     }
-    catch(Exception e)
-    {
-      System.err.println(e);
-    }
 }
 
 /**
@@ -356,38 +348,34 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += minefieldID.unmarshal(dis);
         uPosition += requestingEntityID.unmarshal(dis);
-        requestID = (byte)dis.readUnsignedByte();
+        requestID = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfPerimeterPoints = (byte)dis.readUnsignedByte();
+        numberOfPerimeterPoints = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding = (byte)dis.readUnsignedByte();
+        padding = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfSensorTypes = (byte)dis.readUnsignedByte();
+        numberOfSensorTypes = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += dataFilter.unmarshal(dis);
         uPosition += requestedMineType.unmarshal(dis);
-        for (int idx = 0; idx < numberOfPerimeterPoints; idx++)
+        for (int idx = 0; idx < ((Number) numberOfPerimeterPoints).intValue(); idx++)
         {
             Vector2Float anX = new Vector2Float();
             uPosition += anX.unmarshal(dis);
             requestedPerimeterPoints.add(anX);
         }
 
-        for (int idx = 0; idx < numberOfSensorTypes; idx++)
+        for (int idx = 0; idx < ((Number) numberOfSensorTypes).intValue(); idx++)
         {
             MinefieldSensorType anX = new MinefieldSensorType();
             uPosition += anX.unmarshal(dis);
             sensorTypes.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -406,9 +394,9 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    super.marshal(byteBuffer);
    minefieldID.marshal(byteBuffer);
    requestingEntityID.marshal(byteBuffer);
-   byteBuffer.put( (byte)requestID);
+   byteBuffer.put((byte) requestID);
    byteBuffer.put( (byte)requestedPerimeterPoints.size());
-   byteBuffer.put( (byte)padding);
+   byteBuffer.put((byte) padding);
    byteBuffer.put( (byte)sensorTypes.size());
    dataFilter.marshal(byteBuffer);
    requestedMineType.marshal(byteBuffer);
@@ -442,46 +430,134 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute minefieldID marked as not serialized
         minefieldID.unmarshal(byteBuffer);
-        // attribute requestingEntityID marked as not serialized
         requestingEntityID.unmarshal(byteBuffer);
-        // attribute requestID marked as not serialized
-        requestID = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfPerimeterPoints marked as not serialized
-        numberOfPerimeterPoints = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding marked as not serialized
-        padding = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfSensorTypes marked as not serialized
-        numberOfSensorTypes = (byte)(byteBuffer.get() & 0xFF);
-        // attribute dataFilter marked as not serialized
+        requestID = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfPerimeterPoints = Byte.toUnsignedInt(byteBuffer.get());
+        padding = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfSensorTypes = Byte.toUnsignedInt(byteBuffer.get());
         dataFilter.unmarshal(byteBuffer);
-        // attribute requestedMineType marked as not serialized
         requestedMineType.unmarshal(byteBuffer);
-        // attribute requestedPerimeterPoints marked as not serialized
-        for (int idx = 0; idx < numberOfPerimeterPoints; idx++)
+        for (int idx = 0; idx < ((Number) numberOfPerimeterPoints).intValue(); idx++)
         {
-        Vector2Float anX = new Vector2Float();
-        anX.unmarshal(byteBuffer);
-        requestedPerimeterPoints.add(anX);
+            Vector2Float anX = new Vector2Float();
+            anX.unmarshal(byteBuffer);
+            requestedPerimeterPoints.add(anX);
         }
 
-        // attribute sensorTypes marked as not serialized
-        for (int idx = 0; idx < numberOfSensorTypes; idx++)
+        for (int idx = 0; idx < ((Number) numberOfSensorTypes).intValue(); idx++)
         {
-        MinefieldSensorType anX = new MinefieldSensorType();
-        anX.unmarshal(byteBuffer);
-        sensorTypes.add(anX);
+            MinefieldSensorType anX = new MinefieldSensorType();
+            anX.unmarshal(byteBuffer);
+            sensorTypes.add(anX);
         }
 
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = MinefieldFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("minefieldID", MinefieldIdentifier.fromBufferToMap(byteBuffer));
+    map.put("requestingEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("requestID", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfPerimeterPoints", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfSensorTypes", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("dataFilter", DataFilterRecord.fromBufferToMap(byteBuffer));
+    map.put("requestedMineType", EntityType.fromBufferToMap(byteBuffer));
+    List requestedPerimeterPoints = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfPerimeterPoints")).intValue(); idx++)
+    {
+        requestedPerimeterPoints.add(Vector2Float.fromBufferToMap(byteBuffer));
+    }
+    map.put("requestedPerimeterPoints", requestedPerimeterPoints);
+
+    List sensorTypes = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfSensorTypes")).intValue(); idx++)
+    {
+        sensorTypes.add(MinefieldSensorType.fromBufferToMap(byteBuffer));
+    }
+    map.put("sensorTypes", sensorTypes);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    MinefieldFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    MinefieldIdentifier.fromMapToBuffer((PduMap) map.get("minefieldID"), byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("requestingEntityID"), byteBuffer);
+    byteBuffer.put(((Number) map.get("requestID")).byteValue());
+    byteBuffer.put(((Number) map.get("numberOfPerimeterPoints")).byteValue());
+    byteBuffer.put(((Number) map.get("padding")).byteValue());
+    byteBuffer.put(((Number) map.get("numberOfSensorTypes")).byteValue());
+    DataFilterRecord.fromMapToBuffer((PduMap) map.get("dataFilter"), byteBuffer);
+    EntityType.fromMapToBuffer((PduMap) map.get("requestedMineType"), byteBuffer);
+
+    List requestedPerimeterPoints = (List) map.get("requestedPerimeterPoints");
+    for (int idx = 0; idx < ((Number) map.get("numberOfPerimeterPoints")).intValue(); idx++)
+    {
+        Vector2Float.fromMapToBuffer((PduMap) requestedPerimeterPoints.get(idx), byteBuffer);
+    }
+
+
+    List sensorTypes = (List) map.get("sensorTypes");
+    for (int idx = 0; idx < ((Number) map.get("numberOfSensorTypes")).intValue(); idx++)
+    {
+        MinefieldSensorType.fromMapToBuffer((PduMap) sensorTypes.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += MinefieldFamilyPdu.getMarshalledSize(map);
+    marshalSize += MinefieldIdentifier.getMarshalledSize((PduMap) map.get("minefieldID"));
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("requestingEntityID"));
+    marshalSize += 1;  // requestID
+    marshalSize += 1;  // numberOfPerimeterPoints
+    marshalSize += 1;  // padding
+    marshalSize += 1;  // numberOfSensorTypes
+    marshalSize += DataFilterRecord.getMarshalledSize((PduMap) map.get("dataFilter"));
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("requestedMineType"));
+    List requestedPerimeterPoints = (List) map.get("requestedPerimeterPoints");
+    for (int idx = 0; idx < ((Number) map.get("numberOfPerimeterPoints")).intValue(); idx++)
+        marshalSize += Vector2Float.getMarshalledSize((PduMap) requestedPerimeterPoints.get(idx));
+    List sensorTypes = (List) map.get("sensorTypes");
+    for (int idx = 0; idx < ((Number) map.get("numberOfSensorTypes")).intValue(); idx++)
+        marshalSize += MinefieldSensorType.getMarshalledSize((PduMap) sensorTypes.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -523,7 +599,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" minefieldID:").append(minefieldID); // writeOneToString
     sb.append(" requestingEntityID:").append(requestingEntityID); // writeOneToString
     sb.append(" requestID:").append(requestID); // writeOneToString

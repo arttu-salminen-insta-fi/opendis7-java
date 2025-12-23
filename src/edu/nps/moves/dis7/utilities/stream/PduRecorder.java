@@ -6,6 +6,7 @@
 package edu.nps.moves.dis7.utilities.stream;
 
 import com.google.common.primitives.Longs;
+import com.google.common.primitives.UnsignedInteger;
 import edu.nps.moves.dis7.enumerations.DisPduType;
 import edu.nps.moves.dis7.pdus.Pdu;
 import edu.nps.moves.dis7.utilities.DisThreadedNetworkInterface;
@@ -354,7 +355,7 @@ public class PduRecorder // implements PduReceiver
       DisPduType pduType = DisPduType.getEnumForValue(Byte.toUnsignedInt(byteBufferSized[2])); // 3rd byte
       
       Pdu newPdu = pduFactory.createPdu(byteBufferSized);
-      int    pduTimestampInt    = newPdu.getTimestamp();
+      int    pduTimestampInt    = newPdu.getTimestamp().intValue();
       int    pduDurationInt     = pduTimestampInt - pduTimestampFirst;
       
       // DIS timestamp is 8 bytes in length, converted from Java long time into byte array
@@ -661,7 +662,7 @@ public class PduRecorder // implements PduReceiver
           {
             try {
                 Pdu nextPdu = pduFactory.createPdu(allPDUTypesArray[index]);
-                nextPdu.setTimestamp(index * 10); // seconds
+                nextPdu.setTimestamp(UnsignedInteger.fromIntBits(index * 10)); // seconds
                 nextPdu.setLength(nextPdu.getMarshalledSize());
 //              nextPdu.getTimestamp(); // debug
                 disNetworkInterface.sendPDU(nextPdu);

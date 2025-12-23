@@ -5,6 +5,7 @@
 
 package edu.nps.moves.dis7.examples;
 
+import com.google.common.primitives.UnsignedInteger;
 import edu.nps.moves.dis7.pdus.*;
 import edu.nps.moves.dis7.utilities.CoordinateConversions;
 import edu.nps.moves.dis7.utilities.DisTime;
@@ -192,7 +193,7 @@ public class PduSender
         // An alterative approach: actually follow the standard. It's a crazy concept,
         // but it might just work.
         timestamp = DisTime.getCurrentDisTimestamp();
-        espdu.setTimestamp(timestamp);
+        espdu.setTimestamp(UnsignedInteger.fromIntBits(timestamp));
 
         // Set the position of the entity in the world. DIS uses a cartesian 
         // coordinate system with the origin at the center of the earth, the x

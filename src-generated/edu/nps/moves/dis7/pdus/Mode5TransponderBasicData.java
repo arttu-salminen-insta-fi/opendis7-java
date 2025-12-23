@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * B.2.29. Mode 5 transponder basic data
@@ -19,32 +21,40 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class Mode5TransponderBasicData extends Object implements Serializable, Marshaller
 {
-   /** Mode 5 status, part of Mode 5 transponder basic data fields */
-   protected short mode5Status;
+   /** Mode 5 status, part of Mode 5 transponder basic data fields 
+   Value space: uint16 */
+   protected int mode5Status;
 
-   /** Personal Identification Number (PIN), part of Mode 5 transponder basic data fields */
-   protected short personalIdentificationNumber;
+   /** Personal Identification Number (PIN), part of Mode 5 transponder basic data fields 
+   Value space: uint16 */
+   protected int personalIdentificationNumber;
 
-   /** Mode 5 Message Formats Present, part of Mode 5 transponder basic data fields */
-   protected int mode5MessageFormatsPresent;
+   /** Mode 5 Message Formats Present, part of Mode 5 transponder basic data fields 
+   Value space: uint32 */
+   protected UnsignedInteger mode5MessageFormatsPresent = UnsignedInteger.ZERO;
 
-   /** Enhanced Mode 1, part of Mode 5 transponder basic data fields */
-   protected short enhancedMode1;
+   /** Enhanced Mode 1, part of Mode 5 transponder basic data fields 
+   Value space: uint16 */
+   protected int enhancedMode1;
 
-   /** National Origin, part of Mode 5 transponder basic data fields */
-   protected short nationalOrigin;
+   /** National Origin, part of Mode 5 transponder basic data fields 
+   Value space: uint16 */
+   protected int nationalOrigin;
 
-   /** Supplemental Data, part of Mode 5 transponder basic data fields */
-   protected byte supplementalData;
+   /** Supplemental Data, part of Mode 5 transponder basic data fields 
+   Value space: uint8 */
+   protected int supplementalData;
 
-   /** Navigation Source, part of Mode 5 transponder basic data fields UID 359 */
+   /** Navigation Source, part of Mode 5 transponder basic data fields uid 359 */
    protected NavigationSource navigationSource = NavigationSource.values()[0];
 
-   /** Figure of merit, part of Mode 5 transponder basic data fields */
-   protected byte figureOfMerit;
+   /** Figure of merit, part of Mode 5 transponder basic data fields 
+   Value space: uint8 */
+   protected int figureOfMerit;
 
-   /** Padding, part of Mode 5 transponder basic data fields */
-   protected byte padding;
+   /** Padding, part of Mode 5 transponder basic data fields 
+   Value space: uint8 */
+   protected int padding;
 
 
 /** Constructor creates and configures a new instance object */
@@ -78,126 +88,101 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link Mode5TransponderBasicData#mode5Status}
-  * @param pMode5Status new value of interest
+  * @param pMode5Status new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setMode5Status(short pMode5Status)
+public synchronized Mode5TransponderBasicData setMode5Status(int pMode5Status)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pMode5Status >= 0 && pMode5Status <= 65535, "Value outside valid value space");
     mode5Status = pMode5Status;
-    return this;
-}
-/** Utility setter for {@link Mode5TransponderBasicData#mode5Status}
-  * @param pMode5Status new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setMode5Status(int pMode5Status){
-    mode5Status = (short) pMode5Status;
     return this;
 }
 /** Getter for {@link Mode5TransponderBasicData#mode5Status}
   * @return value of interest */
-public short getMode5Status()
+public int getMode5Status()
 {
     return mode5Status; 
 }
 
 /** Setter for {@link Mode5TransponderBasicData#personalIdentificationNumber}
-  * @param pPersonalIdentificationNumber new value of interest
+  * @param pPersonalIdentificationNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setPersonalIdentificationNumber(short pPersonalIdentificationNumber)
+public synchronized Mode5TransponderBasicData setPersonalIdentificationNumber(int pPersonalIdentificationNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPersonalIdentificationNumber >= 0 && pPersonalIdentificationNumber <= 65535, "Value outside valid value space");
     personalIdentificationNumber = pPersonalIdentificationNumber;
-    return this;
-}
-/** Utility setter for {@link Mode5TransponderBasicData#personalIdentificationNumber}
-  * @param pPersonalIdentificationNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setPersonalIdentificationNumber(int pPersonalIdentificationNumber){
-    personalIdentificationNumber = (short) pPersonalIdentificationNumber;
     return this;
 }
 /** Getter for {@link Mode5TransponderBasicData#personalIdentificationNumber}
   * @return value of interest */
-public short getPersonalIdentificationNumber()
+public int getPersonalIdentificationNumber()
 {
     return personalIdentificationNumber; 
 }
 
 /** Setter for {@link Mode5TransponderBasicData#mode5MessageFormatsPresent}
-  * @param pMode5MessageFormatsPresent new value of interest
+  * @param pMode5MessageFormatsPresent new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setMode5MessageFormatsPresent(int pMode5MessageFormatsPresent)
+public synchronized Mode5TransponderBasicData setMode5MessageFormatsPresent(UnsignedInteger pMode5MessageFormatsPresent)
 {
     mode5MessageFormatsPresent = pMode5MessageFormatsPresent;
     return this;
 }
 /** Getter for {@link Mode5TransponderBasicData#mode5MessageFormatsPresent}
   * @return value of interest */
-public int getMode5MessageFormatsPresent()
+public UnsignedInteger getMode5MessageFormatsPresent()
 {
     return mode5MessageFormatsPresent; 
 }
 
 /** Setter for {@link Mode5TransponderBasicData#enhancedMode1}
-  * @param pEnhancedMode1 new value of interest
+  * @param pEnhancedMode1 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setEnhancedMode1(short pEnhancedMode1)
+public synchronized Mode5TransponderBasicData setEnhancedMode1(int pEnhancedMode1)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pEnhancedMode1 >= 0 && pEnhancedMode1 <= 65535, "Value outside valid value space");
     enhancedMode1 = pEnhancedMode1;
-    return this;
-}
-/** Utility setter for {@link Mode5TransponderBasicData#enhancedMode1}
-  * @param pEnhancedMode1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setEnhancedMode1(int pEnhancedMode1){
-    enhancedMode1 = (short) pEnhancedMode1;
     return this;
 }
 /** Getter for {@link Mode5TransponderBasicData#enhancedMode1}
   * @return value of interest */
-public short getEnhancedMode1()
+public int getEnhancedMode1()
 {
     return enhancedMode1; 
 }
 
 /** Setter for {@link Mode5TransponderBasicData#nationalOrigin}
-  * @param pNationalOrigin new value of interest
+  * @param pNationalOrigin new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setNationalOrigin(short pNationalOrigin)
+public synchronized Mode5TransponderBasicData setNationalOrigin(int pNationalOrigin)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pNationalOrigin >= 0 && pNationalOrigin <= 65535, "Value outside valid value space");
     nationalOrigin = pNationalOrigin;
-    return this;
-}
-/** Utility setter for {@link Mode5TransponderBasicData#nationalOrigin}
-  * @param pNationalOrigin new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setNationalOrigin(int pNationalOrigin){
-    nationalOrigin = (short) pNationalOrigin;
     return this;
 }
 /** Getter for {@link Mode5TransponderBasicData#nationalOrigin}
   * @return value of interest */
-public short getNationalOrigin()
+public int getNationalOrigin()
 {
     return nationalOrigin; 
 }
 
 /** Setter for {@link Mode5TransponderBasicData#supplementalData}
-  * @param pSupplementalData new value of interest
+  * @param pSupplementalData new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setSupplementalData(byte pSupplementalData)
+public synchronized Mode5TransponderBasicData setSupplementalData(int pSupplementalData)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSupplementalData >= 0 && pSupplementalData <= 255, "Value outside valid value space");
     supplementalData = pSupplementalData;
-    return this;
-}
-/** Utility setter for {@link Mode5TransponderBasicData#supplementalData}
-  * @param pSupplementalData new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setSupplementalData(int pSupplementalData){
-    supplementalData = (byte) pSupplementalData;
     return this;
 }
 /** Getter for {@link Mode5TransponderBasicData#supplementalData}
   * @return value of interest */
-public byte getSupplementalData()
+public int getSupplementalData()
 {
     return supplementalData; 
 }
@@ -218,45 +203,35 @@ public NavigationSource getNavigationSource()
 }
 
 /** Setter for {@link Mode5TransponderBasicData#figureOfMerit}
-  * @param pFigureOfMerit new value of interest
+  * @param pFigureOfMerit new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setFigureOfMerit(byte pFigureOfMerit)
+public synchronized Mode5TransponderBasicData setFigureOfMerit(int pFigureOfMerit)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pFigureOfMerit >= 0 && pFigureOfMerit <= 255, "Value outside valid value space");
     figureOfMerit = pFigureOfMerit;
-    return this;
-}
-/** Utility setter for {@link Mode5TransponderBasicData#figureOfMerit}
-  * @param pFigureOfMerit new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setFigureOfMerit(int pFigureOfMerit){
-    figureOfMerit = (byte) pFigureOfMerit;
     return this;
 }
 /** Getter for {@link Mode5TransponderBasicData#figureOfMerit}
   * @return value of interest */
-public byte getFigureOfMerit()
+public int getFigureOfMerit()
 {
     return figureOfMerit; 
 }
 
 /** Setter for {@link Mode5TransponderBasicData#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setPadding(byte pPadding)
+public synchronized Mode5TransponderBasicData setPadding(int pPadding)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 255, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link Mode5TransponderBasicData#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized Mode5TransponderBasicData setPadding(int pPadding){
-    padding = (byte) pPadding;
     return this;
 }
 /** Getter for {@link Mode5TransponderBasicData#padding}
   * @return value of interest */
-public byte getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -270,21 +245,17 @@ public byte getPadding()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(mode5Status);
-       dos.writeShort(personalIdentificationNumber);
-       dos.writeInt(mode5MessageFormatsPresent);
-       dos.writeShort(enhancedMode1);
-       dos.writeShort(nationalOrigin);
-       dos.writeByte(supplementalData);
+       dos.writeShort((short) mode5Status);
+       dos.writeShort((short) personalIdentificationNumber);
+       dos.writeInt(mode5MessageFormatsPresent.intValue());
+       dos.writeShort((short) enhancedMode1);
+       dos.writeShort((short) nationalOrigin);
+       dos.writeByte((byte) supplementalData);
        navigationSource.marshal(dos);
-       dos.writeByte(figureOfMerit);
-       dos.writeByte(padding);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) figureOfMerit);
+       dos.writeByte((byte) padding);
     }
 }
 
@@ -300,30 +271,26 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        mode5Status = (short)dis.readUnsignedShort();
+        mode5Status = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        personalIdentificationNumber = (short)dis.readUnsignedShort();
+        personalIdentificationNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        mode5MessageFormatsPresent = dis.readInt();
+        mode5MessageFormatsPresent = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        enhancedMode1 = (short)dis.readUnsignedShort();
+        enhancedMode1 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        nationalOrigin = (short)dis.readUnsignedShort();
+        nationalOrigin = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        supplementalData = (byte)dis.readUnsignedByte();
+        supplementalData = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         navigationSource = NavigationSource.unmarshalEnum(dis);
         uPosition += navigationSource.getMarshalledSize();
-        figureOfMerit = (byte)dis.readUnsignedByte();
+        figureOfMerit = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding = (byte)dis.readUnsignedByte();
+        padding = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -339,15 +306,15 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)mode5Status);
-   byteBuffer.putShort( (short)personalIdentificationNumber);
-   byteBuffer.putInt( (int)mode5MessageFormatsPresent);
-   byteBuffer.putShort( (short)enhancedMode1);
-   byteBuffer.putShort( (short)nationalOrigin);
-   byteBuffer.put( (byte)supplementalData);
+   byteBuffer.putShort((short) mode5Status);
+   byteBuffer.putShort((short) personalIdentificationNumber);
+   byteBuffer.putInt(mode5MessageFormatsPresent.intValue());
+   byteBuffer.putShort((short) enhancedMode1);
+   byteBuffer.putShort((short) nationalOrigin);
+   byteBuffer.put((byte) supplementalData);
    navigationSource.marshal(byteBuffer);
-   byteBuffer.put( (byte)figureOfMerit);
-   byteBuffer.put( (byte)padding);
+   byteBuffer.put((byte) figureOfMerit);
+   byteBuffer.put((byte) padding);
 }
 
 /**
@@ -362,32 +329,88 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute mode5Status marked as not serialized
-        mode5Status = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute personalIdentificationNumber marked as not serialized
-        personalIdentificationNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute mode5MessageFormatsPresent marked as not serialized
-        mode5MessageFormatsPresent = byteBuffer.getInt();
-        // attribute enhancedMode1 marked as not serialized
-        enhancedMode1 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute nationalOrigin marked as not serialized
-        nationalOrigin = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute supplementalData marked as not serialized
-        supplementalData = (byte)(byteBuffer.get() & 0xFF);
-        // attribute navigationSource marked as not serialized
+        mode5Status = Short.toUnsignedInt(byteBuffer.getShort());
+        personalIdentificationNumber = Short.toUnsignedInt(byteBuffer.getShort());
+        mode5MessageFormatsPresent = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        enhancedMode1 = Short.toUnsignedInt(byteBuffer.getShort());
+        nationalOrigin = Short.toUnsignedInt(byteBuffer.getShort());
+        supplementalData = Byte.toUnsignedInt(byteBuffer.get());
         navigationSource = NavigationSource.unmarshalEnum(byteBuffer);
-        // attribute figureOfMerit marked as not serialized
-        figureOfMerit = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding marked as not serialized
-        padding = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        figureOfMerit = Byte.toUnsignedInt(byteBuffer.get());
+        padding = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("mode5Status", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("personalIdentificationNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("mode5MessageFormatsPresent", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("enhancedMode1", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("nationalOrigin", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("supplementalData", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("navigationSource", NavigationSource.unmarshalEnum(byteBuffer).getValue());
+    map.put("figureOfMerit", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("mode5Status")).shortValue());
+    byteBuffer.putShort(((Number) map.get("personalIdentificationNumber")).shortValue());
+    byteBuffer.putInt(((Number) map.get("mode5MessageFormatsPresent")).intValue());
+    byteBuffer.putShort(((Number) map.get("enhancedMode1")).shortValue());
+    byteBuffer.putShort(((Number) map.get("nationalOrigin")).shortValue());
+    byteBuffer.put(((Number) map.get("supplementalData")).byteValue());
+    NavigationSource.getEnumForValue(((Number) map.get("navigationSource")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("figureOfMerit")).byteValue());
+    byteBuffer.put(((Number) map.get("padding")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // mode5Status
+    marshalSize += 2;  // personalIdentificationNumber
+    marshalSize += 4;  // mode5MessageFormatsPresent
+    marshalSize += 2;  // enhancedMode1
+    marshalSize += 2;  // nationalOrigin
+    marshalSize += 1;  // supplementalData
+    marshalSize += NavigationSource.getEnumForValue(((Number) map.get("navigationSource")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // figureOfMerit
+    marshalSize += 1;  // padding
+
+    return marshalSize;
 }
 
  /*

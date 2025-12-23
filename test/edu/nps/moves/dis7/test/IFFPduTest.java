@@ -95,7 +95,7 @@ public class IFFPduTest extends PduTest{
 		assertEquals (createdIffPdu.getIFFPduLayer3TransponderFormatData(), receivedIffPdu.getIFFPduLayer3TransponderFormatData(),"mismatched IFFPduLayer3TransponderFormatData()");
 		assertEquals (createdIffPdu.getIFFPduLayer4TransponderFormatData(), receivedIffPdu.getIFFPduLayer4TransponderFormatData(),"mismatched IFFPduLayer4TransponderFormatData()");
 		
-		IFFMode5StatusRecord mode5StatusRecordReceivedIffPdu = new IFFMode5StatusRecord.Builder(receivedIffPdu.getIFFPduLayer3TransponderFormatData().getMode5TransponderBasicData().getMode5Status()).build();
+		IFFMode5StatusRecord mode5StatusRecordReceivedIffPdu = new IFFMode5StatusRecord.Builder((short) receivedIffPdu.getIFFPduLayer3TransponderFormatData().getMode5TransponderBasicData().getMode5Status()).build();
 		
 		assertEquals (mode5StatusRecordReceivedIffPdu.getOnOffStatusBit(), true, "mismatched mode5StatusRecord OnOffStatus bit");
 		assertEquals (mode5StatusRecordReceivedIffPdu.getDamageStatusBit(), false, "mismatched mode5StatusRecord DamageStatus bit");

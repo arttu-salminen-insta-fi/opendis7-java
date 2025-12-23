@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -30,14 +32,16 @@ public class LinearObjectStatePdu extends SyntheticEnvironmentFamilyPdu implemen
    /** Object with which this point object is associated */
    protected ObjectIdentifier  referencedObjectID = new ObjectIdentifier(); 
 
-   /** unique update number of each state transition of an object */
-   protected short updateNumber;
+   /** unique update number of each state transition of an object 
+   Value space: uint16 */
+   protected int updateNumber;
 
    /** force ID provides a unique identifier uid 6 */
    protected ForceID forceID = ForceID.values()[0];
 
-   /** number of linear segment parameters */
-   protected byte numberOfLinearSegments;
+   /** number of linear segment parameters 
+   Value space: uint8 */
+   protected int numberOfLinearSegments;
 
    /** requesterID */
    protected SimulationAddress  requesterID = new SimulationAddress(); 
@@ -189,23 +193,18 @@ public ObjectIdentifier getReferencedObjectID()
 
 
 /** Setter for {@link LinearObjectStatePdu#updateNumber}
-  * @param pUpdateNumber new value of interest
+  * @param pUpdateNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LinearObjectStatePdu setUpdateNumber(short pUpdateNumber)
+public synchronized LinearObjectStatePdu setUpdateNumber(int pUpdateNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pUpdateNumber >= 0 && pUpdateNumber <= 65535, "Value outside valid value space");
     updateNumber = pUpdateNumber;
-    return this;
-}
-/** Utility setter for {@link LinearObjectStatePdu#updateNumber}
-  * @param pUpdateNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LinearObjectStatePdu setUpdateNumber(int pUpdateNumber){
-    updateNumber = (short) pUpdateNumber;
     return this;
 }
 /** Getter for {@link LinearObjectStatePdu#updateNumber}
   * @return value of interest */
-public short getUpdateNumber()
+public int getUpdateNumber()
 {
     return updateNumber; 
 }
@@ -298,11 +297,11 @@ public List<LinearSegmentParameter> getLinearSegmentParameters()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        objectID.marshal(dos);
        referencedObjectID.marshal(dos);
-       dos.writeShort(updateNumber);
+       dos.writeShort((short) updateNumber);
        forceID.marshal(dos);
        dos.writeByte(linearSegmentParameters.size());
        requesterID.marshal(dos);
@@ -315,10 +314,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aLinearSegmentParameter.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -336,30 +331,26 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += objectID.unmarshal(dis);
         uPosition += referencedObjectID.unmarshal(dis);
-        updateNumber = (short)dis.readUnsignedShort();
+        updateNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         forceID = ForceID.unmarshalEnum(dis);
         uPosition += forceID.getMarshalledSize();
-        numberOfLinearSegments = (byte)dis.readUnsignedByte();
+        numberOfLinearSegments = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += requesterID.unmarshal(dis);
         uPosition += receivingID.unmarshal(dis);
         uPosition += objectType.unmarshal(dis);
-        for (int idx = 0; idx < numberOfLinearSegments; idx++)
+        for (int idx = 0; idx < ((Number) numberOfLinearSegments).intValue(); idx++)
         {
             LinearSegmentParameter anX = new LinearSegmentParameter();
             uPosition += anX.unmarshal(dis);
             linearSegmentParameters.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -378,7 +369,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    super.marshal(byteBuffer);
    objectID.marshal(byteBuffer);
    referencedObjectID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)updateNumber);
+   byteBuffer.putShort((short) updateNumber);
    forceID.marshal(byteBuffer);
    byteBuffer.put( (byte)linearSegmentParameters.size());
    requesterID.marshal(byteBuffer);
@@ -407,38 +398,110 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute objectID marked as not serialized
         objectID.unmarshal(byteBuffer);
-        // attribute referencedObjectID marked as not serialized
         referencedObjectID.unmarshal(byteBuffer);
-        // attribute updateNumber marked as not serialized
-        updateNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute forceID marked as not serialized
+        updateNumber = Short.toUnsignedInt(byteBuffer.getShort());
         forceID = ForceID.unmarshalEnum(byteBuffer);
-        // attribute numberOfLinearSegments marked as not serialized
-        numberOfLinearSegments = (byte)(byteBuffer.get() & 0xFF);
-        // attribute requesterID marked as not serialized
+        numberOfLinearSegments = Byte.toUnsignedInt(byteBuffer.get());
         requesterID.unmarshal(byteBuffer);
-        // attribute receivingID marked as not serialized
         receivingID.unmarshal(byteBuffer);
-        // attribute objectType marked as not serialized
         objectType.unmarshal(byteBuffer);
-        // attribute linearSegmentParameters marked as not serialized
-        for (int idx = 0; idx < numberOfLinearSegments; idx++)
+        for (int idx = 0; idx < ((Number) numberOfLinearSegments).intValue(); idx++)
         {
-        LinearSegmentParameter anX = new LinearSegmentParameter();
-        anX.unmarshal(byteBuffer);
-        linearSegmentParameters.add(anX);
+            LinearSegmentParameter anX = new LinearSegmentParameter();
+            anX.unmarshal(byteBuffer);
+            linearSegmentParameters.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = SyntheticEnvironmentFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("objectID", ObjectIdentifier.fromBufferToMap(byteBuffer));
+    map.put("referencedObjectID", ObjectIdentifier.fromBufferToMap(byteBuffer));
+    map.put("updateNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("forceID", ForceID.unmarshalEnum(byteBuffer).getValue());
+    map.put("numberOfLinearSegments", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("requesterID", SimulationAddress.fromBufferToMap(byteBuffer));
+    map.put("receivingID", SimulationAddress.fromBufferToMap(byteBuffer));
+    map.put("objectType", ObjectType.fromBufferToMap(byteBuffer));
+    List linearSegmentParameters = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfLinearSegments")).intValue(); idx++)
+    {
+        linearSegmentParameters.add(LinearSegmentParameter.fromBufferToMap(byteBuffer));
+    }
+    map.put("linearSegmentParameters", linearSegmentParameters);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    SyntheticEnvironmentFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    ObjectIdentifier.fromMapToBuffer((PduMap) map.get("objectID"), byteBuffer);
+    ObjectIdentifier.fromMapToBuffer((PduMap) map.get("referencedObjectID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("updateNumber")).shortValue());
+    ForceID.getEnumForValue(((Number) map.get("forceID")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("numberOfLinearSegments")).byteValue());
+    SimulationAddress.fromMapToBuffer((PduMap) map.get("requesterID"), byteBuffer);
+    SimulationAddress.fromMapToBuffer((PduMap) map.get("receivingID"), byteBuffer);
+    ObjectType.fromMapToBuffer((PduMap) map.get("objectType"), byteBuffer);
+
+    List linearSegmentParameters = (List) map.get("linearSegmentParameters");
+    for (int idx = 0; idx < ((Number) map.get("numberOfLinearSegments")).intValue(); idx++)
+    {
+        LinearSegmentParameter.fromMapToBuffer((PduMap) linearSegmentParameters.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += SyntheticEnvironmentFamilyPdu.getMarshalledSize(map);
+    marshalSize += ObjectIdentifier.getMarshalledSize((PduMap) map.get("objectID"));
+    marshalSize += ObjectIdentifier.getMarshalledSize((PduMap) map.get("referencedObjectID"));
+    marshalSize += 2;  // updateNumber
+    marshalSize += ForceID.getEnumForValue(((Number) map.get("forceID")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // numberOfLinearSegments
+    marshalSize += SimulationAddress.getMarshalledSize((PduMap) map.get("requesterID"));
+    marshalSize += SimulationAddress.getMarshalledSize((PduMap) map.get("receivingID"));
+    marshalSize += ObjectType.getMarshalledSize((PduMap) map.get("objectType"));
+    List linearSegmentParameters = (List) map.get("linearSegmentParameters");
+    for (int idx = 0; idx < ((Number) map.get("numberOfLinearSegments")).intValue(); idx++)
+        marshalSize += LinearSegmentParameter.getMarshalledSize((PduMap) linearSegmentParameters.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -480,7 +543,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" objectID:").append(objectID); // writeOneToString
     sb.append(" referencedObjectID:").append(referencedObjectID); // writeOneToString
     sb.append(" updateNumber:").append(updateNumber); // writeOneToString

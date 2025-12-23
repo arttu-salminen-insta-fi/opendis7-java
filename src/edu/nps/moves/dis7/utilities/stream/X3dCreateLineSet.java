@@ -78,7 +78,7 @@ public class X3dCreateLineSet {
             //Same with X,Y,Z to create a local coordiante system
             if (firstTimeStamp) {
 
-                firstLocalTimeStamp = localPdu.getTimestamp();
+                firstLocalTimeStamp = localPdu.getTimestamp().intValue();
                 firstLocalX = localEspdu.getEntityLocation().getX();
                 firstLocalY = localEspdu.getEntityLocation().getZ();
                 firstLocalZ = -1 * localEspdu.getEntityLocation().getY();
@@ -86,7 +86,7 @@ public class X3dCreateLineSet {
                 firstTimeStamp = false;
             }
 
-            localTimeStamp = localPdu.getTimestamp();
+            localTimeStamp = localPdu.getTimestamp().intValue();
             localX = localEspdu.getEntityLocation().getX();
             localY = localEspdu.getEntityLocation().getZ();
             localZ = -1 * localEspdu.getEntityLocation().getY();

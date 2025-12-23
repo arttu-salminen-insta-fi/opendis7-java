@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * B.2.41. Mode S transponder basic data
@@ -19,38 +21,46 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class ModeSTransponderBasicData extends Object implements Serializable, Marshaller
 {
-   /** Mode S transponder status, part of Mode S transponder basic data fields. See B.2.42. */
-   protected short modeSTransponderStatus;
+   /** Mode S transponder status, part of Mode S transponder basic data fields. See B.2.42. 
+   Value space: uint16 */
+   protected int modeSTransponderStatus;
 
-   /** Mode S levels present, part of Mode S transponder basic data fields. See B.2.40. */
-   protected byte modeSLevelsPresent;
+   /** Mode S levels present, part of Mode S transponder basic data fields. See B.2.40. 
+   Value space: uint8 */
+   protected int modeSLevelsPresent;
 
    /** aircraft present domain uid 356 */
    protected AircraftPresentDomain aircraftPresentDomain = AircraftPresentDomain.values()[0];
 
-   /** Aircraft identification, part of Mode S transponder basic data fields. See B.2.35. */
-   protected long aircraftIdentification;
+   /** Aircraft identification, part of Mode S transponder basic data fields. See B.2.35. 
+   Value space: uint64 */
+   protected UnsignedLong aircraftIdentification = UnsignedLong.ZERO;
 
-   /** Unique ICAO Mode S aircraft address, part of Mode S transponder basic data fields. */
-   protected int aircraftAddress;
+   /** Unique ICAO Mode S aircraft address, part of Mode S transponder basic data fields. 
+   Value space: uint32 */
+   protected UnsignedInteger aircraftAddress = UnsignedInteger.ZERO;
 
    /** Aircraft identification type, part of Mode S transponder basic data fields. uid 357 */
    protected AircraftIdentificationType aircraftIdentificationType = AircraftIdentificationType.values()[0];
 
-   /** DAP source, part of Mode S transponder basic data fields. See B.2.6. */
-   protected byte dapSource;
+   /** DAP source, part of Mode S transponder basic data fields. See B.2.6. 
+   Value space: uint8 */
+   protected int dapSource;
 
-   /** Mode S altitude, part of Mode S transponder basic data fields. See B.2.36. */
-   protected short modeSAltitude;
+   /** Mode S altitude, part of Mode S transponder basic data fields. See B.2.36. 
+   Value space: uint16 */
+   protected int modeSAltitude;
 
    /** Capability report, part of Mode S transponder basic data fields. uid 358 */
    protected CapabilityReport capabilityReport = CapabilityReport.values()[0];
 
-   /** Padding */
-   protected byte padding;
+   /** Padding 
+   Value space: uint8 */
+   protected int padding;
 
-   /** Padding */
-   protected short padding2;
+   /** Padding 
+   Value space: uint16 */
+   protected int padding2;
 
 
 /** Constructor creates and configures a new instance object */
@@ -88,45 +98,35 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link ModeSTransponderBasicData#modeSTransponderStatus}
-  * @param pModeSTransponderStatus new value of interest
+  * @param pModeSTransponderStatus new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setModeSTransponderStatus(short pModeSTransponderStatus)
+public synchronized ModeSTransponderBasicData setModeSTransponderStatus(int pModeSTransponderStatus)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pModeSTransponderStatus >= 0 && pModeSTransponderStatus <= 65535, "Value outside valid value space");
     modeSTransponderStatus = pModeSTransponderStatus;
-    return this;
-}
-/** Utility setter for {@link ModeSTransponderBasicData#modeSTransponderStatus}
-  * @param pModeSTransponderStatus new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setModeSTransponderStatus(int pModeSTransponderStatus){
-    modeSTransponderStatus = (short) pModeSTransponderStatus;
     return this;
 }
 /** Getter for {@link ModeSTransponderBasicData#modeSTransponderStatus}
   * @return value of interest */
-public short getModeSTransponderStatus()
+public int getModeSTransponderStatus()
 {
     return modeSTransponderStatus; 
 }
 
 /** Setter for {@link ModeSTransponderBasicData#modeSLevelsPresent}
-  * @param pModeSLevelsPresent new value of interest
+  * @param pModeSLevelsPresent new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setModeSLevelsPresent(byte pModeSLevelsPresent)
+public synchronized ModeSTransponderBasicData setModeSLevelsPresent(int pModeSLevelsPresent)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pModeSLevelsPresent >= 0 && pModeSLevelsPresent <= 255, "Value outside valid value space");
     modeSLevelsPresent = pModeSLevelsPresent;
-    return this;
-}
-/** Utility setter for {@link ModeSTransponderBasicData#modeSLevelsPresent}
-  * @param pModeSLevelsPresent new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setModeSLevelsPresent(int pModeSLevelsPresent){
-    modeSLevelsPresent = (byte) pModeSLevelsPresent;
     return this;
 }
 /** Getter for {@link ModeSTransponderBasicData#modeSLevelsPresent}
   * @return value of interest */
-public byte getModeSLevelsPresent()
+public int getModeSLevelsPresent()
 {
     return modeSLevelsPresent; 
 }
@@ -147,38 +147,31 @@ public AircraftPresentDomain getAircraftPresentDomain()
 }
 
 /** Setter for {@link ModeSTransponderBasicData#aircraftIdentification}
-  * @param pAircraftIdentification new value of interest
+  * @param pAircraftIdentification new value of interest. Value space uint64
   * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setAircraftIdentification(long pAircraftIdentification)
+public synchronized ModeSTransponderBasicData setAircraftIdentification(UnsignedLong pAircraftIdentification)
 {
     aircraftIdentification = pAircraftIdentification;
     return this;
 }
-/** Utility setter for {@link ModeSTransponderBasicData#aircraftIdentification}
-  * @param pAircraftIdentification new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setAircraftIdentification(int pAircraftIdentification){
-    aircraftIdentification = (long) pAircraftIdentification;
-    return this;
-}
 /** Getter for {@link ModeSTransponderBasicData#aircraftIdentification}
   * @return value of interest */
-public long getAircraftIdentification()
+public UnsignedLong getAircraftIdentification()
 {
     return aircraftIdentification; 
 }
 
 /** Setter for {@link ModeSTransponderBasicData#aircraftAddress}
-  * @param pAircraftAddress new value of interest
+  * @param pAircraftAddress new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setAircraftAddress(int pAircraftAddress)
+public synchronized ModeSTransponderBasicData setAircraftAddress(UnsignedInteger pAircraftAddress)
 {
     aircraftAddress = pAircraftAddress;
     return this;
 }
 /** Getter for {@link ModeSTransponderBasicData#aircraftAddress}
   * @return value of interest */
-public int getAircraftAddress()
+public UnsignedInteger getAircraftAddress()
 {
     return aircraftAddress; 
 }
@@ -199,45 +192,35 @@ public AircraftIdentificationType getAircraftIdentificationType()
 }
 
 /** Setter for {@link ModeSTransponderBasicData#dapSource}
-  * @param pDapSource new value of interest
+  * @param pDapSource new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setDapSource(byte pDapSource)
+public synchronized ModeSTransponderBasicData setDapSource(int pDapSource)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pDapSource >= 0 && pDapSource <= 255, "Value outside valid value space");
     dapSource = pDapSource;
-    return this;
-}
-/** Utility setter for {@link ModeSTransponderBasicData#dapSource}
-  * @param pDapSource new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setDapSource(int pDapSource){
-    dapSource = (byte) pDapSource;
     return this;
 }
 /** Getter for {@link ModeSTransponderBasicData#dapSource}
   * @return value of interest */
-public byte getDapSource()
+public int getDapSource()
 {
     return dapSource; 
 }
 
 /** Setter for {@link ModeSTransponderBasicData#modeSAltitude}
-  * @param pModeSAltitude new value of interest
+  * @param pModeSAltitude new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setModeSAltitude(short pModeSAltitude)
+public synchronized ModeSTransponderBasicData setModeSAltitude(int pModeSAltitude)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pModeSAltitude >= 0 && pModeSAltitude <= 65535, "Value outside valid value space");
     modeSAltitude = pModeSAltitude;
-    return this;
-}
-/** Utility setter for {@link ModeSTransponderBasicData#modeSAltitude}
-  * @param pModeSAltitude new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setModeSAltitude(int pModeSAltitude){
-    modeSAltitude = (short) pModeSAltitude;
     return this;
 }
 /** Getter for {@link ModeSTransponderBasicData#modeSAltitude}
   * @return value of interest */
-public short getModeSAltitude()
+public int getModeSAltitude()
 {
     return modeSAltitude; 
 }
@@ -258,45 +241,35 @@ public CapabilityReport getCapabilityReport()
 }
 
 /** Setter for {@link ModeSTransponderBasicData#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setPadding(byte pPadding)
+public synchronized ModeSTransponderBasicData setPadding(int pPadding)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 255, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link ModeSTransponderBasicData#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setPadding(int pPadding){
-    padding = (byte) pPadding;
     return this;
 }
 /** Getter for {@link ModeSTransponderBasicData#padding}
   * @return value of interest */
-public byte getPadding()
+public int getPadding()
 {
     return padding; 
 }
 
 /** Setter for {@link ModeSTransponderBasicData#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setPadding2(short pPadding2)
+public synchronized ModeSTransponderBasicData setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 65535, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link ModeSTransponderBasicData#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized ModeSTransponderBasicData setPadding2(int pPadding2){
-    padding2 = (short) pPadding2;
     return this;
 }
 /** Getter for {@link ModeSTransponderBasicData#padding2}
   * @return value of interest */
-public short getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
@@ -310,23 +283,19 @@ public short getPadding2()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(modeSTransponderStatus);
-       dos.writeByte(modeSLevelsPresent);
+       dos.writeShort((short) modeSTransponderStatus);
+       dos.writeByte((byte) modeSLevelsPresent);
        aircraftPresentDomain.marshal(dos);
-       dos.writeLong(aircraftIdentification);
-       dos.writeInt(aircraftAddress);
+       dos.writeLong(aircraftIdentification.longValue());
+       dos.writeInt(aircraftAddress.intValue());
        aircraftIdentificationType.marshal(dos);
-       dos.writeByte(dapSource);
-       dos.writeShort(modeSAltitude);
+       dos.writeByte((byte) dapSource);
+       dos.writeShort((short) modeSAltitude);
        capabilityReport.marshal(dos);
-       dos.writeByte(padding);
-       dos.writeShort(padding2);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) padding);
+       dos.writeShort((short) padding2);
     }
 }
 
@@ -342,34 +311,30 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        modeSTransponderStatus = (short)dis.readUnsignedShort();
+        modeSTransponderStatus = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        modeSLevelsPresent = (byte)dis.readUnsignedByte();
+        modeSLevelsPresent = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         aircraftPresentDomain = AircraftPresentDomain.unmarshalEnum(dis);
         uPosition += aircraftPresentDomain.getMarshalledSize();
-        aircraftIdentification = dis.readLong();
-        uPosition += 4;
-        aircraftAddress = dis.readInt();
+        aircraftIdentification = UnsignedLong.fromLongBits(dis.readLong());
+        uPosition += 8;
+        aircraftAddress = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         aircraftIdentificationType = AircraftIdentificationType.unmarshalEnum(dis);
         uPosition += aircraftIdentificationType.getMarshalledSize();
-        dapSource = (byte)dis.readUnsignedByte();
+        dapSource = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        modeSAltitude = (short)dis.readUnsignedShort();
+        modeSAltitude = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         capabilityReport = CapabilityReport.unmarshalEnum(dis);
         uPosition += capabilityReport.getMarshalledSize();
-        padding = (byte)dis.readUnsignedByte();
+        padding = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding2 = (short)dis.readUnsignedShort();
+        padding2 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -385,17 +350,17 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)modeSTransponderStatus);
-   byteBuffer.put( (byte)modeSLevelsPresent);
+   byteBuffer.putShort((short) modeSTransponderStatus);
+   byteBuffer.put((byte) modeSLevelsPresent);
    aircraftPresentDomain.marshal(byteBuffer);
-   byteBuffer.putLong( (long)aircraftIdentification);
-   byteBuffer.putInt( (int)aircraftAddress);
+   byteBuffer.putLong(aircraftIdentification.longValue());
+   byteBuffer.putInt(aircraftAddress.intValue());
    aircraftIdentificationType.marshal(byteBuffer);
-   byteBuffer.put( (byte)dapSource);
-   byteBuffer.putShort( (short)modeSAltitude);
+   byteBuffer.put((byte) dapSource);
+   byteBuffer.putShort((short) modeSAltitude);
    capabilityReport.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding);
-   byteBuffer.putShort( (short)padding2);
+   byteBuffer.put((byte) padding);
+   byteBuffer.putShort((short) padding2);
 }
 
 /**
@@ -410,36 +375,96 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute modeSTransponderStatus marked as not serialized
-        modeSTransponderStatus = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute modeSLevelsPresent marked as not serialized
-        modeSLevelsPresent = (byte)(byteBuffer.get() & 0xFF);
-        // attribute aircraftPresentDomain marked as not serialized
+        modeSTransponderStatus = Short.toUnsignedInt(byteBuffer.getShort());
+        modeSLevelsPresent = Byte.toUnsignedInt(byteBuffer.get());
         aircraftPresentDomain = AircraftPresentDomain.unmarshalEnum(byteBuffer);
-        // attribute aircraftIdentification marked as not serialized
-        aircraftIdentification = byteBuffer.getLong();
-        // attribute aircraftAddress marked as not serialized
-        aircraftAddress = byteBuffer.getInt();
-        // attribute aircraftIdentificationType marked as not serialized
+        aircraftIdentification = UnsignedLong.fromLongBits(byteBuffer.getLong());
+        aircraftAddress = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         aircraftIdentificationType = AircraftIdentificationType.unmarshalEnum(byteBuffer);
-        // attribute dapSource marked as not serialized
-        dapSource = (byte)(byteBuffer.get() & 0xFF);
-        // attribute modeSAltitude marked as not serialized
-        modeSAltitude = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute capabilityReport marked as not serialized
+        dapSource = Byte.toUnsignedInt(byteBuffer.get());
+        modeSAltitude = Short.toUnsignedInt(byteBuffer.getShort());
         capabilityReport = CapabilityReport.unmarshalEnum(byteBuffer);
-        // attribute padding marked as not serialized
-        padding = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding2 marked as not serialized
-        padding2 = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding = Byte.toUnsignedInt(byteBuffer.get());
+        padding2 = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("modeSTransponderStatus", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("modeSLevelsPresent", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("aircraftPresentDomain", AircraftPresentDomain.unmarshalEnum(byteBuffer).getValue());
+    map.put("aircraftIdentification", UnsignedLong.fromLongBits(byteBuffer.getLong()));
+    map.put("aircraftAddress", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("aircraftIdentificationType", AircraftIdentificationType.unmarshalEnum(byteBuffer).getValue());
+    map.put("dapSource", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("modeSAltitude", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("capabilityReport", CapabilityReport.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding2", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("modeSTransponderStatus")).shortValue());
+    byteBuffer.put(((Number) map.get("modeSLevelsPresent")).byteValue());
+    AircraftPresentDomain.getEnumForValue(((Number) map.get("aircraftPresentDomain")).intValue()).marshal(byteBuffer);
+    byteBuffer.putLong(((Number) map.get("aircraftIdentification")).longValue());
+    byteBuffer.putInt(((Number) map.get("aircraftAddress")).intValue());
+    AircraftIdentificationType.getEnumForValue(((Number) map.get("aircraftIdentificationType")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("dapSource")).byteValue());
+    byteBuffer.putShort(((Number) map.get("modeSAltitude")).shortValue());
+    CapabilityReport.getEnumForValue(((Number) map.get("capabilityReport")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding")).byteValue());
+    byteBuffer.putShort(((Number) map.get("padding2")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // modeSTransponderStatus
+    marshalSize += 1;  // modeSLevelsPresent
+    marshalSize += AircraftPresentDomain.getEnumForValue(((Number) map.get("aircraftPresentDomain")).intValue()).getMarshalledSize();
+    marshalSize += 8;  // aircraftIdentification
+    marshalSize += 4;  // aircraftAddress
+    marshalSize += AircraftIdentificationType.getEnumForValue(((Number) map.get("aircraftIdentificationType")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // dapSource
+    marshalSize += 2;  // modeSAltitude
+    marshalSize += CapabilityReport.getEnumForValue(((Number) map.get("capabilityReport")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding
+    marshalSize += 2;  // padding2
+
+    return marshalSize;
 }
 
  /*

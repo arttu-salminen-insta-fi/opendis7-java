@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -24,17 +26,20 @@ public class ActionResponseRPdu extends SimulationManagementWithReliabilityFamil
    /** The name of this PDU type */
    public static final String NAME = "ActionResponseRPdu";
    
-   /** request ID provides a unique identifier */
-   protected int requestID;
+   /** request ID provides a unique identifier 
+   Value space: uint32 */
+   protected UnsignedInteger requestID = UnsignedInteger.ZERO;
 
    /** status of response uid 72 */
    protected ActionResponseRequestStatus responseStatus = ActionResponseRequestStatus.values()[0];
 
-   /** Fixed datum record count */
-   protected int numberOfFixedDatumRecords;
+   /** Fixed datum record count 
+   Value space: uint32 */
+   protected UnsignedInteger numberOfFixedDatumRecords = UnsignedInteger.ZERO;
 
-   /** variable datum record count */
-   protected int numberOfVariableDatumRecords;
+   /** variable datum record count 
+   Value space: uint32 */
+   protected UnsignedInteger numberOfVariableDatumRecords = UnsignedInteger.ZERO;
 
    /** Fixed datum records */
    protected List< FixedDatum > fixedDatumRecords = new ArrayList<>();
@@ -145,16 +150,16 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link ActionResponseRPdu#requestID}
-  * @param pRequestID new value of interest
+  * @param pRequestID new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized ActionResponseRPdu setRequestID(int pRequestID)
+public synchronized ActionResponseRPdu setRequestID(UnsignedInteger pRequestID)
 {
     requestID = pRequestID;
     return this;
 }
 /** Getter for {@link ActionResponseRPdu#requestID}
   * @return value of interest */
-public int getRequestID()
+public UnsignedInteger getRequestID()
 {
     return requestID; 
 }
@@ -214,9 +219,9 @@ public List<VariableDatum> getVariableDatumRecords()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
-       dos.writeInt(requestID);
+       dos.writeInt(requestID.intValue());
        responseStatus.marshal(dos);
        dos.writeInt(fixedDatumRecords.size());
        dos.writeInt(variableDatumRecords.size());
@@ -235,10 +240,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        }
 
     }
-    catch(Exception e)
-    {
-      System.err.println(e);
-    }
 }
 
 /**
@@ -255,34 +256,30 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
-        requestID = dis.readInt();
+        requestID = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         responseStatus = ActionResponseRequestStatus.unmarshalEnum(dis);
         uPosition += responseStatus.getMarshalledSize();
-        numberOfFixedDatumRecords = dis.readInt();
+        numberOfFixedDatumRecords = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        numberOfVariableDatumRecords = dis.readInt();
+        numberOfVariableDatumRecords = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        for (int idx = 0; idx < numberOfFixedDatumRecords; idx++)
+        for (int idx = 0; idx < ((Number) numberOfFixedDatumRecords).intValue(); idx++)
         {
             FixedDatum anX = new FixedDatum();
             uPosition += anX.unmarshal(dis);
             fixedDatumRecords.add(anX);
         }
 
-        for (int idx = 0; idx < numberOfVariableDatumRecords; idx++)
+        for (int idx = 0; idx < ((Number) numberOfVariableDatumRecords).intValue(); idx++)
         {
             VariableDatum anX = new VariableDatum();
             uPosition += anX.unmarshal(dis);
             variableDatumRecords.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -299,7 +296,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    super.marshal(byteBuffer);
-   byteBuffer.putInt( (int)requestID);
+   byteBuffer.putInt(requestID.intValue());
    responseStatus.marshal(byteBuffer);
    byteBuffer.putInt( (int)fixedDatumRecords.size());
    byteBuffer.putInt( (int)variableDatumRecords.size());
@@ -333,38 +330,118 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute requestID marked as not serialized
-        requestID = byteBuffer.getInt();
-        // attribute responseStatus marked as not serialized
+        requestID = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         responseStatus = ActionResponseRequestStatus.unmarshalEnum(byteBuffer);
-        // attribute numberOfFixedDatumRecords marked as not serialized
-        numberOfFixedDatumRecords = byteBuffer.getInt();
-        // attribute numberOfVariableDatumRecords marked as not serialized
-        numberOfVariableDatumRecords = byteBuffer.getInt();
-        // attribute fixedDatumRecords marked as not serialized
-        for (int idx = 0; idx < numberOfFixedDatumRecords; idx++)
+        numberOfFixedDatumRecords = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        numberOfVariableDatumRecords = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        for (int idx = 0; idx < ((Number) numberOfFixedDatumRecords).intValue(); idx++)
         {
-        FixedDatum anX = new FixedDatum();
-        anX.unmarshal(byteBuffer);
-        fixedDatumRecords.add(anX);
+            FixedDatum anX = new FixedDatum();
+            anX.unmarshal(byteBuffer);
+            fixedDatumRecords.add(anX);
         }
 
-        // attribute variableDatumRecords marked as not serialized
-        for (int idx = 0; idx < numberOfVariableDatumRecords; idx++)
+        for (int idx = 0; idx < ((Number) numberOfVariableDatumRecords).intValue(); idx++)
         {
-        VariableDatum anX = new VariableDatum();
-        anX.unmarshal(byteBuffer);
-        variableDatumRecords.add(anX);
+            VariableDatum anX = new VariableDatum();
+            anX.unmarshal(byteBuffer);
+            variableDatumRecords.add(anX);
         }
 
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = SimulationManagementWithReliabilityFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("requestID", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("responseStatus", ActionResponseRequestStatus.unmarshalEnum(byteBuffer).getValue());
+    map.put("numberOfFixedDatumRecords", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("numberOfVariableDatumRecords", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    List fixedDatumRecords = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfFixedDatumRecords")).intValue(); idx++)
+    {
+        fixedDatumRecords.add(FixedDatum.fromBufferToMap(byteBuffer));
+    }
+    map.put("fixedDatumRecords", fixedDatumRecords);
+
+    List variableDatumRecords = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableDatumRecords")).intValue(); idx++)
+    {
+        variableDatumRecords.add(VariableDatum.fromBufferToMap(byteBuffer));
+    }
+    map.put("variableDatumRecords", variableDatumRecords);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    SimulationManagementWithReliabilityFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    byteBuffer.putInt(((Number) map.get("requestID")).intValue());
+    ActionResponseRequestStatus.getEnumForValue(((Number) map.get("responseStatus")).intValue()).marshal(byteBuffer);
+    byteBuffer.putInt(((Number) map.get("numberOfFixedDatumRecords")).intValue());
+    byteBuffer.putInt(((Number) map.get("numberOfVariableDatumRecords")).intValue());
+
+    List fixedDatumRecords = (List) map.get("fixedDatumRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfFixedDatumRecords")).intValue(); idx++)
+    {
+        FixedDatum.fromMapToBuffer((PduMap) fixedDatumRecords.get(idx), byteBuffer);
+    }
+
+
+    List variableDatumRecords = (List) map.get("variableDatumRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableDatumRecords")).intValue(); idx++)
+    {
+        VariableDatum.fromMapToBuffer((PduMap) variableDatumRecords.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += SimulationManagementWithReliabilityFamilyPdu.getMarshalledSize(map);
+    marshalSize += 4;  // requestID
+    marshalSize += ActionResponseRequestStatus.getEnumForValue(((Number) map.get("responseStatus")).intValue()).getMarshalledSize();
+    marshalSize += 4;  // numberOfFixedDatumRecords
+    marshalSize += 4;  // numberOfVariableDatumRecords
+    List fixedDatumRecords = (List) map.get("fixedDatumRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfFixedDatumRecords")).intValue(); idx++)
+        marshalSize += FixedDatum.getMarshalledSize((PduMap) fixedDatumRecords.get(idx));
+    List variableDatumRecords = (List) map.get("variableDatumRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableDatumRecords")).intValue(); idx++)
+        marshalSize += VariableDatum.getMarshalledSize((PduMap) variableDatumRecords.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -402,7 +479,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" requestID:").append(requestID); // writeOneToString
     sb.append(" responseStatus:").append(responseStatus); // writeOneToString
     sb.append(" fixedDatumRecords: ");

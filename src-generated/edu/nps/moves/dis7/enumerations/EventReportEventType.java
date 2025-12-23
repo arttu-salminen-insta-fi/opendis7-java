@@ -221,6 +221,15 @@ public enum EventReportEventType
     {
         return 4; // 32 bits
     }
+
+    /**
+     * Provide name
+     * @return  name
+     */
+    public String getName()
+    {
+        return name();
+    }
     
     @Override
     public String toString()

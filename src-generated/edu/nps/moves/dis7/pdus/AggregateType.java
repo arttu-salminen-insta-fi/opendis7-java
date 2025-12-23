@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Identifies the type and organization of an aggregate. Section 6.2.5
@@ -28,8 +30,9 @@ public class AggregateType extends Object implements Serializable, Marshaller
    /** country to which the design of the entity is attributed uid 29 */
    protected Country country = Country.values()[0];
 
-   /** category of entity */
-   protected byte category;
+   /** category of entity 
+   Value space: uint8 */
+   protected int category;
 
    /** subcategory of entity uid 208 */
    protected AggregateStateSubcategory subcategory = AggregateStateSubcategory.values()[0];
@@ -37,8 +40,9 @@ public class AggregateType extends Object implements Serializable, Marshaller
    /** specific info based on subcategory field. specific is a reserved word in sql. uid 209 */
    protected AggregateStateSpecific specificInfo = AggregateStateSpecific.values()[0];
 
-   /** extra is an undescribed parameter... */
-   protected byte extra;
+   /** extra is an undescribed parameter...
+   Value space: uint8 */
+   protected int extra;
 
 
 /** Constructor creates and configures a new instance object */
@@ -119,23 +123,18 @@ public Country getCountry()
 }
 
 /** Setter for {@link AggregateType#category}
-  * @param pCategory new value of interest
+  * @param pCategory new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized AggregateType setCategory(byte pCategory)
+public synchronized AggregateType setCategory(int pCategory)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pCategory >= 0 && pCategory <= 255, "Value outside valid value space");
     category = pCategory;
-    return this;
-}
-/** Utility setter for {@link AggregateType#category}
-  * @param pCategory new value of interest
-  * @return same object to permit progressive setters */
-public synchronized AggregateType setCategory(int pCategory){
-    category = (byte) pCategory;
     return this;
 }
 /** Getter for {@link AggregateType#category}
   * @return value of interest */
-public byte getCategory()
+public int getCategory()
 {
     return category; 
 }
@@ -171,23 +170,18 @@ public AggregateStateSpecific getSpecificInfo()
 }
 
 /** Setter for {@link AggregateType#extra}
-  * @param pExtra new value of interest
+  * @param pExtra new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized AggregateType setExtra(byte pExtra)
+public synchronized AggregateType setExtra(int pExtra)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pExtra >= 0 && pExtra <= 255, "Value outside valid value space");
     extra = pExtra;
-    return this;
-}
-/** Utility setter for {@link AggregateType#extra}
-  * @param pExtra new value of interest
-  * @return same object to permit progressive setters */
-public synchronized AggregateType setExtra(int pExtra){
-    extra = (byte) pExtra;
     return this;
 }
 /** Getter for {@link AggregateType#extra}
   * @return value of interest */
-public byte getExtra()
+public int getExtra()
 {
     return extra; 
 }
@@ -201,19 +195,15 @@ public byte getExtra()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        aggregateKind.marshal(dos);
        domain.marshal(dos);
        country.marshal(dos);
-       dos.writeByte(category);
+       dos.writeByte((byte) category);
        subcategory.marshal(dos);
        specificInfo.marshal(dos);
-       dos.writeByte(extra);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) extra);
     }
 }
 
@@ -229,7 +219,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         aggregateKind = AggregateStateAggregateKind.unmarshalEnum(dis);
         uPosition += aggregateKind.getMarshalledSize();
@@ -237,18 +227,14 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += domain.getMarshalledSize();
         country = Country.unmarshalEnum(dis);
         uPosition += country.getMarshalledSize();
-        category = (byte)dis.readUnsignedByte();
+        category = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         subcategory = AggregateStateSubcategory.unmarshalEnum(dis);
         uPosition += subcategory.getMarshalledSize();
         specificInfo = AggregateStateSpecific.unmarshalEnum(dis);
         uPosition += specificInfo.getMarshalledSize();
-        extra = (byte)dis.readUnsignedByte();
+        extra = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -267,10 +253,10 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    aggregateKind.marshal(byteBuffer);
    domain.marshal(byteBuffer);
    country.marshal(byteBuffer);
-   byteBuffer.put( (byte)category);
+   byteBuffer.put((byte) category);
    subcategory.marshal(byteBuffer);
    specificInfo.marshal(byteBuffer);
-   byteBuffer.put( (byte)extra);
+   byteBuffer.put((byte) extra);
 }
 
 /**
@@ -285,28 +271,80 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute aggregateKind marked as not serialized
         aggregateKind = AggregateStateAggregateKind.unmarshalEnum(byteBuffer);
-        // attribute domain marked as not serialized
         domain = PlatformDomain.unmarshalEnum(byteBuffer);
-        // attribute country marked as not serialized
         country = Country.unmarshalEnum(byteBuffer);
-        // attribute category marked as not serialized
-        category = (byte)(byteBuffer.get() & 0xFF);
-        // attribute subcategory marked as not serialized
+        category = Byte.toUnsignedInt(byteBuffer.get());
         subcategory = AggregateStateSubcategory.unmarshalEnum(byteBuffer);
-        // attribute specificInfo marked as not serialized
         specificInfo = AggregateStateSpecific.unmarshalEnum(byteBuffer);
-        // attribute extra marked as not serialized
-        extra = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        extra = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("aggregateKind", AggregateStateAggregateKind.unmarshalEnum(byteBuffer).getValue());
+    map.put("domain", PlatformDomain.unmarshalEnum(byteBuffer).getValue());
+    map.put("country", Country.unmarshalEnum(byteBuffer).getValue());
+    map.put("category", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("subcategory", AggregateStateSubcategory.unmarshalEnum(byteBuffer).getValue());
+    map.put("specificInfo", AggregateStateSpecific.unmarshalEnum(byteBuffer).getValue());
+    map.put("extra", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    AggregateStateAggregateKind.getEnumForValue(((Number) map.get("aggregateKind")).intValue()).marshal(byteBuffer);
+    PlatformDomain.getEnumForValue(((Number) map.get("domain")).intValue()).marshal(byteBuffer);
+    Country.getEnumForValue(((Number) map.get("country")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("category")).byteValue());
+    AggregateStateSubcategory.getEnumForValue(((Number) map.get("subcategory")).intValue()).marshal(byteBuffer);
+    AggregateStateSpecific.getEnumForValue(((Number) map.get("specificInfo")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("extra")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += AggregateStateAggregateKind.getEnumForValue(((Number) map.get("aggregateKind")).intValue()).getMarshalledSize();
+    marshalSize += PlatformDomain.getEnumForValue(((Number) map.get("domain")).intValue()).getMarshalledSize();
+    marshalSize += Country.getEnumForValue(((Number) map.get("country")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // category
+    marshalSize += AggregateStateSubcategory.getEnumForValue(((Number) map.get("subcategory")).intValue()).getMarshalledSize();
+    marshalSize += AggregateStateSpecific.getEnumForValue(((Number) map.get("specificInfo")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // extra
+
+    return marshalSize;
 }
 
  /*

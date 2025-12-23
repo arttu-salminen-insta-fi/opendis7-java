@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -30,8 +32,9 @@ public class PointObjectStatePdu extends SyntheticEnvironmentFamilyPdu implement
    /** Object with which this point object is associated */
    protected ObjectIdentifier  referencedObjectID = new ObjectIdentifier(); 
 
-   /** unique update number of each state transition of an object */
-   protected int updateNumber;
+   /** unique update number of each state transition of an object 
+   Value space: uint32 */
+   protected UnsignedInteger updateNumber = UnsignedInteger.ZERO;
 
    /** force ID provides a unique identifier uid 6 */
    protected ForceID forceID = ForceID.values()[0];
@@ -48,14 +51,16 @@ public class PointObjectStatePdu extends SyntheticEnvironmentFamilyPdu implement
    /** Object orientation */
    protected EulerAngles  objectOrientation = new EulerAngles(); 
 
-   /** Specific object apperance */
-   protected int specificObjectAppearance;
+   /** Specific object apperance 
+   Value space: uint32 */
+   protected UnsignedInteger specificObjectAppearance = UnsignedInteger.ZERO;
 
    /** General object apperance uid 229 */
    protected ObjectStateAppearanceGeneral generObjectAppearance = new ObjectStateAppearanceGeneral();
 
-   /** padding1 is an undescribed parameter... */
-   protected short padding1;
+   /** padding1 is an undescribed parameter...
+   Value space: uint16 */
+   protected int padding1;
 
    /** requesterID */
    protected SimulationAddress  requesterID = new SimulationAddress(); 
@@ -63,8 +68,9 @@ public class PointObjectStatePdu extends SyntheticEnvironmentFamilyPdu implement
    /** receiver ID provides a unique identifier */
    protected SimulationAddress  receivingID = new SimulationAddress(); 
 
-   /** padding */
-   protected int pad2;
+   /** padding 
+   Value space: uint32 */
+   protected UnsignedInteger padding2 = UnsignedInteger.ZERO;
 
 
 /** Constructor creates and configures a new instance object */
@@ -169,7 +175,7 @@ public synchronized int getMarshalledSize()
        marshalSize += requesterID.getMarshalledSize();
    if (receivingID != null)
        marshalSize += receivingID.getMarshalledSize();
-   marshalSize += 4;  // pad2
+   marshalSize += 4;  // padding2
 
    return marshalSize;
 }
@@ -208,16 +214,16 @@ public ObjectIdentifier getReferencedObjectID()
 
 
 /** Setter for {@link PointObjectStatePdu#updateNumber}
-  * @param pUpdateNumber new value of interest
+  * @param pUpdateNumber new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized PointObjectStatePdu setUpdateNumber(int pUpdateNumber)
+public synchronized PointObjectStatePdu setUpdateNumber(UnsignedInteger pUpdateNumber)
 {
     updateNumber = pUpdateNumber;
     return this;
 }
 /** Getter for {@link PointObjectStatePdu#updateNumber}
   * @return value of interest */
-public int getUpdateNumber()
+public UnsignedInteger getUpdateNumber()
 {
     return updateNumber; 
 }
@@ -301,16 +307,16 @@ public EulerAngles getObjectOrientation()
 
 
 /** Setter for {@link PointObjectStatePdu#specificObjectAppearance}
-  * @param pSpecificObjectAppearance new value of interest
+  * @param pSpecificObjectAppearance new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized PointObjectStatePdu setSpecificObjectAppearance(int pSpecificObjectAppearance)
+public synchronized PointObjectStatePdu setSpecificObjectAppearance(UnsignedInteger pSpecificObjectAppearance)
 {
     specificObjectAppearance = pSpecificObjectAppearance;
     return this;
 }
 /** Getter for {@link PointObjectStatePdu#specificObjectAppearance}
   * @return value of interest */
-public int getSpecificObjectAppearance()
+public UnsignedInteger getSpecificObjectAppearance()
 {
     return specificObjectAppearance; 
 }
@@ -331,23 +337,18 @@ public ObjectStateAppearanceGeneral getGenerObjectAppearance()
 }
 
 /** Setter for {@link PointObjectStatePdu#padding1}
-  * @param pPadding1 new value of interest
+  * @param pPadding1 new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized PointObjectStatePdu setPadding1(short pPadding1)
+public synchronized PointObjectStatePdu setPadding1(int pPadding1)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 65535, "Value outside valid value space");
     padding1 = pPadding1;
-    return this;
-}
-/** Utility setter for {@link PointObjectStatePdu#padding1}
-  * @param pPadding1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized PointObjectStatePdu setPadding1(int pPadding1){
-    padding1 = (short) pPadding1;
     return this;
 }
 /** Getter for {@link PointObjectStatePdu#padding1}
   * @return value of interest */
-public short getPadding1()
+public int getPadding1()
 {
     return padding1; 
 }
@@ -384,19 +385,19 @@ public SimulationAddress getReceivingID()
 }
 
 
-/** Setter for {@link PointObjectStatePdu#pad2}
-  * @param pPad2 new value of interest
+/** Setter for {@link PointObjectStatePdu#padding2}
+  * @param pPadding2 new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized PointObjectStatePdu setPad2(int pPad2)
+public synchronized PointObjectStatePdu setPadding2(UnsignedInteger pPadding2)
 {
-    pad2 = pPad2;
+    padding2 = pPadding2;
     return this;
 }
-/** Getter for {@link PointObjectStatePdu#pad2}
+/** Getter for {@link PointObjectStatePdu#padding2}
   * @return value of interest */
-public int getPad2()
+public UnsignedInteger getPadding2()
 {
-    return pad2; 
+    return padding2; 
 }
 
 /**
@@ -409,26 +410,22 @@ public int getPad2()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        objectID.marshal(dos);
        referencedObjectID.marshal(dos);
-       dos.writeInt(updateNumber);
+       dos.writeInt(updateNumber.intValue());
        forceID.marshal(dos);
        modifications.marshal(dos);
        objectType.marshal(dos);
        objectLocation.marshal(dos);
        objectOrientation.marshal(dos);
-       dos.writeInt(specificObjectAppearance);
+       dos.writeInt(specificObjectAppearance.intValue());
        generObjectAppearance.marshal(dos);
-       dos.writeShort(padding1);
+       dos.writeShort((short) padding1);
        requesterID.marshal(dos);
        receivingID.marshal(dos);
-       dos.writeInt(pad2);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeInt(padding2.intValue());
     }
 }
 
@@ -446,11 +443,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += objectID.unmarshal(dis);
         uPosition += referencedObjectID.unmarshal(dis);
-        updateNumber = dis.readInt();
+        updateNumber = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         forceID = ForceID.unmarshalEnum(dis);
         uPosition += forceID.getMarshalledSize();
@@ -458,19 +455,15 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += objectType.unmarshal(dis);
         uPosition += objectLocation.unmarshal(dis);
         uPosition += objectOrientation.unmarshal(dis);
-        specificObjectAppearance = dis.readInt();
+        specificObjectAppearance = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         uPosition += generObjectAppearance.unmarshal(dis);
-        padding1 = (short)dis.readUnsignedShort();
+        padding1 = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += requesterID.unmarshal(dis);
         uPosition += receivingID.unmarshal(dis);
-        pad2 = dis.readInt();
+        padding2 = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -489,18 +482,18 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    super.marshal(byteBuffer);
    objectID.marshal(byteBuffer);
    referencedObjectID.marshal(byteBuffer);
-   byteBuffer.putInt( (int)updateNumber);
+   byteBuffer.putInt(updateNumber.intValue());
    forceID.marshal(byteBuffer);
    modifications.marshal(byteBuffer);
    objectType.marshal(byteBuffer);
    objectLocation.marshal(byteBuffer);
    objectOrientation.marshal(byteBuffer);
-   byteBuffer.putInt( (int)specificObjectAppearance);
+   byteBuffer.putInt(specificObjectAppearance.intValue());
    generObjectAppearance.marshal(byteBuffer);
-   byteBuffer.putShort( (short)padding1);
+   byteBuffer.putShort((short) padding1);
    requesterID.marshal(byteBuffer);
    receivingID.marshal(byteBuffer);
-   byteBuffer.putInt( (int)pad2);
+   byteBuffer.putInt(padding2.intValue());
 }
 
 /**
@@ -517,42 +510,110 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute objectID marked as not serialized
         objectID.unmarshal(byteBuffer);
-        // attribute referencedObjectID marked as not serialized
         referencedObjectID.unmarshal(byteBuffer);
-        // attribute updateNumber marked as not serialized
-        updateNumber = byteBuffer.getInt();
-        // attribute forceID marked as not serialized
+        updateNumber = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         forceID = ForceID.unmarshalEnum(byteBuffer);
-        // attribute modifications marked as not serialized
         modifications.unmarshal(byteBuffer);
-        // attribute objectType marked as not serialized
         objectType.unmarshal(byteBuffer);
-        // attribute objectLocation marked as not serialized
         objectLocation.unmarshal(byteBuffer);
-        // attribute objectOrientation marked as not serialized
         objectOrientation.unmarshal(byteBuffer);
-        // attribute specificObjectAppearance marked as not serialized
-        specificObjectAppearance = byteBuffer.getInt();
-        // attribute generObjectAppearance marked as not serialized
+        specificObjectAppearance = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         generObjectAppearance.unmarshal(byteBuffer);
-        // attribute padding1 marked as not serialized
-        padding1 = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute requesterID marked as not serialized
+        padding1 = Short.toUnsignedInt(byteBuffer.getShort());
         requesterID.unmarshal(byteBuffer);
-        // attribute receivingID marked as not serialized
         receivingID.unmarshal(byteBuffer);
-        // attribute pad2 marked as not serialized
-        pad2 = byteBuffer.getInt();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding2 = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = SyntheticEnvironmentFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("objectID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("referencedObjectID", ObjectIdentifier.fromBufferToMap(byteBuffer));
+    map.put("updateNumber", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("forceID", ForceID.unmarshalEnum(byteBuffer).getValue());
+    map.put("modifications", ObjectStateModificationPointObject.unmarshallRawValue(byteBuffer));
+    map.put("objectType", ObjectType.fromBufferToMap(byteBuffer));
+    map.put("objectLocation", Vector3Double.fromBufferToMap(byteBuffer));
+    map.put("objectOrientation", EulerAngles.fromBufferToMap(byteBuffer));
+    map.put("specificObjectAppearance", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("generObjectAppearance", ObjectStateAppearanceGeneral.unmarshallRawValue(byteBuffer));
+    map.put("padding1", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("requesterID", SimulationAddress.fromBufferToMap(byteBuffer));
+    map.put("receivingID", SimulationAddress.fromBufferToMap(byteBuffer));
+    map.put("padding2", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    SyntheticEnvironmentFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("objectID"), byteBuffer);
+    ObjectIdentifier.fromMapToBuffer((PduMap) map.get("referencedObjectID"), byteBuffer);
+    byteBuffer.putInt(((Number) map.get("updateNumber")).intValue());
+    ForceID.getEnumForValue(((Number) map.get("forceID")).intValue()).marshal(byteBuffer);
+    ObjectStateModificationPointObject.marshallRawValue(((Number) map.get("modifications")).intValue(), byteBuffer);
+    ObjectType.fromMapToBuffer((PduMap) map.get("objectType"), byteBuffer);
+    Vector3Double.fromMapToBuffer((PduMap) map.get("objectLocation"), byteBuffer);
+    EulerAngles.fromMapToBuffer((PduMap) map.get("objectOrientation"), byteBuffer);
+    byteBuffer.putInt(((Number) map.get("specificObjectAppearance")).intValue());
+    ObjectStateAppearanceGeneral.marshallRawValue(((Number) map.get("generObjectAppearance")).intValue(), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("padding1")).shortValue());
+    SimulationAddress.fromMapToBuffer((PduMap) map.get("requesterID"), byteBuffer);
+    SimulationAddress.fromMapToBuffer((PduMap) map.get("receivingID"), byteBuffer);
+    byteBuffer.putInt(((Number) map.get("padding2")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += SyntheticEnvironmentFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("objectID"));
+    marshalSize += ObjectIdentifier.getMarshalledSize((PduMap) map.get("referencedObjectID"));
+    marshalSize += 4;  // updateNumber
+    marshalSize += ForceID.getEnumForValue(((Number) map.get("forceID")).intValue()).getMarshalledSize();
+    marshalSize += ObjectStateModificationPointObject.getByteLength();
+    marshalSize += ObjectType.getMarshalledSize((PduMap) map.get("objectType"));
+    marshalSize += Vector3Double.getMarshalledSize((PduMap) map.get("objectLocation"));
+    marshalSize += EulerAngles.getMarshalledSize((PduMap) map.get("objectOrientation"));
+    marshalSize += 4;  // specificObjectAppearance
+    marshalSize += ObjectStateAppearanceGeneral.getByteLength();
+    marshalSize += 2;  // padding1
+    marshalSize += SimulationAddress.getMarshalledSize((PduMap) map.get("requesterID"));
+    marshalSize += SimulationAddress.getMarshalledSize((PduMap) map.get("receivingID"));
+    marshalSize += 4;  // padding2
+
+    return marshalSize;
 }
 
  /*
@@ -591,7 +652,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
      if( ! (padding1 == rhs.padding1)) return false;
      if( ! Objects.equals(requesterID, rhs.requesterID) ) return false;
      if( ! Objects.equals(receivingID, rhs.receivingID) ) return false;
-     if( ! (pad2 == rhs.pad2)) return false;
+     if( ! (padding2 == rhs.padding2)) return false;
     return super.equalsImpl(rhs);
  }
 
@@ -600,7 +661,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" objectID:").append(objectID); // writeOneToString
     sb.append(" referencedObjectID:").append(referencedObjectID); // writeOneToString
     sb.append(" updateNumber:").append(updateNumber); // writeOneToString
@@ -614,7 +675,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     sb.append(" padding1:").append(padding1); // writeOneToString
     sb.append(" requesterID:").append(requesterID); // writeOneToString
     sb.append(" receivingID:").append(receivingID); // writeOneToString
-    sb.append(" pad2:").append(pad2); // writeOneToString
+    sb.append(" padding2:").append(padding2); // writeOneToString
 
    return sb.toString();
  }
@@ -635,6 +696,6 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	                     this.padding1,
 	                     this.requesterID,
 	                     this.receivingID,
-	                     this.pad2);
+	                     this.padding2);
  }
 } // end of PointObjectStatePdu

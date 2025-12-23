@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * 16-bit fixed binaries
@@ -111,15 +113,11 @@ public LEVector3FixedByte getEntityAngularVelocity()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        deadReckoningAlgorithm.marshal(dos);
        entityLinearAcceleration.marshal(dos);
        entityAngularVelocity.marshal(dos);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -135,16 +133,12 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         deadReckoningAlgorithm = DeadReckoningAlgorithm.unmarshalEnum(dis);
         uPosition += deadReckoningAlgorithm.getMarshalledSize();
         uPosition += entityLinearAcceleration.unmarshal(dis);
         uPosition += entityAngularVelocity.unmarshal(dis);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -177,20 +171,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute deadReckoningAlgorithm marked as not serialized
         deadReckoningAlgorithm = DeadReckoningAlgorithm.unmarshalEnum(byteBuffer);
-        // attribute entityLinearAcceleration marked as not serialized
         entityLinearAcceleration.unmarshal(byteBuffer);
-        // attribute entityAngularVelocity marked as not serialized
         entityAngularVelocity.unmarshal(byteBuffer);
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("deadReckoningAlgorithm", DeadReckoningAlgorithm.unmarshalEnum(byteBuffer).getValue());
+    map.put("entityLinearAcceleration", LEVector3FixedByte.fromBufferToMap(byteBuffer));
+    map.put("entityAngularVelocity", LEVector3FixedByte.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    DeadReckoningAlgorithm.getEnumForValue(((Number) map.get("deadReckoningAlgorithm")).intValue()).marshal(byteBuffer);
+    LEVector3FixedByte.fromMapToBuffer((PduMap) map.get("entityLinearAcceleration"), byteBuffer);
+    LEVector3FixedByte.fromMapToBuffer((PduMap) map.get("entityAngularVelocity"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += DeadReckoningAlgorithm.getEnumForValue(((Number) map.get("deadReckoningAlgorithm")).intValue()).getMarshalledSize();
+    marshalSize += LEVector3FixedByte.getMarshalledSize((PduMap) map.get("entityLinearAcceleration"));
+    marshalSize += LEVector3FixedByte.getMarshalledSize((PduMap) map.get("entityAngularVelocity"));
+
+    return marshalSize;
 }
 
  /*

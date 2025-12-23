@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Information about an entity's engine fuel. Section 6.2.24.
@@ -19,8 +21,9 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class EngineFuel extends Object implements Serializable, Marshaller
 {
-   /** Fuel quantity, units specified by next field */
-   protected int fuelQuantity;
+   /** Fuel quantity, units specified by next field 
+   Value space: uint32 */
+   protected UnsignedInteger fuelQuantity = UnsignedInteger.ZERO;
 
    /** Units in which the fuel is measured uid 328 */
    protected FuelMeasurementUnits fuelMeasurementUnits = FuelMeasurementUnits.values()[0];
@@ -31,8 +34,9 @@ public class EngineFuel extends Object implements Serializable, Marshaller
    /** Location of fuel as related to entity. See section 14 of EBV document uid 329 */
    protected FuelLocation fuelLocation = FuelLocation.values()[0];
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected byte padding = (byte)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint8 */
+   protected int padding = (int) 0;
 
 
 /** Constructor creates and configures a new instance object */
@@ -64,16 +68,16 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link EngineFuel#fuelQuantity}
-  * @param pFuelQuantity new value of interest
+  * @param pFuelQuantity new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized EngineFuel setFuelQuantity(int pFuelQuantity)
+public synchronized EngineFuel setFuelQuantity(UnsignedInteger pFuelQuantity)
 {
     fuelQuantity = pFuelQuantity;
     return this;
 }
 /** Getter for {@link EngineFuel#fuelQuantity}
   * @return value of interest */
-public int getFuelQuantity()
+public UnsignedInteger getFuelQuantity()
 {
     return fuelQuantity; 
 }
@@ -124,23 +128,18 @@ public FuelLocation getFuelLocation()
 }
 
 /** Setter for {@link EngineFuel#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized EngineFuel setPadding(byte pPadding)
+public synchronized EngineFuel setPadding(int pPadding)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 255, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link EngineFuel#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EngineFuel setPadding(int pPadding){
-    padding = (byte) pPadding;
     return this;
 }
 /** Getter for {@link EngineFuel#padding}
   * @return value of interest */
-public byte getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -154,17 +153,13 @@ public byte getPadding()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeInt(fuelQuantity);
+       dos.writeInt(fuelQuantity.intValue());
        fuelMeasurementUnits.marshal(dos);
        fuelType.marshal(dos);
        fuelLocation.marshal(dos);
-       dos.writeByte(padding);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) padding);
     }
 }
 
@@ -180,9 +175,9 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        fuelQuantity = dis.readInt();
+        fuelQuantity = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         fuelMeasurementUnits = FuelMeasurementUnits.unmarshalEnum(dis);
         uPosition += fuelMeasurementUnits.getMarshalledSize();
@@ -190,12 +185,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += fuelType.getMarshalledSize();
         fuelLocation = FuelLocation.unmarshalEnum(dis);
         uPosition += fuelLocation.getMarshalledSize();
-        padding = (byte)dis.readUnsignedByte();
+        padding = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -211,11 +202,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putInt( (int)fuelQuantity);
+   byteBuffer.putInt(fuelQuantity.intValue());
    fuelMeasurementUnits.marshal(byteBuffer);
    fuelType.marshal(byteBuffer);
    fuelLocation.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding);
+   byteBuffer.put((byte) padding);
 }
 
 /**
@@ -230,24 +221,72 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute fuelQuantity marked as not serialized
-        fuelQuantity = byteBuffer.getInt();
-        // attribute fuelMeasurementUnits marked as not serialized
+        fuelQuantity = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         fuelMeasurementUnits = FuelMeasurementUnits.unmarshalEnum(byteBuffer);
-        // attribute fuelType marked as not serialized
         fuelType = SupplyFuelType.unmarshalEnum(byteBuffer);
-        // attribute fuelLocation marked as not serialized
         fuelLocation = FuelLocation.unmarshalEnum(byteBuffer);
-        // attribute padding marked as not serialized
-        padding = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("fuelQuantity", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("fuelMeasurementUnits", FuelMeasurementUnits.unmarshalEnum(byteBuffer).getValue());
+    map.put("fuelType", SupplyFuelType.unmarshalEnum(byteBuffer).getValue());
+    map.put("fuelLocation", FuelLocation.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putInt(((Number) map.get("fuelQuantity")).intValue());
+    FuelMeasurementUnits.getEnumForValue(((Number) map.get("fuelMeasurementUnits")).intValue()).marshal(byteBuffer);
+    SupplyFuelType.getEnumForValue(((Number) map.get("fuelType")).intValue()).marshal(byteBuffer);
+    FuelLocation.getEnumForValue(((Number) map.get("fuelLocation")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // fuelQuantity
+    marshalSize += FuelMeasurementUnits.getEnumForValue(((Number) map.get("fuelMeasurementUnits")).intValue()).getMarshalledSize();
+    marshalSize += SupplyFuelType.getEnumForValue(((Number) map.get("fuelType")).intValue()).getMarshalledSize();
+    marshalSize += FuelLocation.getEnumForValue(((Number) map.get("fuelLocation")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding
+
+    return marshalSize;
 }
 
  /*

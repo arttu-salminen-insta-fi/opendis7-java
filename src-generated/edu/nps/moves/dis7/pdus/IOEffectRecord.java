@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * 6.2.48.3
@@ -22,8 +24,9 @@ public class IOEffectRecord extends IORecord implements Serializable, Marshaller
    /**  uid 66 Variable Record Type values are defined by VariableRecordType enumerations */
    protected VariableRecordType recordType = VariableRecordType.IO_EFFECT;
 
-   /** recordLength is an undescribed parameter... */
-   protected short recordLength;
+   /** recordLength is an undescribed parameter...
+   Value space: uint16 */
+   protected int recordLength;
 
    /**  uid 290 */
    protected IOEffectsRecordIOStatus ioStatus = IOEffectsRecordIOStatus.values()[0];
@@ -34,17 +37,20 @@ public class IOEffectRecord extends IORecord implements Serializable, Marshaller
    /**  uid 292 */
    protected IOEffectsRecordIOEffect ioEffect = IOEffectsRecordIOEffect.values()[0];
 
-   /** ioEffectDutyCycle is an undescribed parameter... */
-   protected byte ioEffectDutyCycle;
+   /** ioEffectDutyCycle is an undescribed parameter...
+   Value space: uint8 */
+   protected int ioEffectDutyCycle;
 
-   /** ioEffectDuration is an undescribed parameter... */
-   protected short ioEffectDuration;
+   /** ioEffectDuration is an undescribed parameter...
+   Value space: uint16 */
+   protected int ioEffectDuration;
 
    /**  uid 293 */
    protected IOEffectsRecordIOProcess ioProcess = IOEffectsRecordIOProcess.values()[0];
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding;
 
 
 /** Constructor creates and configures a new instance object */
@@ -98,23 +104,18 @@ public VariableRecordType getRecordType()
 }
 
 /** Setter for {@link IOEffectRecord#recordLength}
-  * @param pRecordLength new value of interest
+  * @param pRecordLength new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized IOEffectRecord setRecordLength(short pRecordLength)
+public synchronized IOEffectRecord setRecordLength(int pRecordLength)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pRecordLength >= 0 && pRecordLength <= 65535, "Value outside valid value space");
     recordLength = pRecordLength;
-    return this;
-}
-/** Utility setter for {@link IOEffectRecord#recordLength}
-  * @param pRecordLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IOEffectRecord setRecordLength(int pRecordLength){
-    recordLength = (short) pRecordLength;
     return this;
 }
 /** Getter for {@link IOEffectRecord#recordLength}
   * @return value of interest */
-public short getRecordLength()
+public int getRecordLength()
 {
     return recordLength; 
 }
@@ -165,45 +166,35 @@ public IOEffectsRecordIOEffect getIoEffect()
 }
 
 /** Setter for {@link IOEffectRecord#ioEffectDutyCycle}
-  * @param pIoEffectDutyCycle new value of interest
+  * @param pIoEffectDutyCycle new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized IOEffectRecord setIoEffectDutyCycle(byte pIoEffectDutyCycle)
+public synchronized IOEffectRecord setIoEffectDutyCycle(int pIoEffectDutyCycle)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pIoEffectDutyCycle >= 0 && pIoEffectDutyCycle <= 255, "Value outside valid value space");
     ioEffectDutyCycle = pIoEffectDutyCycle;
-    return this;
-}
-/** Utility setter for {@link IOEffectRecord#ioEffectDutyCycle}
-  * @param pIoEffectDutyCycle new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IOEffectRecord setIoEffectDutyCycle(int pIoEffectDutyCycle){
-    ioEffectDutyCycle = (byte) pIoEffectDutyCycle;
     return this;
 }
 /** Getter for {@link IOEffectRecord#ioEffectDutyCycle}
   * @return value of interest */
-public byte getIoEffectDutyCycle()
+public int getIoEffectDutyCycle()
 {
     return ioEffectDutyCycle; 
 }
 
 /** Setter for {@link IOEffectRecord#ioEffectDuration}
-  * @param pIoEffectDuration new value of interest
+  * @param pIoEffectDuration new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized IOEffectRecord setIoEffectDuration(short pIoEffectDuration)
+public synchronized IOEffectRecord setIoEffectDuration(int pIoEffectDuration)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pIoEffectDuration >= 0 && pIoEffectDuration <= 65535, "Value outside valid value space");
     ioEffectDuration = pIoEffectDuration;
-    return this;
-}
-/** Utility setter for {@link IOEffectRecord#ioEffectDuration}
-  * @param pIoEffectDuration new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IOEffectRecord setIoEffectDuration(int pIoEffectDuration){
-    ioEffectDuration = (short) pIoEffectDuration;
     return this;
 }
 /** Getter for {@link IOEffectRecord#ioEffectDuration}
   * @return value of interest */
-public short getIoEffectDuration()
+public int getIoEffectDuration()
 {
     return ioEffectDuration; 
 }
@@ -224,23 +215,18 @@ public IOEffectsRecordIOProcess getIoProcess()
 }
 
 /** Setter for {@link IOEffectRecord#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized IOEffectRecord setPadding(short pPadding)
+public synchronized IOEffectRecord setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link IOEffectRecord#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized IOEffectRecord setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link IOEffectRecord#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
@@ -255,21 +241,17 @@ public short getPadding()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        recordType.marshal(dos);
-       dos.writeShort(recordLength);
+       dos.writeShort((short) recordLength);
        ioStatus.marshal(dos);
        ioLinkType.marshal(dos);
        ioEffect.marshal(dos);
-       dos.writeByte(ioEffectDutyCycle);
-       dos.writeShort(ioEffectDuration);
+       dos.writeByte((byte) ioEffectDutyCycle);
+       dos.writeShort((short) ioEffectDuration);
        ioProcess.marshal(dos);
-       dos.writeShort(padding);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) padding);
     }
 }
 
@@ -287,11 +269,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         recordType = VariableRecordType.unmarshalEnum(dis);
         uPosition += recordType.getMarshalledSize();
-        recordLength = (short)dis.readUnsignedShort();
+        recordLength = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         ioStatus = IOEffectsRecordIOStatus.unmarshalEnum(dis);
         uPosition += ioStatus.getMarshalledSize();
@@ -299,18 +281,14 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += ioLinkType.getMarshalledSize();
         ioEffect = IOEffectsRecordIOEffect.unmarshalEnum(dis);
         uPosition += ioEffect.getMarshalledSize();
-        ioEffectDutyCycle = (byte)dis.readUnsignedByte();
+        ioEffectDutyCycle = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        ioEffectDuration = (short)dis.readUnsignedShort();
+        ioEffectDuration = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         ioProcess = IOEffectsRecordIOProcess.unmarshalEnum(dis);
         uPosition += ioProcess.getMarshalledSize();
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -328,14 +306,14 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    recordType.marshal(byteBuffer);
-   byteBuffer.putShort( (short)recordLength);
+   byteBuffer.putShort((short) recordLength);
    ioStatus.marshal(byteBuffer);
    ioLinkType.marshal(byteBuffer);
    ioEffect.marshal(byteBuffer);
-   byteBuffer.put( (byte)ioEffectDutyCycle);
-   byteBuffer.putShort( (short)ioEffectDuration);
+   byteBuffer.put((byte) ioEffectDutyCycle);
+   byteBuffer.putShort((short) ioEffectDuration);
    ioProcess.marshal(byteBuffer);
-   byteBuffer.putShort( (short)padding);
+   byteBuffer.putShort((short) padding);
 }
 
 /**
@@ -352,32 +330,90 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute recordType marked as not serialized
         recordType = VariableRecordType.unmarshalEnum(byteBuffer);
-        // attribute recordLength marked as not serialized
-        recordLength = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute ioStatus marked as not serialized
+        recordLength = Short.toUnsignedInt(byteBuffer.getShort());
         ioStatus = IOEffectsRecordIOStatus.unmarshalEnum(byteBuffer);
-        // attribute ioLinkType marked as not serialized
         ioLinkType = IOEffectsRecordIOLinkType.unmarshalEnum(byteBuffer);
-        // attribute ioEffect marked as not serialized
         ioEffect = IOEffectsRecordIOEffect.unmarshalEnum(byteBuffer);
-        // attribute ioEffectDutyCycle marked as not serialized
-        ioEffectDutyCycle = (byte)(byteBuffer.get() & 0xFF);
-        // attribute ioEffectDuration marked as not serialized
-        ioEffectDuration = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute ioProcess marked as not serialized
+        ioEffectDutyCycle = Byte.toUnsignedInt(byteBuffer.get());
+        ioEffectDuration = Short.toUnsignedInt(byteBuffer.getShort());
         ioProcess = IOEffectsRecordIOProcess.unmarshalEnum(byteBuffer);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = IORecord.fromBufferToMap(byteBuffer);
+
+    map.put("recordType", VariableRecordType.unmarshalEnum(byteBuffer).getValue());
+    map.put("recordLength", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("ioStatus", IOEffectsRecordIOStatus.unmarshalEnum(byteBuffer).getValue());
+    map.put("ioLinkType", IOEffectsRecordIOLinkType.unmarshalEnum(byteBuffer).getValue());
+    map.put("ioEffect", IOEffectsRecordIOEffect.unmarshalEnum(byteBuffer).getValue());
+    map.put("ioEffectDutyCycle", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("ioEffectDuration", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("ioProcess", IOEffectsRecordIOProcess.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    IORecord.fromMapToBuffer(map, byteBuffer);
+    VariableRecordType.getEnumForValue(((Number) map.get("recordType")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("recordLength")).shortValue());
+    IOEffectsRecordIOStatus.getEnumForValue(((Number) map.get("ioStatus")).intValue()).marshal(byteBuffer);
+    IOEffectsRecordIOLinkType.getEnumForValue(((Number) map.get("ioLinkType")).intValue()).marshal(byteBuffer);
+    IOEffectsRecordIOEffect.getEnumForValue(((Number) map.get("ioEffect")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("ioEffectDutyCycle")).byteValue());
+    byteBuffer.putShort(((Number) map.get("ioEffectDuration")).shortValue());
+    IOEffectsRecordIOProcess.getEnumForValue(((Number) map.get("ioProcess")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += IORecord.getMarshalledSize(map);
+    marshalSize += VariableRecordType.getEnumForValue(((Number) map.get("recordType")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // recordLength
+    marshalSize += IOEffectsRecordIOStatus.getEnumForValue(((Number) map.get("ioStatus")).intValue()).getMarshalledSize();
+    marshalSize += IOEffectsRecordIOLinkType.getEnumForValue(((Number) map.get("ioLinkType")).intValue()).getMarshalledSize();
+    marshalSize += IOEffectsRecordIOEffect.getEnumForValue(((Number) map.get("ioEffect")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // ioEffectDutyCycle
+    marshalSize += 2;  // ioEffectDuration
+    marshalSize += IOEffectsRecordIOProcess.getEnumForValue(((Number) map.get("ioProcess")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // padding
+
+    return marshalSize;
 }
 
  /*
@@ -420,7 +456,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" recordType:").append(recordType); // writeOneToString
     sb.append(" recordLength:").append(recordLength); // writeOneToString
     sb.append(" ioStatus:").append(ioStatus); // writeOneToString

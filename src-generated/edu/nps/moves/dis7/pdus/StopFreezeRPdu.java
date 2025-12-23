@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -36,11 +38,13 @@ public class StopFreezeRPdu extends SimulationManagementWithReliabilityFamilyPdu
    /** reliability level uid 74 */
    protected RequiredReliabilityService requiredReliabilityService = RequiredReliabilityService.values()[0];
 
-   /** padding */
-   protected byte pad1;
+   /** padding 
+   Value space: uint8 */
+   protected int padding1;
 
-   /** Request ID provides a unique identifier */
-   protected int requestID;
+   /** Request ID provides a unique identifier 
+   Value space: uint32 */
+   protected UnsignedInteger requestID = UnsignedInteger.ZERO;
 
 
 /** Constructor creates and configures a new instance object */
@@ -130,7 +134,7 @@ public synchronized int getMarshalledSize()
        marshalSize += frozenBehavior.getMarshalledSize();
    if (requiredReliabilityService != null)
        marshalSize += requiredReliabilityService.getMarshalledSize();
-   marshalSize += 1;  // pad1
+   marshalSize += 1;  // padding1
    marshalSize += 4;  // requestID
 
    return marshalSize;
@@ -198,39 +202,34 @@ public RequiredReliabilityService getRequiredReliabilityService()
     return requiredReliabilityService; 
 }
 
-/** Setter for {@link StopFreezeRPdu#pad1}
-  * @param pPad1 new value of interest
+/** Setter for {@link StopFreezeRPdu#padding1}
+  * @param pPadding1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized StopFreezeRPdu setPad1(byte pPad1)
+public synchronized StopFreezeRPdu setPadding1(int pPadding1)
 {
-    pad1 = pPad1;
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 255, "Value outside valid value space");
+    padding1 = pPadding1;
     return this;
 }
-/** Utility setter for {@link StopFreezeRPdu#pad1}
-  * @param pPad1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized StopFreezeRPdu setPad1(int pPad1){
-    pad1 = (byte) pPad1;
-    return this;
-}
-/** Getter for {@link StopFreezeRPdu#pad1}
+/** Getter for {@link StopFreezeRPdu#padding1}
   * @return value of interest */
-public byte getPad1()
+public int getPadding1()
 {
-    return pad1; 
+    return padding1; 
 }
 
 /** Setter for {@link StopFreezeRPdu#requestID}
-  * @param pRequestID new value of interest
+  * @param pRequestID new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized StopFreezeRPdu setRequestID(int pRequestID)
+public synchronized StopFreezeRPdu setRequestID(UnsignedInteger pRequestID)
 {
     requestID = pRequestID;
     return this;
 }
 /** Getter for {@link StopFreezeRPdu#requestID}
   * @return value of interest */
-public int getRequestID()
+public UnsignedInteger getRequestID()
 {
     return requestID; 
 }
@@ -245,18 +244,14 @@ public int getRequestID()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        realWorldTime.marshal(dos);
        reason.marshal(dos);
        frozenBehavior.marshal(dos);
        requiredReliabilityService.marshal(dos);
-       dos.writeByte(pad1);
-       dos.writeInt(requestID);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) padding1);
+       dos.writeInt(requestID.intValue());
     }
 }
 
@@ -274,7 +269,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += realWorldTime.unmarshal(dis);
         reason = StopFreezeReason.unmarshalEnum(dis);
@@ -282,14 +277,10 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += frozenBehavior.unmarshal(dis);
         requiredReliabilityService = RequiredReliabilityService.unmarshalEnum(dis);
         uPosition += requiredReliabilityService.getMarshalledSize();
-        pad1 = (byte)dis.readUnsignedByte();
+        padding1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        requestID = dis.readInt();
+        requestID = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -310,8 +301,8 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    reason.marshal(byteBuffer);
    frozenBehavior.marshal(byteBuffer);
    requiredReliabilityService.marshal(byteBuffer);
-   byteBuffer.put( (byte)pad1);
-   byteBuffer.putInt( (int)requestID);
+   byteBuffer.put((byte) padding1);
+   byteBuffer.putInt(requestID.intValue());
 }
 
 /**
@@ -328,26 +319,78 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute realWorldTime marked as not serialized
         realWorldTime.unmarshal(byteBuffer);
-        // attribute reason marked as not serialized
         reason = StopFreezeReason.unmarshalEnum(byteBuffer);
-        // attribute frozenBehavior marked as not serialized
         frozenBehavior.unmarshal(byteBuffer);
-        // attribute requiredReliabilityService marked as not serialized
         requiredReliabilityService = RequiredReliabilityService.unmarshalEnum(byteBuffer);
-        // attribute pad1 marked as not serialized
-        pad1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute requestID marked as not serialized
-        requestID = byteBuffer.getInt();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding1 = Byte.toUnsignedInt(byteBuffer.get());
+        requestID = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = SimulationManagementWithReliabilityFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("realWorldTime", ClockTime.fromBufferToMap(byteBuffer));
+    map.put("reason", StopFreezeReason.unmarshalEnum(byteBuffer).getValue());
+    map.put("frozenBehavior", StopFreezeFrozenBehavior.unmarshallRawValue(byteBuffer));
+    map.put("requiredReliabilityService", RequiredReliabilityService.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("requestID", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    SimulationManagementWithReliabilityFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    ClockTime.fromMapToBuffer((PduMap) map.get("realWorldTime"), byteBuffer);
+    StopFreezeReason.getEnumForValue(((Number) map.get("reason")).intValue()).marshal(byteBuffer);
+    StopFreezeFrozenBehavior.marshallRawValue(((Number) map.get("frozenBehavior")).intValue(), byteBuffer);
+    RequiredReliabilityService.getEnumForValue(((Number) map.get("requiredReliabilityService")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding1")).byteValue());
+    byteBuffer.putInt(((Number) map.get("requestID")).intValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += SimulationManagementWithReliabilityFamilyPdu.getMarshalledSize(map);
+    marshalSize += ClockTime.getMarshalledSize((PduMap) map.get("realWorldTime"));
+    marshalSize += StopFreezeReason.getEnumForValue(((Number) map.get("reason")).intValue()).getMarshalledSize();
+    marshalSize += StopFreezeFrozenBehavior.getByteLength();
+    marshalSize += RequiredReliabilityService.getEnumForValue(((Number) map.get("requiredReliabilityService")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding1
+    marshalSize += 4;  // requestID
+
+    return marshalSize;
 }
 
  /*
@@ -377,7 +420,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
      if( ! (reason == rhs.reason)) return false;
      if( ! Objects.equals(frozenBehavior, rhs.frozenBehavior) ) return false;
      if( ! (requiredReliabilityService == rhs.requiredReliabilityService)) return false;
-     if( ! (pad1 == rhs.pad1)) return false;
+     if( ! (padding1 == rhs.padding1)) return false;
      if( ! (requestID == rhs.requestID)) return false;
     return super.equalsImpl(rhs);
  }
@@ -387,12 +430,12 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" realWorldTime:").append(realWorldTime); // writeOneToString
     sb.append(" reason:").append(reason); // writeOneToString
     sb.append(" frozenBehavior:").append(frozenBehavior); // writeOneToString
     sb.append(" requiredReliabilityService:").append(requiredReliabilityService); // writeOneToString
-    sb.append(" pad1:").append(pad1); // writeOneToString
+    sb.append(" padding1:").append(padding1); // writeOneToString
     sb.append(" requestID:").append(requestID); // writeOneToString
 
    return sb.toString();
@@ -405,7 +448,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	                     this.reason,
 	                     this.frozenBehavior,
 	                     this.requiredReliabilityService,
-	                     this.pad1,
+	                     this.padding1,
 	                     this.requestID);
  }
 } // end of StopFreezeRPdu

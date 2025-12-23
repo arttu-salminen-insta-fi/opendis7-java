@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * The Blanking Sector attribute record may be used to convey persistent areas within a scan volume where emitter power for a specific active emitter beam is reduced to an insignificant value. Section 6.2.21.2
@@ -19,44 +21,56 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class BlankingSector extends Object implements Serializable, Marshaller
 {
-   /** record type */
-   protected int recordType = (int)3500;
+   /** record type 
+   Value space: uint32 */
+   protected UnsignedInteger recordType = UnsignedInteger.valueOf(3500);
 
-   /** The length of the Blanking Sector attribute record in octets. */
-   protected short recordLength = (short)40;
+   /** The length of the Blanking Sector attribute record in octets. 
+   Value space: uint16 */
+   protected int recordLength = (int) 40;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected short padding = (short)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint16 */
+   protected int padding = (int) 0;
 
-   /** indicates the emitter system for which the blanking sector values are applicable */
-   protected byte emitterNumber;
+   /** indicates the emitter system for which the blanking sector values are applicable 
+   Value space: uint8 */
+   protected int emitterNumber;
 
-   /** indicates the beam for which the blanking sector values are applicable. */
-   protected byte beamNumber;
+   /** indicates the beam for which the blanking sector values are applicable. 
+   Value space: uint8 */
+   protected int beamNumber;
 
    /** indicate if blanking sector data have changed since issuance of the last Blanking Sector attribute record for this beam, if the Blanking Sector attribute record beam has ceased uid 300 */
    protected EEAttributeStateIndicator stateIndicator = EEAttributeStateIndicator.values()[0];
 
-   /** Padding */
-   protected byte padding2 = (byte)0;
+   /** Padding 
+   Value space: uint8 */
+   protected int padding2 = (int) 0;
 
-   /** This field is provided to indicate the left-most azimuth (clockwise in radians) for which emitted power is reduced. This angle is measured in the X-Y plane of the radar's entity coor- dinate system (see 1.4.3). The range of permissible values is 0 to 2PI, with zero pointing in the X- direction.  */
+   /** This field is provided to indicate the left-most azimuth (clockwise in radians) for which emitted power is reduced. This angle is measured in the X-Y plane of the radar's entity coor- dinate system (see 1.4.3). The range of permissible values is 0 to 2PI, with zero pointing in the X- direction.  
+   Value space: float32 */
    protected float leftAzimuth;
 
-   /** Indicate the right-most azimuth (clockwise in radians) for which emitted power is reduced. This angle is measured in the X-Y plane of the radar's entity coordinate system (see 1.4.3). The range of permissible values is 0 to 2PI , with zero pointing in the X- direction. */
+   /** Indicate the right-most azimuth (clockwise in radians) for which emitted power is reduced. This angle is measured in the X-Y plane of the radar's entity coordinate system (see 1.4.3). The range of permissible values is 0 to 2PI , with zero pointing in the X- direction. 
+   Value space: float32 */
    protected float rightAzimuth;
 
-   /** This field is provided to indicate the lowest elevation (in radians) for which emit- ted power is reduced. This angle is measured positive upward with respect to the X-Y plane of the radar's entity coordinate system (see 1.4.3). The range of permissible values is -PI/2 to PI/2 */
+   /** This field is provided to indicate the lowest elevation (in radians) for which emit- ted power is reduced. This angle is measured positive upward with respect to the X-Y plane of the radar's entity coordinate system (see 1.4.3). The range of permissible values is -PI/2 to PI/2 
+   Value space: float32 */
    protected float lowerElevation;
 
-   /** This field is provided to indicate the highest elevation (in radians) for which emitted power is reduced. This angle is measured positive upward with respect to the X-Y plane of the radar's entitycoordinatesystem(see1.4.3). The range of permissible values is -PI/2 to PI/2 */
+   /** This field is provided to indicate the highest elevation (in radians) for which emitted power is reduced. This angle is measured positive upward with respect to the X-Y plane of the radar's entitycoordinatesystem(see1.4.3). The range of permissible values is -PI/2 to PI/2 
+   Value space: float32 */
    protected float upperElevation;
 
-   /** This field shall specify the residual effective radiated power in the blanking sector in dBm.  */
+   /** This field shall specify the residual effective radiated power in the blanking sector in dBm.  
+   Value space: float32 */
    protected float residualPower;
 
-   /** Padding, 32-bits */
-   protected long padding3 = (long)0;
+   /** Padding, 32-bits 
+   Value space: uint64 */
+   protected UnsignedLong padding3 = UnsignedLong.valueOf((long) 0);
 
 
 /** Constructor creates and configures a new instance object */
@@ -94,104 +108,84 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link BlankingSector#recordType}
-  * @param pRecordType new value of interest
+  * @param pRecordType new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized BlankingSector setRecordType(int pRecordType)
+public synchronized BlankingSector setRecordType(UnsignedInteger pRecordType)
 {
     recordType = pRecordType;
     return this;
 }
 /** Getter for {@link BlankingSector#recordType}
   * @return value of interest */
-public int getRecordType()
+public UnsignedInteger getRecordType()
 {
     return recordType; 
 }
 
 /** Setter for {@link BlankingSector#recordLength}
-  * @param pRecordLength new value of interest
+  * @param pRecordLength new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized BlankingSector setRecordLength(short pRecordLength)
+public synchronized BlankingSector setRecordLength(int pRecordLength)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pRecordLength >= 0 && pRecordLength <= 65535, "Value outside valid value space");
     recordLength = pRecordLength;
-    return this;
-}
-/** Utility setter for {@link BlankingSector#recordLength}
-  * @param pRecordLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized BlankingSector setRecordLength(int pRecordLength){
-    recordLength = (short) pRecordLength;
     return this;
 }
 /** Getter for {@link BlankingSector#recordLength}
   * @return value of interest */
-public short getRecordLength()
+public int getRecordLength()
 {
     return recordLength; 
 }
 
 /** Setter for {@link BlankingSector#padding}
-  * @param pPadding new value of interest
+  * @param pPadding new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized BlankingSector setPadding(short pPadding)
+public synchronized BlankingSector setPadding(int pPadding)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pPadding >= 0 && pPadding <= 65535, "Value outside valid value space");
     padding = pPadding;
-    return this;
-}
-/** Utility setter for {@link BlankingSector#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized BlankingSector setPadding(int pPadding){
-    padding = (short) pPadding;
     return this;
 }
 /** Getter for {@link BlankingSector#padding}
   * @return value of interest */
-public short getPadding()
+public int getPadding()
 {
     return padding; 
 }
 
 /** Setter for {@link BlankingSector#emitterNumber}
-  * @param pEmitterNumber new value of interest
+  * @param pEmitterNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized BlankingSector setEmitterNumber(byte pEmitterNumber)
+public synchronized BlankingSector setEmitterNumber(int pEmitterNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pEmitterNumber >= 0 && pEmitterNumber <= 255, "Value outside valid value space");
     emitterNumber = pEmitterNumber;
-    return this;
-}
-/** Utility setter for {@link BlankingSector#emitterNumber}
-  * @param pEmitterNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized BlankingSector setEmitterNumber(int pEmitterNumber){
-    emitterNumber = (byte) pEmitterNumber;
     return this;
 }
 /** Getter for {@link BlankingSector#emitterNumber}
   * @return value of interest */
-public byte getEmitterNumber()
+public int getEmitterNumber()
 {
     return emitterNumber; 
 }
 
 /** Setter for {@link BlankingSector#beamNumber}
-  * @param pBeamNumber new value of interest
+  * @param pBeamNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized BlankingSector setBeamNumber(byte pBeamNumber)
+public synchronized BlankingSector setBeamNumber(int pBeamNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pBeamNumber >= 0 && pBeamNumber <= 255, "Value outside valid value space");
     beamNumber = pBeamNumber;
-    return this;
-}
-/** Utility setter for {@link BlankingSector#beamNumber}
-  * @param pBeamNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized BlankingSector setBeamNumber(int pBeamNumber){
-    beamNumber = (byte) pBeamNumber;
     return this;
 }
 /** Getter for {@link BlankingSector#beamNumber}
   * @return value of interest */
-public byte getBeamNumber()
+public int getBeamNumber()
 {
     return beamNumber; 
 }
@@ -212,29 +206,24 @@ public EEAttributeStateIndicator getStateIndicator()
 }
 
 /** Setter for {@link BlankingSector#padding2}
-  * @param pPadding2 new value of interest
+  * @param pPadding2 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized BlankingSector setPadding2(byte pPadding2)
+public synchronized BlankingSector setPadding2(int pPadding2)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding2 >= 0 && pPadding2 <= 255, "Value outside valid value space");
     padding2 = pPadding2;
-    return this;
-}
-/** Utility setter for {@link BlankingSector#padding2}
-  * @param pPadding2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized BlankingSector setPadding2(int pPadding2){
-    padding2 = (byte) pPadding2;
     return this;
 }
 /** Getter for {@link BlankingSector#padding2}
   * @return value of interest */
-public byte getPadding2()
+public int getPadding2()
 {
     return padding2; 
 }
 
 /** Setter for {@link BlankingSector#leftAzimuth}
-  * @param pLeftAzimuth new value of interest
+  * @param pLeftAzimuth new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BlankingSector setLeftAzimuth(float pLeftAzimuth)
 {
@@ -249,7 +238,7 @@ public float getLeftAzimuth()
 }
 
 /** Setter for {@link BlankingSector#rightAzimuth}
-  * @param pRightAzimuth new value of interest
+  * @param pRightAzimuth new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BlankingSector setRightAzimuth(float pRightAzimuth)
 {
@@ -264,7 +253,7 @@ public float getRightAzimuth()
 }
 
 /** Setter for {@link BlankingSector#lowerElevation}
-  * @param pLowerElevation new value of interest
+  * @param pLowerElevation new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BlankingSector setLowerElevation(float pLowerElevation)
 {
@@ -279,7 +268,7 @@ public float getLowerElevation()
 }
 
 /** Setter for {@link BlankingSector#upperElevation}
-  * @param pUpperElevation new value of interest
+  * @param pUpperElevation new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BlankingSector setUpperElevation(float pUpperElevation)
 {
@@ -294,7 +283,7 @@ public float getUpperElevation()
 }
 
 /** Setter for {@link BlankingSector#residualPower}
-  * @param pResidualPower new value of interest
+  * @param pResidualPower new value of interest. Value space float32
   * @return same object to permit progressive setters */
 public synchronized BlankingSector setResidualPower(float pResidualPower)
 {
@@ -309,23 +298,16 @@ public float getResidualPower()
 }
 
 /** Setter for {@link BlankingSector#padding3}
-  * @param pPadding3 new value of interest
+  * @param pPadding3 new value of interest. Value space uint64
   * @return same object to permit progressive setters */
-public synchronized BlankingSector setPadding3(long pPadding3)
+public synchronized BlankingSector setPadding3(UnsignedLong pPadding3)
 {
     padding3 = pPadding3;
     return this;
 }
-/** Utility setter for {@link BlankingSector#padding3}
-  * @param pPadding3 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized BlankingSector setPadding3(int pPadding3){
-    padding3 = (long) pPadding3;
-    return this;
-}
 /** Getter for {@link BlankingSector#padding3}
   * @return value of interest */
-public long getPadding3()
+public UnsignedLong getPadding3()
 {
     return padding3; 
 }
@@ -339,25 +321,21 @@ public long getPadding3()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeInt(recordType);
-       dos.writeShort(recordLength);
-       dos.writeShort(padding);
-       dos.writeByte(emitterNumber);
-       dos.writeByte(beamNumber);
+       dos.writeInt(recordType.intValue());
+       dos.writeShort((short) recordLength);
+       dos.writeShort((short) padding);
+       dos.writeByte((byte) emitterNumber);
+       dos.writeByte((byte) beamNumber);
        stateIndicator.marshal(dos);
-       dos.writeByte(padding2);
+       dos.writeByte((byte) padding2);
        dos.writeFloat(leftAzimuth);
        dos.writeFloat(rightAzimuth);
        dos.writeFloat(lowerElevation);
        dos.writeFloat(upperElevation);
        dos.writeFloat(residualPower);
-       dos.writeLong(padding3);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeLong(padding3.longValue());
     }
 }
 
@@ -373,38 +351,34 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        recordType = dis.readInt();
+        recordType = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        recordLength = (short)dis.readUnsignedShort();
+        recordLength = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        padding = (short)dis.readUnsignedShort();
+        padding = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        emitterNumber = (byte)dis.readUnsignedByte();
+        emitterNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        beamNumber = (byte)dis.readUnsignedByte();
+        beamNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         stateIndicator = EEAttributeStateIndicator.unmarshalEnum(dis);
         uPosition += stateIndicator.getMarshalledSize();
-        padding2 = (byte)dis.readUnsignedByte();
+        padding2 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        leftAzimuth = dis.readFloat();
+        leftAzimuth = (float) dis.readFloat();
         uPosition += 4;
-        rightAzimuth = dis.readFloat();
+        rightAzimuth = (float) dis.readFloat();
         uPosition += 4;
-        lowerElevation = dis.readFloat();
+        lowerElevation = (float) dis.readFloat();
         uPosition += 4;
-        upperElevation = dis.readFloat();
+        upperElevation = (float) dis.readFloat();
         uPosition += 4;
-        residualPower = dis.readFloat();
+        residualPower = (float) dis.readFloat();
         uPosition += 4;
-        padding3 = dis.readLong();
-        uPosition += 4;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
+        padding3 = UnsignedLong.fromLongBits(dis.readLong());
+        uPosition += 8;
     }
     return getMarshalledSize();
 }
@@ -420,19 +394,19 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putInt( (int)recordType);
-   byteBuffer.putShort( (short)recordLength);
-   byteBuffer.putShort( (short)padding);
-   byteBuffer.put( (byte)emitterNumber);
-   byteBuffer.put( (byte)beamNumber);
+   byteBuffer.putInt(recordType.intValue());
+   byteBuffer.putShort((short) recordLength);
+   byteBuffer.putShort((short) padding);
+   byteBuffer.put((byte) emitterNumber);
+   byteBuffer.put((byte) beamNumber);
    stateIndicator.marshal(byteBuffer);
-   byteBuffer.put( (byte)padding2);
-   byteBuffer.putFloat( (float)leftAzimuth);
-   byteBuffer.putFloat( (float)rightAzimuth);
-   byteBuffer.putFloat( (float)lowerElevation);
-   byteBuffer.putFloat( (float)upperElevation);
-   byteBuffer.putFloat( (float)residualPower);
-   byteBuffer.putLong( (long)padding3);
+   byteBuffer.put((byte) padding2);
+   byteBuffer.putFloat(leftAzimuth);
+   byteBuffer.putFloat(rightAzimuth);
+   byteBuffer.putFloat(lowerElevation);
+   byteBuffer.putFloat(upperElevation);
+   byteBuffer.putFloat(residualPower);
+   byteBuffer.putLong(padding3.longValue());
 }
 
 /**
@@ -447,40 +421,104 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute recordType marked as not serialized
-        recordType = byteBuffer.getInt();
-        // attribute recordLength marked as not serialized
-        recordLength = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute padding marked as not serialized
-        padding = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute emitterNumber marked as not serialized
-        emitterNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute beamNumber marked as not serialized
-        beamNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute stateIndicator marked as not serialized
+        recordType = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        recordLength = Short.toUnsignedInt(byteBuffer.getShort());
+        padding = Short.toUnsignedInt(byteBuffer.getShort());
+        emitterNumber = Byte.toUnsignedInt(byteBuffer.get());
+        beamNumber = Byte.toUnsignedInt(byteBuffer.get());
         stateIndicator = EEAttributeStateIndicator.unmarshalEnum(byteBuffer);
-        // attribute padding2 marked as not serialized
-        padding2 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute leftAzimuth marked as not serialized
-        leftAzimuth = byteBuffer.getFloat();
-        // attribute rightAzimuth marked as not serialized
-        rightAzimuth = byteBuffer.getFloat();
-        // attribute lowerElevation marked as not serialized
-        lowerElevation = byteBuffer.getFloat();
-        // attribute upperElevation marked as not serialized
-        upperElevation = byteBuffer.getFloat();
-        // attribute residualPower marked as not serialized
-        residualPower = byteBuffer.getFloat();
-        // attribute padding3 marked as not serialized
-        padding3 = byteBuffer.getLong();
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        padding2 = Byte.toUnsignedInt(byteBuffer.get());
+        leftAzimuth = (float) byteBuffer.getFloat();
+        rightAzimuth = (float) byteBuffer.getFloat();
+        lowerElevation = (float) byteBuffer.getFloat();
+        upperElevation = (float) byteBuffer.getFloat();
+        residualPower = (float) byteBuffer.getFloat();
+        padding3 = UnsignedLong.fromLongBits(byteBuffer.getLong());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("recordType", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("recordLength", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("padding", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("emitterNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("beamNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("stateIndicator", EEAttributeStateIndicator.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding2", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("leftAzimuth", (float) byteBuffer.getFloat());
+    map.put("rightAzimuth", (float) byteBuffer.getFloat());
+    map.put("lowerElevation", (float) byteBuffer.getFloat());
+    map.put("upperElevation", (float) byteBuffer.getFloat());
+    map.put("residualPower", (float) byteBuffer.getFloat());
+    map.put("padding3", UnsignedLong.fromLongBits(byteBuffer.getLong()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putInt(((Number) map.get("recordType")).intValue());
+    byteBuffer.putShort(((Number) map.get("recordLength")).shortValue());
+    byteBuffer.putShort(((Number) map.get("padding")).shortValue());
+    byteBuffer.put(((Number) map.get("emitterNumber")).byteValue());
+    byteBuffer.put(((Number) map.get("beamNumber")).byteValue());
+    EEAttributeStateIndicator.getEnumForValue(((Number) map.get("stateIndicator")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding2")).byteValue());
+    byteBuffer.putFloat(((Number) map.get("leftAzimuth")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("rightAzimuth")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("lowerElevation")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("upperElevation")).floatValue());
+    byteBuffer.putFloat(((Number) map.get("residualPower")).floatValue());
+    byteBuffer.putLong(((Number) map.get("padding3")).longValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // recordType
+    marshalSize += 2;  // recordLength
+    marshalSize += 2;  // padding
+    marshalSize += 1;  // emitterNumber
+    marshalSize += 1;  // beamNumber
+    marshalSize += EEAttributeStateIndicator.getEnumForValue(((Number) map.get("stateIndicator")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding2
+    marshalSize += 4;  // leftAzimuth
+    marshalSize += 4;  // rightAzimuth
+    marshalSize += 4;  // lowerElevation
+    marshalSize += 4;  // upperElevation
+    marshalSize += 4;  // residualPower
+    marshalSize += 8;  // padding3
+
+    return marshalSize;
 }
 
  /*

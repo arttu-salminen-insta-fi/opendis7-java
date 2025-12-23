@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -30,16 +32,20 @@ public class IsGroupOfPdu extends EntityManagementFamilyPdu implements Serializa
    /** type of entities constituting the group uid 213 */
    protected IsGroupOfGroupedEntityCategory groupedEntityCategory = IsGroupOfGroupedEntityCategory.values()[0];
 
-   /** Number of individual entities constituting the group */
-   protected byte numberOfGroupedEntities;
+   /** Number of individual entities constituting the group 
+   Value space: uint8 */
+   protected int numberOfGroupedEntities;
 
-   /** padding */
-   protected int pad;
+   /** padding 
+   Value space: uint32 */
+   protected UnsignedInteger padding = UnsignedInteger.ZERO;
 
-   /** latitude */
+   /** latitude 
+   Value space: float64 */
    protected double latitude;
 
-   /** longitude */
+   /** longitude 
+   Value space: float64 */
    protected double longitude;
 
    /** GED records about each individual entity in the group. Bad specing--the Group Entity Descriptions are not described. */
@@ -130,7 +136,7 @@ public synchronized int getMarshalledSize()
    if (groupedEntityCategory != null)
        marshalSize += groupedEntityCategory.getMarshalledSize();
    marshalSize += 1;  // numberOfGroupedEntities
-   marshalSize += 4;  // pad
+   marshalSize += 4;  // padding
    marshalSize += 8;  // latitude
    marshalSize += 8;  // longitude
    if (groupedEntityDescriptions != null)
@@ -175,23 +181,23 @@ public IsGroupOfGroupedEntityCategory getGroupedEntityCategory()
     return groupedEntityCategory; 
 }
 
-/** Setter for {@link IsGroupOfPdu#pad}
-  * @param pPad new value of interest
+/** Setter for {@link IsGroupOfPdu#padding}
+  * @param pPadding new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized IsGroupOfPdu setPad(int pPad)
+public synchronized IsGroupOfPdu setPadding(UnsignedInteger pPadding)
 {
-    pad = pPad;
+    padding = pPadding;
     return this;
 }
-/** Getter for {@link IsGroupOfPdu#pad}
+/** Getter for {@link IsGroupOfPdu#padding}
   * @return value of interest */
-public int getPad()
+public UnsignedInteger getPadding()
 {
-    return pad; 
+    return padding; 
 }
 
 /** Setter for {@link IsGroupOfPdu#latitude}
-  * @param pLatitude new value of interest
+  * @param pLatitude new value of interest. Value space float64
   * @return same object to permit progressive setters */
 public synchronized IsGroupOfPdu setLatitude(double pLatitude)
 {
@@ -206,7 +212,7 @@ public double getLatitude()
 }
 
 /** Setter for {@link IsGroupOfPdu#longitude}
-  * @param pLongitude new value of interest
+  * @param pLongitude new value of interest. Value space float64
   * @return same object to permit progressive setters */
 public synchronized IsGroupOfPdu setLongitude(double pLongitude)
 {
@@ -245,12 +251,12 @@ public List<VariableDatum> getGroupedEntityDescriptions()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        groupEntityID.marshal(dos);
        groupedEntityCategory.marshal(dos);
        dos.writeByte(groupedEntityDescriptions.size());
-       dos.writeInt(pad);
+       dos.writeInt(padding.intValue());
        dos.writeDouble(latitude);
        dos.writeDouble(longitude);
 
@@ -260,10 +266,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aVariableDatum.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -281,30 +283,26 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += groupEntityID.unmarshal(dis);
         groupedEntityCategory = IsGroupOfGroupedEntityCategory.unmarshalEnum(dis);
         uPosition += groupedEntityCategory.getMarshalledSize();
-        numberOfGroupedEntities = (byte)dis.readUnsignedByte();
+        numberOfGroupedEntities = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        pad = dis.readInt();
+        padding = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        latitude = dis.readDouble();
-        uPosition += 4;
-        longitude = dis.readDouble();
-        uPosition += 4;
-        for (int idx = 0; idx < numberOfGroupedEntities; idx++)
+        latitude = (double) dis.readDouble();
+        uPosition += 8;
+        longitude = (double) dis.readDouble();
+        uPosition += 8;
+        for (int idx = 0; idx < ((Number) numberOfGroupedEntities).intValue(); idx++)
         {
             VariableDatum anX = new VariableDatum();
             uPosition += anX.unmarshal(dis);
             groupedEntityDescriptions.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -324,9 +322,9 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    groupEntityID.marshal(byteBuffer);
    groupedEntityCategory.marshal(byteBuffer);
    byteBuffer.put( (byte)groupedEntityDescriptions.size());
-   byteBuffer.putInt( (int)pad);
-   byteBuffer.putDouble( (double)latitude);
-   byteBuffer.putDouble( (double)longitude);
+   byteBuffer.putInt(padding.intValue());
+   byteBuffer.putDouble(latitude);
+   byteBuffer.putDouble(longitude);
 
    for (int idx = 0; idx < groupedEntityDescriptions.size(); idx++)
    {
@@ -350,34 +348,102 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute groupEntityID marked as not serialized
         groupEntityID.unmarshal(byteBuffer);
-        // attribute groupedEntityCategory marked as not serialized
         groupedEntityCategory = IsGroupOfGroupedEntityCategory.unmarshalEnum(byteBuffer);
-        // attribute numberOfGroupedEntities marked as not serialized
-        numberOfGroupedEntities = (byte)(byteBuffer.get() & 0xFF);
-        // attribute pad marked as not serialized
-        pad = byteBuffer.getInt();
-        // attribute latitude marked as not serialized
-        latitude = byteBuffer.getDouble();
-        // attribute longitude marked as not serialized
-        longitude = byteBuffer.getDouble();
-        // attribute groupedEntityDescriptions marked as not serialized
-        for (int idx = 0; idx < numberOfGroupedEntities; idx++)
+        numberOfGroupedEntities = Byte.toUnsignedInt(byteBuffer.get());
+        padding = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        latitude = (double) byteBuffer.getDouble();
+        longitude = (double) byteBuffer.getDouble();
+        for (int idx = 0; idx < ((Number) numberOfGroupedEntities).intValue(); idx++)
         {
-        VariableDatum anX = new VariableDatum();
-        anX.unmarshal(byteBuffer);
-        groupedEntityDescriptions.add(anX);
+            VariableDatum anX = new VariableDatum();
+            anX.unmarshal(byteBuffer);
+            groupedEntityDescriptions.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = EntityManagementFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("groupEntityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("groupedEntityCategory", IsGroupOfGroupedEntityCategory.unmarshalEnum(byteBuffer).getValue());
+    map.put("numberOfGroupedEntities", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("latitude", (double) byteBuffer.getDouble());
+    map.put("longitude", (double) byteBuffer.getDouble());
+    List groupedEntityDescriptions = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfGroupedEntities")).intValue(); idx++)
+    {
+        groupedEntityDescriptions.add(VariableDatum.fromBufferToMap(byteBuffer));
+    }
+    map.put("groupedEntityDescriptions", groupedEntityDescriptions);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityManagementFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("groupEntityID"), byteBuffer);
+    IsGroupOfGroupedEntityCategory.getEnumForValue(((Number) map.get("groupedEntityCategory")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("numberOfGroupedEntities")).byteValue());
+    byteBuffer.putInt(((Number) map.get("padding")).intValue());
+    byteBuffer.putDouble(((Number) map.get("latitude")).doubleValue());
+    byteBuffer.putDouble(((Number) map.get("longitude")).doubleValue());
+
+    List groupedEntityDescriptions = (List) map.get("groupedEntityDescriptions");
+    for (int idx = 0; idx < ((Number) map.get("numberOfGroupedEntities")).intValue(); idx++)
+    {
+        VariableDatum.fromMapToBuffer((PduMap) groupedEntityDescriptions.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityManagementFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("groupEntityID"));
+    marshalSize += IsGroupOfGroupedEntityCategory.getEnumForValue(((Number) map.get("groupedEntityCategory")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // numberOfGroupedEntities
+    marshalSize += 4;  // padding
+    marshalSize += 8;  // latitude
+    marshalSize += 8;  // longitude
+    List groupedEntityDescriptions = (List) map.get("groupedEntityDescriptions");
+    for (int idx = 0; idx < ((Number) map.get("numberOfGroupedEntities")).intValue(); idx++)
+        marshalSize += VariableDatum.getMarshalledSize((PduMap) groupedEntityDescriptions.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -405,7 +471,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 
      if( ! Objects.equals(groupEntityID, rhs.groupEntityID) ) return false;
      if( ! (groupedEntityCategory == rhs.groupedEntityCategory)) return false;
-     if( ! (pad == rhs.pad)) return false;
+     if( ! (padding == rhs.padding)) return false;
      if( ! (latitude == rhs.latitude)) return false;
      if( ! (longitude == rhs.longitude)) return false;
      if( ! Objects.equals(groupedEntityDescriptions, rhs.groupedEntityDescriptions) ) return false;
@@ -417,10 +483,10 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" groupEntityID:").append(groupEntityID); // writeOneToString
     sb.append(" groupedEntityCategory:").append(groupedEntityCategory); // writeOneToString
-    sb.append(" pad:").append(pad); // writeOneToString
+    sb.append(" padding:").append(padding); // writeOneToString
     sb.append(" latitude:").append(latitude); // writeOneToString
     sb.append(" longitude:").append(longitude); // writeOneToString
     sb.append(" groupedEntityDescriptions: ");
@@ -438,7 +504,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	 return Objects.hash(this.groupEntityID,
 	                     this.groupedEntityCategory,
 	                     this.numberOfGroupedEntities,
-	                     this.pad,
+	                     this.padding,
 	                     this.latitude,
 	                     this.longitude,
 	                     this.groupedEntityDescriptions);

@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -27,11 +29,13 @@ public class LEDetonationPdu extends LiveEntityFamilyPdu implements Serializable
    /** firingLiveEntityId is an undescribed parameter... */
    protected EntityID  firingLiveEntityId = new EntityID(); 
 
-   /** detonationFlag1 is an undescribed parameter... */
-   protected byte detonationFlag1;
+   /** detonationFlag1 is an undescribed parameter...
+   Value space: uint8 */
+   protected int detonationFlag1;
 
-   /** detonationFlag2 is an undescribed parameter... */
-   protected byte detonationFlag2;
+   /** detonationFlag2 is an undescribed parameter...
+   Value space: uint8 */
+   protected int detonationFlag2;
 
    /** targetLiveEntityId is an undescribed parameter... */
    protected EntityID  targetLiveEntityId = new EntityID(); 
@@ -51,14 +55,15 @@ public class LEDetonationPdu extends LiveEntityFamilyPdu implements Serializable
    /** spec error? 16-bit fields vs. 8-bit in TspiPdu? */
    protected LiveEntityOrientation16  munitionOrientation = new LiveEntityOrientation16(); 
 
-   /** munitionDescriptor is an undescribed parameter... */
-   protected MunitionDescriptor  munitionDescriptor = new MunitionDescriptor(); 
+   /** descriptor is an undescribed parameter... */
+   protected Descriptor  descriptor = new Descriptor(); 
 
    /** entityLocation is an undescribed parameter... */
    protected LiveEntityLinearVelocity  entityLocation = new LiveEntityLinearVelocity(); 
 
-   /** detonationResult is an undescribed parameter... */
-   protected byte detonationResult;
+   /** detonationResult is an undescribed parameter...
+   Value space: uint8 */
+   protected int detonationResult;
 
 
 /** Constructor creates and configures a new instance object */
@@ -156,8 +161,8 @@ public synchronized int getMarshalledSize()
        marshalSize += velocity.getMarshalledSize();
    if (munitionOrientation != null)
        marshalSize += munitionOrientation.getMarshalledSize();
-   if (munitionDescriptor != null)
-       marshalSize += munitionDescriptor.getMarshalledSize();
+   if (descriptor != null)
+       marshalSize += descriptor.getMarshalledSize();
    if (entityLocation != null)
        marshalSize += entityLocation.getMarshalledSize();
    marshalSize += 1;  // detonationResult
@@ -183,45 +188,35 @@ public EntityID getFiringLiveEntityId()
 
 
 /** Setter for {@link LEDetonationPdu#detonationFlag1}
-  * @param pDetonationFlag1 new value of interest
+  * @param pDetonationFlag1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized LEDetonationPdu setDetonationFlag1(byte pDetonationFlag1)
+public synchronized LEDetonationPdu setDetonationFlag1(int pDetonationFlag1)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pDetonationFlag1 >= 0 && pDetonationFlag1 <= 255, "Value outside valid value space");
     detonationFlag1 = pDetonationFlag1;
-    return this;
-}
-/** Utility setter for {@link LEDetonationPdu#detonationFlag1}
-  * @param pDetonationFlag1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LEDetonationPdu setDetonationFlag1(int pDetonationFlag1){
-    detonationFlag1 = (byte) pDetonationFlag1;
     return this;
 }
 /** Getter for {@link LEDetonationPdu#detonationFlag1}
   * @return value of interest */
-public byte getDetonationFlag1()
+public int getDetonationFlag1()
 {
     return detonationFlag1; 
 }
 
 /** Setter for {@link LEDetonationPdu#detonationFlag2}
-  * @param pDetonationFlag2 new value of interest
+  * @param pDetonationFlag2 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized LEDetonationPdu setDetonationFlag2(byte pDetonationFlag2)
+public synchronized LEDetonationPdu setDetonationFlag2(int pDetonationFlag2)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pDetonationFlag2 >= 0 && pDetonationFlag2 <= 255, "Value outside valid value space");
     detonationFlag2 = pDetonationFlag2;
-    return this;
-}
-/** Utility setter for {@link LEDetonationPdu#detonationFlag2}
-  * @param pDetonationFlag2 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LEDetonationPdu setDetonationFlag2(int pDetonationFlag2){
-    detonationFlag2 = (byte) pDetonationFlag2;
     return this;
 }
 /** Getter for {@link LEDetonationPdu#detonationFlag2}
   * @return value of interest */
-public byte getDetonationFlag2()
+public int getDetonationFlag2()
 {
     return detonationFlag2; 
 }
@@ -322,19 +317,19 @@ public LiveEntityOrientation16 getMunitionOrientation()
 }
 
 
-/** Setter for {@link LEDetonationPdu#munitionDescriptor}
-  * @param pMunitionDescriptor new value of interest
+/** Setter for {@link LEDetonationPdu#descriptor}
+  * @param pDescriptor new value of interest
   * @return same object to permit progressive setters */
-public synchronized LEDetonationPdu setMunitionDescriptor(MunitionDescriptor pMunitionDescriptor)
+public synchronized LEDetonationPdu setDescriptor(Descriptor pDescriptor)
 {
-    munitionDescriptor = pMunitionDescriptor;
+    descriptor = pDescriptor;
     return this;
 }
-/** Getter for {@link LEDetonationPdu#munitionDescriptor}
+/** Getter for {@link LEDetonationPdu#descriptor}
   * @return value of interest */
-public MunitionDescriptor getMunitionDescriptor()
+public Descriptor getDescriptor()
 {
-    return munitionDescriptor;
+    return descriptor;
 }
 
 
@@ -355,23 +350,18 @@ public LiveEntityLinearVelocity getEntityLocation()
 
 
 /** Setter for {@link LEDetonationPdu#detonationResult}
-  * @param pDetonationResult new value of interest
+  * @param pDetonationResult new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized LEDetonationPdu setDetonationResult(byte pDetonationResult)
+public synchronized LEDetonationPdu setDetonationResult(int pDetonationResult)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pDetonationResult >= 0 && pDetonationResult <= 255, "Value outside valid value space");
     detonationResult = pDetonationResult;
-    return this;
-}
-/** Utility setter for {@link LEDetonationPdu#detonationResult}
-  * @param pDetonationResult new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LEDetonationPdu setDetonationResult(int pDetonationResult){
-    detonationResult = (byte) pDetonationResult;
     return this;
 }
 /** Getter for {@link LEDetonationPdu#detonationResult}
   * @return value of interest */
-public byte getDetonationResult()
+public int getDetonationResult()
 {
     return detonationResult; 
 }
@@ -386,24 +376,20 @@ public byte getDetonationResult()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        firingLiveEntityId.marshal(dos);
-       dos.writeByte(detonationFlag1);
-       dos.writeByte(detonationFlag2);
+       dos.writeByte((byte) detonationFlag1);
+       dos.writeByte((byte) detonationFlag2);
        targetLiveEntityId.marshal(dos);
        munitionLiveEntityId.marshal(dos);
        eventId.marshal(dos);
        worldLocation.marshal(dos);
        velocity.marshal(dos);
        munitionOrientation.marshal(dos);
-       munitionDescriptor.marshal(dos);
+       descriptor.marshal(dos);
        entityLocation.marshal(dos);
-       dos.writeByte(detonationResult);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) detonationResult);
     }
 }
 
@@ -421,12 +407,12 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += firingLiveEntityId.unmarshal(dis);
-        detonationFlag1 = (byte)dis.readUnsignedByte();
+        detonationFlag1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        detonationFlag2 = (byte)dis.readUnsignedByte();
+        detonationFlag2 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += targetLiveEntityId.unmarshal(dis);
         uPosition += munitionLiveEntityId.unmarshal(dis);
@@ -434,14 +420,10 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += worldLocation.unmarshal(dis);
         uPosition += velocity.unmarshal(dis);
         uPosition += munitionOrientation.unmarshal(dis);
-        uPosition += munitionDescriptor.unmarshal(dis);
+        uPosition += descriptor.unmarshal(dis);
         uPosition += entityLocation.unmarshal(dis);
-        detonationResult = (byte)dis.readUnsignedByte();
+        detonationResult = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -459,17 +441,17 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    super.marshal(byteBuffer);
    firingLiveEntityId.marshal(byteBuffer);
-   byteBuffer.put( (byte)detonationFlag1);
-   byteBuffer.put( (byte)detonationFlag2);
+   byteBuffer.put((byte) detonationFlag1);
+   byteBuffer.put((byte) detonationFlag2);
    targetLiveEntityId.marshal(byteBuffer);
    munitionLiveEntityId.marshal(byteBuffer);
    eventId.marshal(byteBuffer);
    worldLocation.marshal(byteBuffer);
    velocity.marshal(byteBuffer);
    munitionOrientation.marshal(byteBuffer);
-   munitionDescriptor.marshal(byteBuffer);
+   descriptor.marshal(byteBuffer);
    entityLocation.marshal(byteBuffer);
-   byteBuffer.put( (byte)detonationResult);
+   byteBuffer.put((byte) detonationResult);
 }
 
 /**
@@ -486,38 +468,102 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute firingLiveEntityId marked as not serialized
         firingLiveEntityId.unmarshal(byteBuffer);
-        // attribute detonationFlag1 marked as not serialized
-        detonationFlag1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute detonationFlag2 marked as not serialized
-        detonationFlag2 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute targetLiveEntityId marked as not serialized
+        detonationFlag1 = Byte.toUnsignedInt(byteBuffer.get());
+        detonationFlag2 = Byte.toUnsignedInt(byteBuffer.get());
         targetLiveEntityId.unmarshal(byteBuffer);
-        // attribute munitionLiveEntityId marked as not serialized
         munitionLiveEntityId.unmarshal(byteBuffer);
-        // attribute eventId marked as not serialized
         eventId.unmarshal(byteBuffer);
-        // attribute worldLocation marked as not serialized
         worldLocation.unmarshal(byteBuffer);
-        // attribute velocity marked as not serialized
         velocity.unmarshal(byteBuffer);
-        // attribute munitionOrientation marked as not serialized
         munitionOrientation.unmarshal(byteBuffer);
-        // attribute munitionDescriptor marked as not serialized
-        munitionDescriptor.unmarshal(byteBuffer);
-        // attribute entityLocation marked as not serialized
+        descriptor.unmarshal(byteBuffer);
         entityLocation.unmarshal(byteBuffer);
-        // attribute detonationResult marked as not serialized
-        detonationResult = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        detonationResult = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = LiveEntityFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("firingLiveEntityId", EntityID.fromBufferToMap(byteBuffer));
+    map.put("detonationFlag1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("detonationFlag2", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("targetLiveEntityId", EntityID.fromBufferToMap(byteBuffer));
+    map.put("munitionLiveEntityId", EntityID.fromBufferToMap(byteBuffer));
+    map.put("eventId", EventIdentifier.fromBufferToMap(byteBuffer));
+    map.put("worldLocation", LiveEntityRelativeWorldCoordinates.fromBufferToMap(byteBuffer));
+    map.put("velocity", LiveEntityLinearVelocity.fromBufferToMap(byteBuffer));
+    map.put("munitionOrientation", LiveEntityOrientation16.fromBufferToMap(byteBuffer));
+    map.put("descriptor", Descriptor.fromBufferToMap(byteBuffer));
+    map.put("entityLocation", LiveEntityLinearVelocity.fromBufferToMap(byteBuffer));
+    map.put("detonationResult", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    LiveEntityFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("firingLiveEntityId"), byteBuffer);
+    byteBuffer.put(((Number) map.get("detonationFlag1")).byteValue());
+    byteBuffer.put(((Number) map.get("detonationFlag2")).byteValue());
+    EntityID.fromMapToBuffer((PduMap) map.get("targetLiveEntityId"), byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("munitionLiveEntityId"), byteBuffer);
+    EventIdentifier.fromMapToBuffer((PduMap) map.get("eventId"), byteBuffer);
+    LiveEntityRelativeWorldCoordinates.fromMapToBuffer((PduMap) map.get("worldLocation"), byteBuffer);
+    LiveEntityLinearVelocity.fromMapToBuffer((PduMap) map.get("velocity"), byteBuffer);
+    LiveEntityOrientation16.fromMapToBuffer((PduMap) map.get("munitionOrientation"), byteBuffer);
+    Descriptor.fromMapToBuffer((PduMap) map.get("descriptor"), byteBuffer);
+    LiveEntityLinearVelocity.fromMapToBuffer((PduMap) map.get("entityLocation"), byteBuffer);
+    byteBuffer.put(((Number) map.get("detonationResult")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += LiveEntityFamilyPdu.getMarshalledSize(map);
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("firingLiveEntityId"));
+    marshalSize += 1;  // detonationFlag1
+    marshalSize += 1;  // detonationFlag2
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("targetLiveEntityId"));
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("munitionLiveEntityId"));
+    marshalSize += EventIdentifier.getMarshalledSize((PduMap) map.get("eventId"));
+    marshalSize += LiveEntityRelativeWorldCoordinates.getMarshalledSize((PduMap) map.get("worldLocation"));
+    marshalSize += LiveEntityLinearVelocity.getMarshalledSize((PduMap) map.get("velocity"));
+    marshalSize += LiveEntityOrientation16.getMarshalledSize((PduMap) map.get("munitionOrientation"));
+    marshalSize += Descriptor.getMarshalledSize((PduMap) map.get("descriptor"));
+    marshalSize += LiveEntityLinearVelocity.getMarshalledSize((PduMap) map.get("entityLocation"));
+    marshalSize += 1;  // detonationResult
+
+    return marshalSize;
 }
 
  /*
@@ -552,7 +598,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
      if( ! Objects.equals(worldLocation, rhs.worldLocation) ) return false;
      if( ! Objects.equals(velocity, rhs.velocity) ) return false;
      if( ! Objects.equals(munitionOrientation, rhs.munitionOrientation) ) return false;
-     if( ! Objects.equals(munitionDescriptor, rhs.munitionDescriptor) ) return false;
+     if( ! Objects.equals(descriptor, rhs.descriptor) ) return false;
      if( ! Objects.equals(entityLocation, rhs.entityLocation) ) return false;
      if( ! (detonationResult == rhs.detonationResult)) return false;
     return super.equalsImpl(rhs);
@@ -563,7 +609,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" firingLiveEntityId:").append(firingLiveEntityId); // writeOneToString
     sb.append(" detonationFlag1:").append(detonationFlag1); // writeOneToString
     sb.append(" detonationFlag2:").append(detonationFlag2); // writeOneToString
@@ -573,7 +619,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     sb.append(" worldLocation:").append(worldLocation); // writeOneToString
     sb.append(" velocity:").append(velocity); // writeOneToString
     sb.append(" munitionOrientation:").append(munitionOrientation); // writeOneToString
-    sb.append(" munitionDescriptor:").append(munitionDescriptor); // writeOneToString
+    sb.append(" descriptor:").append(descriptor); // writeOneToString
     sb.append(" entityLocation:").append(entityLocation); // writeOneToString
     sb.append(" detonationResult:").append(detonationResult); // writeOneToString
 
@@ -592,7 +638,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	                     this.worldLocation,
 	                     this.velocity,
 	                     this.munitionOrientation,
-	                     this.munitionDescriptor,
+	                     this.descriptor,
 	                     this.entityLocation,
 	                     this.detonationResult);
  }

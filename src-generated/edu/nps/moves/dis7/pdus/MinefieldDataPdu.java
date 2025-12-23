@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -30,26 +32,33 @@ public class MinefieldDataPdu extends MinefieldFamilyPdu implements Serializable
    /** ID of entity making request */
    protected SimulationIdentifier  requestingEntityID = new SimulationIdentifier(); 
 
-   /** Minefield sequence number */
-   protected short minefieldSequenceNumbeer;
+   /** Minefield sequence number 
+   Value space: uint16 */
+   protected int minefieldSequenceNumbeer;
 
-   /** request ID provides a unique identifier */
-   protected byte requestID;
+   /** request ID provides a unique identifier 
+   Value space: uint8 */
+   protected int requestID;
 
-   /** pdu sequence number */
-   protected byte pduSequenceNumber;
+   /** pdu sequence number 
+   Value space: uint8 */
+   protected int pduSequenceNumber;
 
-   /** number of pdus in response */
-   protected byte numberOfPdus;
+   /** number of pdus in response 
+   Value space: uint8 */
+   protected int numberOfPdus;
 
-   /** how many mines are in this PDU */
-   protected byte numberOfMinesInThisPdu;
+   /** how many mines are in this PDU 
+   Value space: uint8 */
+   protected int numberOfMinesInThisPdu;
 
-   /** how many sensor type are in this PDU */
-   protected byte numberOfSensorTypes;
+   /** how many sensor type are in this PDU 
+   Value space: uint8 */
+   protected int numberOfSensorTypes;
 
-   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data */
-   protected byte padding = (byte)0;
+   /** zero-filled array of padding bits for byte alignment and consistent sizing of PDU data 
+   Value space: uint8 */
+   protected int padding1 = (int) 0;
 
    /** 32 boolean field */
    protected DataFilterRecord  dataFilter = new DataFilterRecord(); 
@@ -62,7 +71,7 @@ public class MinefieldDataPdu extends MinefieldFamilyPdu implements Serializable
  
    /** pad to 32-bit boundary */
 
-   private byte[] padTo32 = new byte[0];
+   private byte[] padding2 = new byte[0];
 
    /** Mine locations */
    protected List< Vector3Float > mineLocation = new ArrayList<>();
@@ -102,14 +111,14 @@ public class MinefieldDataPdu extends MinefieldFamilyPdu implements Serializable
  
    /** pad to 32-bit boundary */
 
-   private byte[] padTo32_2 = new byte[0];
+   private byte[] padding3 = new byte[0];
 
    /** numberOfTripDetonationWires is an undescribed parameter... */
    protected byte[]  numberOfTripDetonationWires = new byte[0]; 
 
    /** pad to 32-bit boundary */
 
-   private byte[] padTo32_3 = new byte[0];
+   private byte[] padding4 = new byte[0];
 
    /** numberOfVertices is an undescribed parameter... */
    protected byte[]  numberOfVertices = new byte[0]; 
@@ -204,7 +213,7 @@ public synchronized int getMarshalledSize()
    marshalSize += 1;  // numberOfPdus
    marshalSize += 1;  // numberOfMinesInThisPdu
    marshalSize += 1;  // numberOfSensorTypes
-   marshalSize += 1;  // padding
+   marshalSize += 1;  // padding1
    if (dataFilter != null)
        marshalSize += dataFilter.getMarshalledSize();
    if (mineType != null)
@@ -215,8 +224,8 @@ public synchronized int getMarshalledSize()
             MinefieldSensorType listElement = sensorTypes.get(idx);
             marshalSize += listElement.getMarshalledSize();
        }
-   if (padTo32 != null)
-       marshalSize += padTo32.length;
+   if (padding2 != null)
+       marshalSize += padding2.length;
    if (mineLocation != null)
        for (int idx=0; idx < mineLocation.size(); idx++)
        {
@@ -261,12 +270,12 @@ public synchronized int getMarshalledSize()
             MinefieldDataPaintScheme listElement = paintScheme.get(idx);
             marshalSize += listElement.getMarshalledSize();
        }
-   if (padTo32_2 != null)
-       marshalSize += padTo32_2.length;
+   if (padding3 != null)
+       marshalSize += padding3.length;
    if (numberOfTripDetonationWires != null)
        marshalSize += numberOfTripDetonationWires.length * 1;
-   if (padTo32_3 != null)
-       marshalSize += padTo32_3.length;
+   if (padding4 != null)
+       marshalSize += padding4.length;
    if (numberOfVertices != null)
        marshalSize += numberOfVertices.length * 1;
 
@@ -307,113 +316,88 @@ public SimulationIdentifier getRequestingEntityID()
 
 
 /** Setter for {@link MinefieldDataPdu#minefieldSequenceNumbeer}
-  * @param pMinefieldSequenceNumbeer new value of interest
+  * @param pMinefieldSequenceNumbeer new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized MinefieldDataPdu setMinefieldSequenceNumbeer(short pMinefieldSequenceNumbeer)
+public synchronized MinefieldDataPdu setMinefieldSequenceNumbeer(int pMinefieldSequenceNumbeer)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pMinefieldSequenceNumbeer >= 0 && pMinefieldSequenceNumbeer <= 65535, "Value outside valid value space");
     minefieldSequenceNumbeer = pMinefieldSequenceNumbeer;
-    return this;
-}
-/** Utility setter for {@link MinefieldDataPdu#minefieldSequenceNumbeer}
-  * @param pMinefieldSequenceNumbeer new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MinefieldDataPdu setMinefieldSequenceNumbeer(int pMinefieldSequenceNumbeer){
-    minefieldSequenceNumbeer = (short) pMinefieldSequenceNumbeer;
     return this;
 }
 /** Getter for {@link MinefieldDataPdu#minefieldSequenceNumbeer}
   * @return value of interest */
-public short getMinefieldSequenceNumbeer()
+public int getMinefieldSequenceNumbeer()
 {
     return minefieldSequenceNumbeer; 
 }
 
 /** Setter for {@link MinefieldDataPdu#requestID}
-  * @param pRequestID new value of interest
+  * @param pRequestID new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized MinefieldDataPdu setRequestID(byte pRequestID)
+public synchronized MinefieldDataPdu setRequestID(int pRequestID)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pRequestID >= 0 && pRequestID <= 255, "Value outside valid value space");
     requestID = pRequestID;
-    return this;
-}
-/** Utility setter for {@link MinefieldDataPdu#requestID}
-  * @param pRequestID new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MinefieldDataPdu setRequestID(int pRequestID){
-    requestID = (byte) pRequestID;
     return this;
 }
 /** Getter for {@link MinefieldDataPdu#requestID}
   * @return value of interest */
-public byte getRequestID()
+public int getRequestID()
 {
     return requestID; 
 }
 
 /** Setter for {@link MinefieldDataPdu#pduSequenceNumber}
-  * @param pPduSequenceNumber new value of interest
+  * @param pPduSequenceNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized MinefieldDataPdu setPduSequenceNumber(byte pPduSequenceNumber)
+public synchronized MinefieldDataPdu setPduSequenceNumber(int pPduSequenceNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPduSequenceNumber >= 0 && pPduSequenceNumber <= 255, "Value outside valid value space");
     pduSequenceNumber = pPduSequenceNumber;
-    return this;
-}
-/** Utility setter for {@link MinefieldDataPdu#pduSequenceNumber}
-  * @param pPduSequenceNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MinefieldDataPdu setPduSequenceNumber(int pPduSequenceNumber){
-    pduSequenceNumber = (byte) pPduSequenceNumber;
     return this;
 }
 /** Getter for {@link MinefieldDataPdu#pduSequenceNumber}
   * @return value of interest */
-public byte getPduSequenceNumber()
+public int getPduSequenceNumber()
 {
     return pduSequenceNumber; 
 }
 
 /** Setter for {@link MinefieldDataPdu#numberOfPdus}
-  * @param pNumberOfPdus new value of interest
+  * @param pNumberOfPdus new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized MinefieldDataPdu setNumberOfPdus(byte pNumberOfPdus)
+public synchronized MinefieldDataPdu setNumberOfPdus(int pNumberOfPdus)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pNumberOfPdus >= 0 && pNumberOfPdus <= 255, "Value outside valid value space");
     numberOfPdus = pNumberOfPdus;
-    return this;
-}
-/** Utility setter for {@link MinefieldDataPdu#numberOfPdus}
-  * @param pNumberOfPdus new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MinefieldDataPdu setNumberOfPdus(int pNumberOfPdus){
-    numberOfPdus = (byte) pNumberOfPdus;
     return this;
 }
 /** Getter for {@link MinefieldDataPdu#numberOfPdus}
   * @return value of interest */
-public byte getNumberOfPdus()
+public int getNumberOfPdus()
 {
     return numberOfPdus; 
 }
 
-/** Setter for {@link MinefieldDataPdu#padding}
-  * @param pPadding new value of interest
+/** Setter for {@link MinefieldDataPdu#padding1}
+  * @param pPadding1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized MinefieldDataPdu setPadding(byte pPadding)
+public synchronized MinefieldDataPdu setPadding1(int pPadding1)
 {
-    padding = pPadding;
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 255, "Value outside valid value space");
+    padding1 = pPadding1;
     return this;
 }
-/** Utility setter for {@link MinefieldDataPdu#padding}
-  * @param pPadding new value of interest
-  * @return same object to permit progressive setters */
-public synchronized MinefieldDataPdu setPadding(int pPadding){
-    padding = (byte) pPadding;
-    return this;
-}
-/** Getter for {@link MinefieldDataPdu#padding}
+/** Getter for {@link MinefieldDataPdu#padding1}
   * @return value of interest */
-public byte getPadding()
+public int getPadding1()
 {
-    return padding; 
+    return padding1; 
 }
 
 /** Setter for {@link MinefieldDataPdu#dataFilter}
@@ -683,17 +667,18 @@ public byte[] getNumberOfVertices()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        minefieldID.marshal(dos);
        requestingEntityID.marshal(dos);
-       dos.writeShort(minefieldSequenceNumbeer);
-       dos.writeByte(requestID);
-       dos.writeByte(pduSequenceNumber);
-       dos.writeByte(numberOfPdus);
+       dos.writeShort((short) minefieldSequenceNumbeer);
+       dos.writeByte((byte) requestID);
+       dos.writeByte((byte) pduSequenceNumber);
+       dos.writeByte((byte) numberOfPdus);
+       // Count in primitive instances
        dos.writeByte(numberOfVertices.length);
        dos.writeByte(sensorTypes.size());
-       dos.writeByte(padding);
+       dos.writeByte((byte) padding1);
        dataFilter.marshal(dos);
        mineType.marshal(dos);
 
@@ -703,7 +688,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aMinefieldSensorType.marshal(dos);
        }
 
-       padTo32 = new byte[Align.to32bits(dos)];
+       padding2 = new byte[Align.to32bits(dos)];
 
        for (int idx = 0; idx < mineLocation.size(); idx++)
        {
@@ -767,20 +752,16 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aMinefieldDataPaintScheme.marshal(dos);
        }
 
-       padTo32_2 = new byte[Align.to32bits(dos)];
+       padding3 = new byte[Align.to32bits(dos)];
 
        for (int idx = 0; idx < numberOfTripDetonationWires.length; idx++)
            dos.writeByte(numberOfTripDetonationWires[idx]);
 
-       padTo32_3 = new byte[Align.to32bits(dos)];
+       padding4 = new byte[Align.to32bits(dos)];
 
        for (int idx = 0; idx < numberOfVertices.length; idx++)
            dos.writeByte(numberOfVertices[idx]);
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -798,105 +779,110 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += minefieldID.unmarshal(dis);
         uPosition += requestingEntityID.unmarshal(dis);
-        minefieldSequenceNumbeer = (short)dis.readUnsignedShort();
+        minefieldSequenceNumbeer = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        requestID = (byte)dis.readUnsignedByte();
+        requestID = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        pduSequenceNumber = (byte)dis.readUnsignedByte();
+        pduSequenceNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfPdus = (byte)dis.readUnsignedByte();
+        numberOfPdus = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfMinesInThisPdu = (byte)dis.readUnsignedByte();
+        numberOfMinesInThisPdu = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        numberOfSensorTypes = (byte)dis.readUnsignedByte();
+        numberOfSensorTypes = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        padding = (byte)dis.readUnsignedByte();
+        padding1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += dataFilter.unmarshal(dis);
         uPosition += mineType.unmarshal(dis);
-        for (int idx = 0; idx < numberOfSensorTypes; idx++)
+        for (int idx = 0; idx < ((Number) numberOfSensorTypes).intValue(); idx++)
         {
             MinefieldSensorType anX = new MinefieldSensorType();
             uPosition += anX.unmarshal(dis);
             sensorTypes.add(anX);
         }
 
-        padTo32 = new byte[Align.from32bits(uPosition,dis)];
-        uPosition += padTo32.length;
-        for (int idx = 0; idx < numberOfMinesInThisPdu; idx++)
+        padding2 = new byte[Align.from32bits(uPosition,dis)];
+        uPosition += padding2.length;
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
         {
             Vector3Float anX = new Vector3Float();
             uPosition += anX.unmarshal(dis);
             mineLocation.add(anX);
         }
 
-        for (int idx = 0; idx < groundBurialDepthOffset.length; idx++)
+        groundBurialDepthOffset = new float[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             groundBurialDepthOffset[idx] = dis.readFloat();
         uPosition += (groundBurialDepthOffset.length * 4);
-        for (int idx = 0; idx < waterBurialDepthOffset.length; idx++)
+        waterBurialDepthOffset = new float[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             waterBurialDepthOffset[idx] = dis.readFloat();
         uPosition += (waterBurialDepthOffset.length * 4);
-        for (int idx = 0; idx < snowBurialDepthOffset.length; idx++)
+        snowBurialDepthOffset = new float[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             snowBurialDepthOffset[idx] = dis.readFloat();
         uPosition += (snowBurialDepthOffset.length * 4);
-        for (int idx = 0; idx < numberOfMinesInThisPdu; idx++)
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
         {
             EulerAngles anX = new EulerAngles();
             uPosition += anX.unmarshal(dis);
             mineOrientation.add(anX);
         }
 
-        for (int idx = 0; idx < thermalContrast.length; idx++)
+        thermalContrast = new float[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             thermalContrast[idx] = dis.readFloat();
         uPosition += (thermalContrast.length * 4);
-        for (int idx = 0; idx < reflectance.length; idx++)
+        reflectance = new float[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             reflectance[idx] = dis.readFloat();
         uPosition += (reflectance.length * 4);
-        for (int idx = 0; idx < numberOfMinesInThisPdu; idx++)
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
         {
             MineEmplacementTime anX = new MineEmplacementTime();
             uPosition += anX.unmarshal(dis);
             mineEmplacementTime.add(anX);
         }
 
-        for (int idx = 0; idx < mineEntityNumber.length; idx++)
+        mineEntityNumber = new short[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             mineEntityNumber[idx] = dis.readShort();
         uPosition += (mineEntityNumber.length * 2);
-        for (int idx = 0; idx < numberOfMinesInThisPdu; idx++)
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
         {
             MinefieldDataFusing anX = new MinefieldDataFusing();
             uPosition += anX.unmarshal(dis);
             fusing.add(anX);
         }
 
-        for (int idx = 0; idx < scalarDetectionCoefficient.length; idx++)
+        scalarDetectionCoefficient = new byte[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             scalarDetectionCoefficient[idx] = dis.readByte();
         uPosition += (scalarDetectionCoefficient.length * 1);
-        for (int idx = 0; idx < numberOfMinesInThisPdu; idx++)
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
         {
             MinefieldDataPaintScheme anX = new MinefieldDataPaintScheme();
             uPosition += anX.unmarshal(dis);
             paintScheme.add(anX);
         }
 
-        padTo32_2 = new byte[Align.from32bits(uPosition,dis)];
-        uPosition += padTo32_2.length;
-        for (int idx = 0; idx < numberOfTripDetonationWires.length; idx++)
+        padding3 = new byte[Align.from32bits(uPosition,dis)];
+        uPosition += padding3.length;
+        numberOfTripDetonationWires = new byte[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             numberOfTripDetonationWires[idx] = dis.readByte();
         uPosition += (numberOfTripDetonationWires.length * 1);
-        padTo32_3 = new byte[Align.from32bits(uPosition,dis)];
-        uPosition += padTo32_3.length;
-        for (int idx = 0; idx < numberOfVertices.length; idx++)
+        padding4 = new byte[Align.from32bits(uPosition,dis)];
+        uPosition += padding4.length;
+        numberOfVertices = new byte[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             numberOfVertices[idx] = dis.readByte();
         uPosition += (numberOfVertices.length * 1);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -915,13 +901,14 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    super.marshal(byteBuffer);
    minefieldID.marshal(byteBuffer);
    requestingEntityID.marshal(byteBuffer);
-   byteBuffer.putShort( (short)minefieldSequenceNumbeer);
-   byteBuffer.put( (byte)requestID);
-   byteBuffer.put( (byte)pduSequenceNumber);
-   byteBuffer.put( (byte)numberOfPdus);
-   byteBuffer.put( (byte)numberOfVertices.length);
+   byteBuffer.putShort((short) minefieldSequenceNumbeer);
+   byteBuffer.put((byte) requestID);
+   byteBuffer.put((byte) pduSequenceNumber);
+   byteBuffer.put((byte) numberOfPdus);
+   // Count in primitive instances
+   byteBuffer.put((byte) numberOfVertices.length);
    byteBuffer.put( (byte)sensorTypes.size());
-   byteBuffer.put( (byte)padding);
+   byteBuffer.put((byte) padding1);
    dataFilter.marshal(byteBuffer);
    mineType.marshal(byteBuffer);
 
@@ -931,7 +918,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
         aMinefieldSensorType.marshal(byteBuffer);
    }
 
-   padTo32 = new byte[Align.to32bits(byteBuffer)];
+   padding2 = new byte[Align.to32bits(byteBuffer)];
 
    for (int idx = 0; idx < mineLocation.size(); idx++)
    {
@@ -995,12 +982,12 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
         aMinefieldDataPaintScheme.marshal(byteBuffer);
    }
 
-   padTo32_2 = new byte[Align.to32bits(byteBuffer)];
+   padding3 = new byte[Align.to32bits(byteBuffer)];
 
    for (int idx = 0; idx < numberOfTripDetonationWires.length; idx++)
        byteBuffer.put((byte)numberOfTripDetonationWires[idx]);
 
-   padTo32_3 = new byte[Align.to32bits(byteBuffer)];
+   padding4 = new byte[Align.to32bits(byteBuffer)];
 
    for (int idx = 0; idx < numberOfVertices.length; idx++)
        byteBuffer.put((byte)numberOfVertices[idx]);
@@ -1021,117 +1008,398 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute minefieldID marked as not serialized
         minefieldID.unmarshal(byteBuffer);
-        // attribute requestingEntityID marked as not serialized
         requestingEntityID.unmarshal(byteBuffer);
-        // attribute minefieldSequenceNumbeer marked as not serialized
-        minefieldSequenceNumbeer = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute requestID marked as not serialized
-        requestID = (byte)(byteBuffer.get() & 0xFF);
-        // attribute pduSequenceNumber marked as not serialized
-        pduSequenceNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfPdus marked as not serialized
-        numberOfPdus = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfMinesInThisPdu marked as not serialized
-        numberOfMinesInThisPdu = (byte)(byteBuffer.get() & 0xFF);
-        // attribute numberOfSensorTypes marked as not serialized
-        numberOfSensorTypes = (byte)(byteBuffer.get() & 0xFF);
-        // attribute padding marked as not serialized
-        padding = (byte)(byteBuffer.get() & 0xFF);
-        // attribute dataFilter marked as not serialized
+        minefieldSequenceNumbeer = Short.toUnsignedInt(byteBuffer.getShort());
+        requestID = Byte.toUnsignedInt(byteBuffer.get());
+        pduSequenceNumber = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfPdus = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfMinesInThisPdu = Byte.toUnsignedInt(byteBuffer.get());
+        numberOfSensorTypes = Byte.toUnsignedInt(byteBuffer.get());
+        padding1 = Byte.toUnsignedInt(byteBuffer.get());
         dataFilter.unmarshal(byteBuffer);
-        // attribute mineType marked as not serialized
         mineType.unmarshal(byteBuffer);
-        // attribute sensorTypes marked as not serialized
-        for (int idx = 0; idx < numberOfSensorTypes; idx++)
+        for (int idx = 0; idx < ((Number) numberOfSensorTypes).intValue(); idx++)
         {
-        MinefieldSensorType anX = new MinefieldSensorType();
-        anX.unmarshal(byteBuffer);
-        sensorTypes.add(anX);
+            MinefieldSensorType anX = new MinefieldSensorType();
+            anX.unmarshal(byteBuffer);
+            sensorTypes.add(anX);
         }
 
-        // attribute padTo32 marked as not serialized
-        padTo32 = new byte[Align.from32bits(byteBuffer)];
-        // attribute mineLocation marked as not serialized
-        for (int idx = 0; idx < numberOfMinesInThisPdu; idx++)
+        padding2 = new byte[Align.from32bits(byteBuffer)];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
         {
-        Vector3Float anX = new Vector3Float();
-        anX.unmarshal(byteBuffer);
-        mineLocation.add(anX);
+            Vector3Float anX = new Vector3Float();
+            anX.unmarshal(byteBuffer);
+            mineLocation.add(anX);
         }
 
-        // attribute groundBurialDepthOffset marked as not serialized
-        for (int idx = 0; idx < groundBurialDepthOffset.length; idx++)
+        groundBurialDepthOffset = new float[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             groundBurialDepthOffset[idx] = byteBuffer.getFloat();
-        // attribute waterBurialDepthOffset marked as not serialized
-        for (int idx = 0; idx < waterBurialDepthOffset.length; idx++)
+        waterBurialDepthOffset = new float[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             waterBurialDepthOffset[idx] = byteBuffer.getFloat();
-        // attribute snowBurialDepthOffset marked as not serialized
-        for (int idx = 0; idx < snowBurialDepthOffset.length; idx++)
+        snowBurialDepthOffset = new float[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             snowBurialDepthOffset[idx] = byteBuffer.getFloat();
-        // attribute mineOrientation marked as not serialized
-        for (int idx = 0; idx < numberOfMinesInThisPdu; idx++)
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
         {
-        EulerAngles anX = new EulerAngles();
-        anX.unmarshal(byteBuffer);
-        mineOrientation.add(anX);
+            EulerAngles anX = new EulerAngles();
+            anX.unmarshal(byteBuffer);
+            mineOrientation.add(anX);
         }
 
-        // attribute thermalContrast marked as not serialized
-        for (int idx = 0; idx < thermalContrast.length; idx++)
+        thermalContrast = new float[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             thermalContrast[idx] = byteBuffer.getFloat();
-        // attribute reflectance marked as not serialized
-        for (int idx = 0; idx < reflectance.length; idx++)
+        reflectance = new float[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             reflectance[idx] = byteBuffer.getFloat();
-        // attribute mineEmplacementTime marked as not serialized
-        for (int idx = 0; idx < numberOfMinesInThisPdu; idx++)
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
         {
-        MineEmplacementTime anX = new MineEmplacementTime();
-        anX.unmarshal(byteBuffer);
-        mineEmplacementTime.add(anX);
+            MineEmplacementTime anX = new MineEmplacementTime();
+            anX.unmarshal(byteBuffer);
+            mineEmplacementTime.add(anX);
         }
 
-        // attribute mineEntityNumber marked as not serialized
-        for (int idx = 0; idx < mineEntityNumber.length; idx++)
+        mineEntityNumber = new short[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             mineEntityNumber[idx] = byteBuffer.getShort();
-        // attribute fusing marked as not serialized
-        for (int idx = 0; idx < numberOfMinesInThisPdu; idx++)
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
         {
-        MinefieldDataFusing anX = new MinefieldDataFusing();
-        anX.unmarshal(byteBuffer);
-        fusing.add(anX);
+            MinefieldDataFusing anX = new MinefieldDataFusing();
+            anX.unmarshal(byteBuffer);
+            fusing.add(anX);
         }
 
-        // attribute scalarDetectionCoefficient marked as not serialized
-        for (int idx = 0; idx < scalarDetectionCoefficient.length; idx++)
+        scalarDetectionCoefficient = new byte[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             scalarDetectionCoefficient[idx] = byteBuffer.get();
-        // attribute paintScheme marked as not serialized
-        for (int idx = 0; idx < numberOfMinesInThisPdu; idx++)
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
         {
-        MinefieldDataPaintScheme anX = new MinefieldDataPaintScheme();
-        anX.unmarshal(byteBuffer);
-        paintScheme.add(anX);
+            MinefieldDataPaintScheme anX = new MinefieldDataPaintScheme();
+            anX.unmarshal(byteBuffer);
+            paintScheme.add(anX);
         }
 
-        // attribute padTo32_2 marked as not serialized
-        padTo32_2 = new byte[Align.from32bits(byteBuffer)];
-        // attribute numberOfTripDetonationWires marked as not serialized
-        for (int idx = 0; idx < numberOfTripDetonationWires.length; idx++)
+        padding3 = new byte[Align.from32bits(byteBuffer)];
+        numberOfTripDetonationWires = new byte[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             numberOfTripDetonationWires[idx] = byteBuffer.get();
-        // attribute padTo32_3 marked as not serialized
-        padTo32_3 = new byte[Align.from32bits(byteBuffer)];
-        // attribute numberOfVertices marked as not serialized
-        for (int idx = 0; idx < numberOfVertices.length; idx++)
+        padding4 = new byte[Align.from32bits(byteBuffer)];
+        numberOfVertices = new byte[((Number) numberOfMinesInThisPdu).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfMinesInThisPdu).intValue(); idx++)
             numberOfVertices[idx] = byteBuffer.get();
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = MinefieldFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("minefieldID", MinefieldIdentifier.fromBufferToMap(byteBuffer));
+    map.put("requestingEntityID", SimulationIdentifier.fromBufferToMap(byteBuffer));
+    map.put("minefieldSequenceNumbeer", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("requestID", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("pduSequenceNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfPdus", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfMinesInThisPdu", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("numberOfSensorTypes", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("padding1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("dataFilter", DataFilterRecord.fromBufferToMap(byteBuffer));
+    map.put("mineType", EntityType.fromBufferToMap(byteBuffer));
+    List sensorTypes = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfSensorTypes")).intValue(); idx++)
+    {
+        sensorTypes.add(MinefieldSensorType.fromBufferToMap(byteBuffer));
+    }
+    map.put("sensorTypes", sensorTypes);
+
+    map.put("padding2", new byte[Align.from32bits(byteBuffer)]);
+    List mineLocation = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+    {
+        mineLocation.add(Vector3Float.fromBufferToMap(byteBuffer));
+    }
+    map.put("mineLocation", mineLocation);
+
+    // Valid primitive list varying length
+    float[] groundBurialDepthOffset = new float[((Number) map.get("numberOfMinesInThisPdu")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        groundBurialDepthOffset[idx] = byteBuffer.getFloat();
+    map.put("groundBurialDepthOffset", groundBurialDepthOffset);
+    // Valid primitive list varying length
+    float[] waterBurialDepthOffset = new float[((Number) map.get("numberOfMinesInThisPdu")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        waterBurialDepthOffset[idx] = byteBuffer.getFloat();
+    map.put("waterBurialDepthOffset", waterBurialDepthOffset);
+    // Valid primitive list varying length
+    float[] snowBurialDepthOffset = new float[((Number) map.get("numberOfMinesInThisPdu")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        snowBurialDepthOffset[idx] = byteBuffer.getFloat();
+    map.put("snowBurialDepthOffset", snowBurialDepthOffset);
+    List mineOrientation = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+    {
+        mineOrientation.add(EulerAngles.fromBufferToMap(byteBuffer));
+    }
+    map.put("mineOrientation", mineOrientation);
+
+    // Valid primitive list varying length
+    float[] thermalContrast = new float[((Number) map.get("numberOfMinesInThisPdu")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        thermalContrast[idx] = byteBuffer.getFloat();
+    map.put("thermalContrast", thermalContrast);
+    // Valid primitive list varying length
+    float[] reflectance = new float[((Number) map.get("numberOfMinesInThisPdu")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        reflectance[idx] = byteBuffer.getFloat();
+    map.put("reflectance", reflectance);
+    List mineEmplacementTime = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+    {
+        mineEmplacementTime.add(MineEmplacementTime.fromBufferToMap(byteBuffer));
+    }
+    map.put("mineEmplacementTime", mineEmplacementTime);
+
+    // Valid primitive list varying length
+    short[] mineEntityNumber = new short[((Number) map.get("numberOfMinesInThisPdu")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        mineEntityNumber[idx] = byteBuffer.getShort();
+    map.put("mineEntityNumber", mineEntityNumber);
+    List fusing = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+    {
+        fusing.add(MinefieldDataFusing.unmarshallRawValue(byteBuffer));
+    }
+    map.put("fusing", fusing);
+
+    // Valid primitive list varying length
+    byte[] scalarDetectionCoefficient = new byte[((Number) map.get("numberOfMinesInThisPdu")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        scalarDetectionCoefficient[idx] = byteBuffer.get();
+    map.put("scalarDetectionCoefficient", scalarDetectionCoefficient);
+    List paintScheme = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+    {
+        paintScheme.add(MinefieldDataPaintScheme.unmarshallRawValue(byteBuffer));
+    }
+    map.put("paintScheme", paintScheme);
+
+    map.put("padding3", new byte[Align.from32bits(byteBuffer)]);
+    // Valid primitive list varying length
+    byte[] numberOfTripDetonationWires = new byte[((Number) map.get("numberOfMinesInThisPdu")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        numberOfTripDetonationWires[idx] = byteBuffer.get();
+    map.put("numberOfTripDetonationWires", numberOfTripDetonationWires);
+    map.put("padding4", new byte[Align.from32bits(byteBuffer)]);
+    // Valid primitive list varying length
+    byte[] numberOfVertices = new byte[((Number) map.get("numberOfMinesInThisPdu")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        numberOfVertices[idx] = byteBuffer.get();
+    map.put("numberOfVertices", numberOfVertices);
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    MinefieldFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    MinefieldIdentifier.fromMapToBuffer((PduMap) map.get("minefieldID"), byteBuffer);
+    SimulationIdentifier.fromMapToBuffer((PduMap) map.get("requestingEntityID"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("minefieldSequenceNumbeer")).shortValue());
+    byteBuffer.put(((Number) map.get("requestID")).byteValue());
+    byteBuffer.put(((Number) map.get("pduSequenceNumber")).byteValue());
+    byteBuffer.put(((Number) map.get("numberOfPdus")).byteValue());
+    byteBuffer.put(((Number) map.get("numberOfMinesInThisPdu")).byteValue());
+    byteBuffer.put(((Number) map.get("numberOfSensorTypes")).byteValue());
+    byteBuffer.put(((Number) map.get("padding1")).byteValue());
+    DataFilterRecord.fromMapToBuffer((PduMap) map.get("dataFilter"), byteBuffer);
+    EntityType.fromMapToBuffer((PduMap) map.get("mineType"), byteBuffer);
+
+    List sensorTypes = (List) map.get("sensorTypes");
+    for (int idx = 0; idx < ((Number) map.get("numberOfSensorTypes")).intValue(); idx++)
+    {
+        MinefieldSensorType.fromMapToBuffer((PduMap) sensorTypes.get(idx), byteBuffer);
+    }
+
+    byte[] padding2 = new byte[Align.to32bits(byteBuffer)];
+
+    List mineLocation = (List) map.get("mineLocation");
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+    {
+        Vector3Float.fromMapToBuffer((PduMap) mineLocation.get(idx), byteBuffer);
+    }
+
+
+    float[] groundBurialDepthOffset = (float[]) map.get("groundBurialDepthOffset");
+    for (int idx = 0; idx < groundBurialDepthOffset.length; idx++)
+        byteBuffer.putFloat(groundBurialDepthOffset[idx]);
+
+
+    float[] waterBurialDepthOffset = (float[]) map.get("waterBurialDepthOffset");
+    for (int idx = 0; idx < waterBurialDepthOffset.length; idx++)
+        byteBuffer.putFloat(waterBurialDepthOffset[idx]);
+
+
+    float[] snowBurialDepthOffset = (float[]) map.get("snowBurialDepthOffset");
+    for (int idx = 0; idx < snowBurialDepthOffset.length; idx++)
+        byteBuffer.putFloat(snowBurialDepthOffset[idx]);
+
+
+    List mineOrientation = (List) map.get("mineOrientation");
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+    {
+        EulerAngles.fromMapToBuffer((PduMap) mineOrientation.get(idx), byteBuffer);
+    }
+
+
+    float[] thermalContrast = (float[]) map.get("thermalContrast");
+    for (int idx = 0; idx < thermalContrast.length; idx++)
+        byteBuffer.putFloat(thermalContrast[idx]);
+
+
+    float[] reflectance = (float[]) map.get("reflectance");
+    for (int idx = 0; idx < reflectance.length; idx++)
+        byteBuffer.putFloat(reflectance[idx]);
+
+
+    List mineEmplacementTime = (List) map.get("mineEmplacementTime");
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+    {
+        MineEmplacementTime.fromMapToBuffer((PduMap) mineEmplacementTime.get(idx), byteBuffer);
+    }
+
+
+    short[] mineEntityNumber = (short[]) map.get("mineEntityNumber");
+    for (int idx = 0; idx < mineEntityNumber.length; idx++)
+        byteBuffer.putShort(mineEntityNumber[idx]);
+
+
+    List fusing = (List) map.get("fusing");
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+    {
+        MinefieldDataFusing.marshallRawValue(((Number) fusing.get(idx)).intValue(), byteBuffer);
+    }
+
+
+    byte[] scalarDetectionCoefficient = (byte[]) map.get("scalarDetectionCoefficient");
+    for (int idx = 0; idx < scalarDetectionCoefficient.length; idx++)
+        byteBuffer.put(scalarDetectionCoefficient[idx]);
+
+
+    List paintScheme = (List) map.get("paintScheme");
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+    {
+        MinefieldDataPaintScheme.marshallRawValue(((Number) paintScheme.get(idx)).intValue(), byteBuffer);
+    }
+
+    byte[] padding3 = new byte[Align.to32bits(byteBuffer)];
+
+    byte[] numberOfTripDetonationWires = (byte[]) map.get("numberOfTripDetonationWires");
+    for (int idx = 0; idx < numberOfTripDetonationWires.length; idx++)
+        byteBuffer.put(numberOfTripDetonationWires[idx]);
+
+    byte[] padding4 = new byte[Align.to32bits(byteBuffer)];
+
+    byte[] numberOfVertices = (byte[]) map.get("numberOfVertices");
+    for (int idx = 0; idx < numberOfVertices.length; idx++)
+        byteBuffer.put(numberOfVertices[idx]);
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += MinefieldFamilyPdu.getMarshalledSize(map);
+    marshalSize += MinefieldIdentifier.getMarshalledSize((PduMap) map.get("minefieldID"));
+    marshalSize += SimulationIdentifier.getMarshalledSize((PduMap) map.get("requestingEntityID"));
+    marshalSize += 2;  // minefieldSequenceNumbeer
+    marshalSize += 1;  // requestID
+    marshalSize += 1;  // pduSequenceNumber
+    marshalSize += 1;  // numberOfPdus
+    marshalSize += 1;  // numberOfMinesInThisPdu
+    marshalSize += 1;  // numberOfSensorTypes
+    marshalSize += 1;  // padding1
+    marshalSize += DataFilterRecord.getMarshalledSize((PduMap) map.get("dataFilter"));
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("mineType"));
+    List sensorTypes = (List) map.get("sensorTypes");
+    for (int idx = 0; idx < ((Number) map.get("numberOfSensorTypes")).intValue(); idx++)
+        marshalSize += MinefieldSensorType.getMarshalledSize((PduMap) sensorTypes.get(idx));
+    marshalSize += ((byte[]) map.get("padding2")).length;
+    List mineLocation = (List) map.get("mineLocation");
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        marshalSize += Vector3Float.getMarshalledSize((PduMap) mineLocation.get(idx));
+    float[] groundBurialDepthOffset = (float[]) map.get("groundBurialDepthOffset");
+    for (int idx = 0; idx < groundBurialDepthOffset.length; idx++)
+        marshalSize += 4;
+    float[] waterBurialDepthOffset = (float[]) map.get("waterBurialDepthOffset");
+    for (int idx = 0; idx < waterBurialDepthOffset.length; idx++)
+        marshalSize += 4;
+    float[] snowBurialDepthOffset = (float[]) map.get("snowBurialDepthOffset");
+    for (int idx = 0; idx < snowBurialDepthOffset.length; idx++)
+        marshalSize += 4;
+    List mineOrientation = (List) map.get("mineOrientation");
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        marshalSize += EulerAngles.getMarshalledSize((PduMap) mineOrientation.get(idx));
+    float[] thermalContrast = (float[]) map.get("thermalContrast");
+    for (int idx = 0; idx < thermalContrast.length; idx++)
+        marshalSize += 4;
+    float[] reflectance = (float[]) map.get("reflectance");
+    for (int idx = 0; idx < reflectance.length; idx++)
+        marshalSize += 4;
+    List mineEmplacementTime = (List) map.get("mineEmplacementTime");
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        marshalSize += MineEmplacementTime.getMarshalledSize((PduMap) mineEmplacementTime.get(idx));
+    short[] mineEntityNumber = (short[]) map.get("mineEntityNumber");
+    for (int idx = 0; idx < mineEntityNumber.length; idx++)
+        marshalSize += 2;
+    List fusing = (List) map.get("fusing");
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        marshalSize += MinefieldDataFusing.getByteLength();
+    byte[] scalarDetectionCoefficient = (byte[]) map.get("scalarDetectionCoefficient");
+    for (int idx = 0; idx < scalarDetectionCoefficient.length; idx++)
+        marshalSize += 1;
+    List paintScheme = (List) map.get("paintScheme");
+    for (int idx = 0; idx < ((Number) map.get("numberOfMinesInThisPdu")).intValue(); idx++)
+        marshalSize += MinefieldDataPaintScheme.getByteLength();
+    marshalSize += ((byte[]) map.get("padding3")).length;
+    byte[] numberOfTripDetonationWires = (byte[]) map.get("numberOfTripDetonationWires");
+    for (int idx = 0; idx < numberOfTripDetonationWires.length; idx++)
+        marshalSize += 1;
+    marshalSize += ((byte[]) map.get("padding4")).length;
+    byte[] numberOfVertices = (byte[]) map.get("numberOfVertices");
+    for (int idx = 0; idx < numberOfVertices.length; idx++)
+        marshalSize += 1;
+
+    return marshalSize;
 }
 
  /*
@@ -1163,7 +1431,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
      if( ! (requestID == rhs.requestID)) return false;
      if( ! (pduSequenceNumber == rhs.pduSequenceNumber)) return false;
      if( ! (numberOfPdus == rhs.numberOfPdus)) return false;
-     if( ! (padding == rhs.padding)) return false;
+     if( ! (padding1 == rhs.padding1)) return false;
      if( ! Objects.equals(dataFilter, rhs.dataFilter) ) return false;
      if( ! Objects.equals(mineType, rhs.mineType) ) return false;
      if( ! Objects.equals(sensorTypes, rhs.sensorTypes) ) return false;
@@ -1234,17 +1502,17 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" minefieldID:").append(minefieldID); // writeOneToString
     sb.append(" requestingEntityID:").append(requestingEntityID); // writeOneToString
     sb.append(" minefieldSequenceNumbeer:").append(minefieldSequenceNumbeer); // writeOneToString
     sb.append(" requestID:").append(requestID); // writeOneToString
     sb.append(" pduSequenceNumber:").append(pduSequenceNumber); // writeOneToString
     sb.append(" numberOfPdus:").append(numberOfPdus); // writeOneToString
-    sb.append(" padding:").append(padding); // writeOneToString
+    sb.append(" padding1:").append(padding1); // writeOneToString
     sb.append(" dataFilter:").append(dataFilter); // writeOneToString
     sb.append(" mineType:").append(mineType); // writeOneToString
-    sb.append(" padTo32:").append(padTo32); // writeOneToString
+    sb.append(" padding2:").append(padding2); // writeOneToString
     sb.append(" groundBurialDepthOffset:");
     sb.append(Arrays.toString(groundBurialDepthOffset)); // writePrimitiveList
     sb.append(" waterBurialDepthOffset:");
@@ -1259,10 +1527,10 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     sb.append(Arrays.toString(mineEntityNumber)); // writePrimitiveList
     sb.append(" scalarDetectionCoefficient:");
     sb.append(Arrays.toString(scalarDetectionCoefficient)); // writePrimitiveList
-    sb.append(" padTo32_2:").append(padTo32_2); // writeOneToString
+    sb.append(" padding3:").append(padding3); // writeOneToString
     sb.append(" numberOfTripDetonationWires:");
     sb.append(Arrays.toString(numberOfTripDetonationWires)); // writePrimitiveList
-    sb.append(" padTo32_3:").append(padTo32_3); // writeOneToString
+    sb.append(" padding4:").append(padding4); // writeOneToString
     sb.append(" numberOfVertices:");
     sb.append(Arrays.toString(numberOfVertices)); // writePrimitiveList
     sb.append(" sensorTypes: ");
@@ -1310,11 +1578,11 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	                     this.numberOfPdus,
 	                     this.numberOfMinesInThisPdu,
 	                     this.numberOfSensorTypes,
-	                     this.padding,
+	                     this.padding1,
 	                     this.dataFilter,
 	                     this.mineType,
 	                     this.sensorTypes,
-	                     this.padTo32,
+	                     this.padding2,
 	                     this.mineLocation,
 	                     this.groundBurialDepthOffset,
 	                     this.waterBurialDepthOffset,
@@ -1327,9 +1595,9 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 	                     this.fusing,
 	                     this.scalarDetectionCoefficient,
 	                     this.paintScheme,
-	                     this.padTo32_2,
+	                     this.padding3,
 	                     this.numberOfTripDetonationWires,
-	                     this.padTo32_3,
+	                     this.padding4,
 	                     this.numberOfVertices);
  }
 } // end of MinefieldDataPdu

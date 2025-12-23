@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Jamming technique. Section 6.2.49, uid 284
@@ -19,17 +21,21 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class JammingTechnique extends Object implements Serializable, Marshaller
 {
-   /** kind is an undescribed parameter... */
-   protected byte kind;
+   /** kind is an undescribed parameter...
+   Value space: uint8 */
+   protected int kind;
 
-   /** category is an undescribed parameter... */
-   protected byte category;
+   /** category is an undescribed parameter...
+   Value space: uint8 */
+   protected int category;
 
-   /** subCategory is an undescribed parameter... */
-   protected byte subCategory;
+   /** subCategory is an undescribed parameter...
+   Value space: uint8 */
+   protected int subCategory;
 
-   /** specific is an undescribed parameter... */
-   protected byte specific;
+   /** specific is an undescribed parameter...
+   Value space: uint8 */
+   protected int specific;
 
 
 /** Constructor creates and configures a new instance object */
@@ -57,89 +63,69 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link JammingTechnique#kind}
-  * @param pKind new value of interest
+  * @param pKind new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized JammingTechnique setKind(byte pKind)
+public synchronized JammingTechnique setKind(int pKind)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pKind >= 0 && pKind <= 255, "Value outside valid value space");
     kind = pKind;
-    return this;
-}
-/** Utility setter for {@link JammingTechnique#kind}
-  * @param pKind new value of interest
-  * @return same object to permit progressive setters */
-public synchronized JammingTechnique setKind(int pKind){
-    kind = (byte) pKind;
     return this;
 }
 /** Getter for {@link JammingTechnique#kind}
   * @return value of interest */
-public byte getKind()
+public int getKind()
 {
     return kind; 
 }
 
 /** Setter for {@link JammingTechnique#category}
-  * @param pCategory new value of interest
+  * @param pCategory new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized JammingTechnique setCategory(byte pCategory)
+public synchronized JammingTechnique setCategory(int pCategory)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pCategory >= 0 && pCategory <= 255, "Value outside valid value space");
     category = pCategory;
-    return this;
-}
-/** Utility setter for {@link JammingTechnique#category}
-  * @param pCategory new value of interest
-  * @return same object to permit progressive setters */
-public synchronized JammingTechnique setCategory(int pCategory){
-    category = (byte) pCategory;
     return this;
 }
 /** Getter for {@link JammingTechnique#category}
   * @return value of interest */
-public byte getCategory()
+public int getCategory()
 {
     return category; 
 }
 
 /** Setter for {@link JammingTechnique#subCategory}
-  * @param pSubCategory new value of interest
+  * @param pSubCategory new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized JammingTechnique setSubCategory(byte pSubCategory)
+public synchronized JammingTechnique setSubCategory(int pSubCategory)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSubCategory >= 0 && pSubCategory <= 255, "Value outside valid value space");
     subCategory = pSubCategory;
-    return this;
-}
-/** Utility setter for {@link JammingTechnique#subCategory}
-  * @param pSubCategory new value of interest
-  * @return same object to permit progressive setters */
-public synchronized JammingTechnique setSubCategory(int pSubCategory){
-    subCategory = (byte) pSubCategory;
     return this;
 }
 /** Getter for {@link JammingTechnique#subCategory}
   * @return value of interest */
-public byte getSubCategory()
+public int getSubCategory()
 {
     return subCategory; 
 }
 
 /** Setter for {@link JammingTechnique#specific}
-  * @param pSpecific new value of interest
+  * @param pSpecific new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized JammingTechnique setSpecific(byte pSpecific)
+public synchronized JammingTechnique setSpecific(int pSpecific)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pSpecific >= 0 && pSpecific <= 255, "Value outside valid value space");
     specific = pSpecific;
-    return this;
-}
-/** Utility setter for {@link JammingTechnique#specific}
-  * @param pSpecific new value of interest
-  * @return same object to permit progressive setters */
-public synchronized JammingTechnique setSpecific(int pSpecific){
-    specific = (byte) pSpecific;
     return this;
 }
 /** Getter for {@link JammingTechnique#specific}
   * @return value of interest */
-public byte getSpecific()
+public int getSpecific()
 {
     return specific; 
 }
@@ -153,16 +139,12 @@ public byte getSpecific()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeByte(kind);
-       dos.writeByte(category);
-       dos.writeByte(subCategory);
-       dos.writeByte(specific);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) kind);
+       dos.writeByte((byte) category);
+       dos.writeByte((byte) subCategory);
+       dos.writeByte((byte) specific);
     }
 }
 
@@ -178,20 +160,16 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        kind = (byte)dis.readUnsignedByte();
+        kind = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        category = (byte)dis.readUnsignedByte();
+        category = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        subCategory = (byte)dis.readUnsignedByte();
+        subCategory = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        specific = (byte)dis.readUnsignedByte();
+        specific = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -207,10 +185,10 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.put( (byte)kind);
-   byteBuffer.put( (byte)category);
-   byteBuffer.put( (byte)subCategory);
-   byteBuffer.put( (byte)specific);
+   byteBuffer.put((byte) kind);
+   byteBuffer.put((byte) category);
+   byteBuffer.put((byte) subCategory);
+   byteBuffer.put((byte) specific);
 }
 
 /**
@@ -225,22 +203,68 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute kind marked as not serialized
-        kind = (byte)(byteBuffer.get() & 0xFF);
-        // attribute category marked as not serialized
-        category = (byte)(byteBuffer.get() & 0xFF);
-        // attribute subCategory marked as not serialized
-        subCategory = (byte)(byteBuffer.get() & 0xFF);
-        // attribute specific marked as not serialized
-        specific = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        kind = Byte.toUnsignedInt(byteBuffer.get());
+        category = Byte.toUnsignedInt(byteBuffer.get());
+        subCategory = Byte.toUnsignedInt(byteBuffer.get());
+        specific = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("kind", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("category", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("subCategory", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("specific", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.put(((Number) map.get("kind")).byteValue());
+    byteBuffer.put(((Number) map.get("category")).byteValue());
+    byteBuffer.put(((Number) map.get("subCategory")).byteValue());
+    byteBuffer.put(((Number) map.get("specific")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 1;  // kind
+    marshalSize += 1;  // category
+    marshalSize += 1;  // subCategory
+    marshalSize += 1;  // specific
+
+    return marshalSize;
 }
 
  /*

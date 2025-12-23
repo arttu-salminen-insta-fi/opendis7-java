@@ -5,6 +5,7 @@
  */
 package edu.nps.moves.dis7.utilities;
 
+import com.google.common.primitives.UnsignedInteger;
 import edu.nps.moves.dis7.enumerations.VariableRecordType;
 import edu.nps.moves.dis7.pdus.CommentPdu;
 import edu.nps.moves.dis7.pdus.EntityID;
@@ -308,7 +309,7 @@ public class DisChannel
      */
     public synchronized void sendSinglePdu(double timestampSeconds, Pdu pdu)
     {
-        pdu.setTimestampSeconds(timestampSeconds);
+        pdu.setTimestampSeconds(timestampSeconds, true);
         sendSinglePdu(pdu);
     }
     
@@ -370,7 +371,7 @@ public class DisChannel
                 // now build the commentPdu from these string inputs, thus constructing a narrative entry
                 @SuppressWarnings("CollectionsToArray")
                 CommentPdu commentPdu = getPduFactory().makeCommentPdu(commentType, newCommentsList.toArray(new String[0])); // comments);
-                commentPdu.setTimestampSeconds(timestampSeconds);
+                commentPdu.setTimestampSeconds(timestampSeconds, true);
 
                 try {
                     // Padding for the VariableDatum records can not be determined until the PDU has been marshalled.

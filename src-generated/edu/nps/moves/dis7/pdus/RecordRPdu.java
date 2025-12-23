@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -24,24 +26,23 @@ public class RecordRPdu extends SimulationManagementWithReliabilityFamilyPdu imp
    /** The name of this PDU type */
    public static final String NAME = "RecordRPdu";
    
-   /** request ID provides a unique identifier */
-   protected int requestID;
+   /** request ID provides a unique identifier 
+   Value space: uint32 */
+   protected UnsignedInteger requestID = UnsignedInteger.ZERO;
 
    /** level of reliability service used for this transaction uid 74 */
    protected RequiredReliabilityService requiredReliabilityService = RequiredReliabilityService.values()[0];
 
-   /** pad1 is an undescribed parameter... */
-   protected byte pad1;
+   /** padding1 is an undescribed parameter...
+   Value space: uint8 */
+   protected int padding1;
 
    /**  uid 333 */
    protected RecordREventType eventType = RecordREventType.values()[0];
 
-   /** Number of record sets in list */
-   protected int numberOfRecordSets;
-
    /** record sets */
-   protected List< RecordSpecification > recordSets = new ArrayList<>();
- 
+   protected RecordSpecification  recordSets = new RecordSpecification(); 
+
 
 /** Constructor creates and configures a new instance object */
  public RecordRPdu()
@@ -125,32 +126,27 @@ public synchronized int getMarshalledSize()
    marshalSize += 4;  // requestID
    if (requiredReliabilityService != null)
        marshalSize += requiredReliabilityService.getMarshalledSize();
-   marshalSize += 1;  // pad1
+   marshalSize += 1;  // padding1
    if (eventType != null)
        marshalSize += eventType.getMarshalledSize();
-   marshalSize += 4;  // numberOfRecordSets
    if (recordSets != null)
-       for (int idx=0; idx < recordSets.size(); idx++)
-       {
-            RecordSpecification listElement = recordSets.get(idx);
-            marshalSize += listElement.getMarshalledSize();
-       }
+       marshalSize += recordSets.getMarshalledSize();
 
    return marshalSize;
 }
 
 
 /** Setter for {@link RecordRPdu#requestID}
-  * @param pRequestID new value of interest
+  * @param pRequestID new value of interest. Value space uint32
   * @return same object to permit progressive setters */
-public synchronized RecordRPdu setRequestID(int pRequestID)
+public synchronized RecordRPdu setRequestID(UnsignedInteger pRequestID)
 {
     requestID = pRequestID;
     return this;
 }
 /** Getter for {@link RecordRPdu#requestID}
   * @return value of interest */
-public int getRequestID()
+public UnsignedInteger getRequestID()
 {
     return requestID; 
 }
@@ -170,26 +166,21 @@ public RequiredReliabilityService getRequiredReliabilityService()
     return requiredReliabilityService; 
 }
 
-/** Setter for {@link RecordRPdu#pad1}
-  * @param pPad1 new value of interest
+/** Setter for {@link RecordRPdu#padding1}
+  * @param pPadding1 new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized RecordRPdu setPad1(byte pPad1)
+public synchronized RecordRPdu setPadding1(int pPadding1)
 {
-    pad1 = pPad1;
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pPadding1 >= 0 && pPadding1 <= 255, "Value outside valid value space");
+    padding1 = pPadding1;
     return this;
 }
-/** Utility setter for {@link RecordRPdu#pad1}
-  * @param pPad1 new value of interest
-  * @return same object to permit progressive setters */
-public synchronized RecordRPdu setPad1(int pPad1){
-    pad1 = (byte) pPad1;
-    return this;
-}
-/** Getter for {@link RecordRPdu#pad1}
+/** Getter for {@link RecordRPdu#padding1}
   * @return value of interest */
-public byte getPad1()
+public int getPadding1()
 {
-    return pad1; 
+    return padding1; 
 }
 
 /** Setter for {@link RecordRPdu#eventType}
@@ -210,17 +201,18 @@ public RecordREventType getEventType()
 /** Setter for {@link RecordRPdu#recordSets}
   * @param pRecordSets new value of interest
   * @return same object to permit progressive setters */
-public synchronized RecordRPdu setRecordSets(List<RecordSpecification> pRecordSets)
+public synchronized RecordRPdu setRecordSets(RecordSpecification pRecordSets)
 {
     recordSets = pRecordSets;
     return this;
 }
 /** Getter for {@link RecordRPdu#recordSets}
   * @return value of interest */
-public List<RecordSpecification> getRecordSets()
+public RecordSpecification getRecordSets()
 {
-    return recordSets; 
+    return recordSets;
 }
+
 
 /**
  * Serializes an object to a DataOutputStream.
@@ -232,24 +224,13 @@ public List<RecordSpecification> getRecordSets()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
-       dos.writeInt(requestID);
+       dos.writeInt(requestID.intValue());
        requiredReliabilityService.marshal(dos);
-       dos.writeByte(pad1);
+       dos.writeByte((byte) padding1);
        eventType.marshal(dos);
-       dos.writeInt(recordSets.size());
-
-       for (int idx = 0; idx < recordSets.size(); idx++)
-       {
-            RecordSpecification aRecordSpecification = recordSets.get(idx);
-            aRecordSpecification.marshal(dos);
-       }
-
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       recordSets.marshal(dos);
     }
 }
 
@@ -267,29 +248,17 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
-        requestID = dis.readInt();
+        requestID = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
         requiredReliabilityService = RequiredReliabilityService.unmarshalEnum(dis);
         uPosition += requiredReliabilityService.getMarshalledSize();
-        pad1 = (byte)dis.readUnsignedByte();
+        padding1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         eventType = RecordREventType.unmarshalEnum(dis);
         uPosition += eventType.getMarshalledSize();
-        numberOfRecordSets = dis.readInt();
-        uPosition += 4;
-        for (int idx = 0; idx < numberOfRecordSets; idx++)
-        {
-            RecordSpecification anX = new RecordSpecification();
-            uPosition += anX.unmarshal(dis);
-            recordSets.add(anX);
-        }
-
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
+        uPosition += recordSets.unmarshal(dis);
     }
     return getMarshalledSize();
 }
@@ -306,18 +275,11 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    super.marshal(byteBuffer);
-   byteBuffer.putInt( (int)requestID);
+   byteBuffer.putInt(requestID.intValue());
    requiredReliabilityService.marshal(byteBuffer);
-   byteBuffer.put( (byte)pad1);
+   byteBuffer.put((byte) padding1);
    eventType.marshal(byteBuffer);
-   byteBuffer.putInt( (int)recordSets.size());
-
-   for (int idx = 0; idx < recordSets.size(); idx++)
-   {
-        RecordSpecification aRecordSpecification = recordSets.get(idx);
-        aRecordSpecification.marshal(byteBuffer);
-   }
-
+   recordSets.marshal(byteBuffer);
 }
 
 /**
@@ -334,32 +296,74 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute requestID marked as not serialized
-        requestID = byteBuffer.getInt();
-        // attribute requiredReliabilityService marked as not serialized
+        requestID = UnsignedInteger.fromIntBits(byteBuffer.getInt());
         requiredReliabilityService = RequiredReliabilityService.unmarshalEnum(byteBuffer);
-        // attribute pad1 marked as not serialized
-        pad1 = (byte)(byteBuffer.get() & 0xFF);
-        // attribute eventType marked as not serialized
+        padding1 = Byte.toUnsignedInt(byteBuffer.get());
         eventType = RecordREventType.unmarshalEnum(byteBuffer);
-        // attribute numberOfRecordSets marked as not serialized
-        numberOfRecordSets = byteBuffer.getInt();
-        // attribute recordSets marked as not serialized
-        for (int idx = 0; idx < numberOfRecordSets; idx++)
-        {
-        RecordSpecification anX = new RecordSpecification();
-        anX.unmarshal(byteBuffer);
-        recordSets.add(anX);
-        }
-
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        recordSets.unmarshal(byteBuffer);
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = SimulationManagementWithReliabilityFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("requestID", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("requiredReliabilityService", RequiredReliabilityService.unmarshalEnum(byteBuffer).getValue());
+    map.put("padding1", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("eventType", RecordREventType.unmarshalEnum(byteBuffer).getValue());
+    map.put("recordSets", RecordSpecification.fromBufferToMap(byteBuffer));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    SimulationManagementWithReliabilityFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    byteBuffer.putInt(((Number) map.get("requestID")).intValue());
+    RequiredReliabilityService.getEnumForValue(((Number) map.get("requiredReliabilityService")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("padding1")).byteValue());
+    RecordREventType.getEnumForValue(((Number) map.get("eventType")).intValue()).marshal(byteBuffer);
+    RecordSpecification.fromMapToBuffer((PduMap) map.get("recordSets"), byteBuffer);
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += SimulationManagementWithReliabilityFamilyPdu.getMarshalledSize(map);
+    marshalSize += 4;  // requestID
+    marshalSize += RequiredReliabilityService.getEnumForValue(((Number) map.get("requiredReliabilityService")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // padding1
+    marshalSize += RecordREventType.getEnumForValue(((Number) map.get("eventType")).intValue()).getMarshalledSize();
+    marshalSize += RecordSpecification.getMarshalledSize((PduMap) map.get("recordSets"));
+
+    return marshalSize;
 }
 
  /*
@@ -387,7 +391,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 
      if( ! (requestID == rhs.requestID)) return false;
      if( ! (requiredReliabilityService == rhs.requiredReliabilityService)) return false;
-     if( ! (pad1 == rhs.pad1)) return false;
+     if( ! (padding1 == rhs.padding1)) return false;
      if( ! (eventType == rhs.eventType)) return false;
      if( ! Objects.equals(recordSets, rhs.recordSets) ) return false;
     return super.equalsImpl(rhs);
@@ -398,16 +402,12 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" requestID:").append(requestID); // writeOneToString
     sb.append(" requiredReliabilityService:").append(requiredReliabilityService); // writeOneToString
-    sb.append(" pad1:").append(pad1); // writeOneToString
+    sb.append(" padding1:").append(padding1); // writeOneToString
     sb.append(" eventType:").append(eventType); // writeOneToString
-    sb.append(" recordSets: ");
-    recordSets.forEach(r->{ sb2.append(" ").append(r);}); // writeList
-    sb.append(sb2.toString().trim());
-    // https://stackoverflow.com/questions/2242471/clearing-a-string-buffer-builder-after-loop
-    sb2.setLength(0); // reset
+    sb.append(" recordSets:").append(recordSets); // writeOneToString
 
    return sb.toString();
  }
@@ -417,9 +417,8 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
 	 return Objects.hash(this.requestID,
 	                     this.requiredReliabilityService,
-	                     this.pad1,
+	                     this.padding1,
 	                     this.eventType,
-	                     this.numberOfRecordSets,
 	                     this.recordSets);
  }
 } // end of RecordRPdu

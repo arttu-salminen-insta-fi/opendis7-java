@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * 16-bit fixed binaries
@@ -19,17 +21,21 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class LiveEntityRelativeWorldCoordinates extends Object implements Serializable, Marshaller
 {
-   /** referencePoint is an undescribed parameter... */
-   protected short referencePoint;
+   /** referencePoint is an undescribed parameter...
+   Value space: uint16 */
+   protected int referencePoint;
 
-   /** deltaX is an undescribed parameter... */
-   protected short deltaX;
+   /** deltaX is an undescribed parameter...
+   Value space: uint16 */
+   protected int deltaX;
 
-   /** deltaY is an undescribed parameter... */
-   protected short deltaY;
+   /** deltaY is an undescribed parameter...
+   Value space: uint16 */
+   protected int deltaY;
 
-   /** deltaZ is an undescribed parameter... */
-   protected short deltaZ;
+   /** deltaZ is an undescribed parameter...
+   Value space: uint16 */
+   protected int deltaZ;
 
 
 /** Constructor creates and configures a new instance object */
@@ -57,89 +63,69 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link LiveEntityRelativeWorldCoordinates#referencePoint}
-  * @param pReferencePoint new value of interest
+  * @param pReferencePoint new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LiveEntityRelativeWorldCoordinates setReferencePoint(short pReferencePoint)
+public synchronized LiveEntityRelativeWorldCoordinates setReferencePoint(int pReferencePoint)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pReferencePoint >= 0 && pReferencePoint <= 65535, "Value outside valid value space");
     referencePoint = pReferencePoint;
-    return this;
-}
-/** Utility setter for {@link LiveEntityRelativeWorldCoordinates#referencePoint}
-  * @param pReferencePoint new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveEntityRelativeWorldCoordinates setReferencePoint(int pReferencePoint){
-    referencePoint = (short) pReferencePoint;
     return this;
 }
 /** Getter for {@link LiveEntityRelativeWorldCoordinates#referencePoint}
   * @return value of interest */
-public short getReferencePoint()
+public int getReferencePoint()
 {
     return referencePoint; 
 }
 
 /** Setter for {@link LiveEntityRelativeWorldCoordinates#deltaX}
-  * @param pDeltaX new value of interest
+  * @param pDeltaX new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LiveEntityRelativeWorldCoordinates setDeltaX(short pDeltaX)
+public synchronized LiveEntityRelativeWorldCoordinates setDeltaX(int pDeltaX)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pDeltaX >= 0 && pDeltaX <= 65535, "Value outside valid value space");
     deltaX = pDeltaX;
-    return this;
-}
-/** Utility setter for {@link LiveEntityRelativeWorldCoordinates#deltaX}
-  * @param pDeltaX new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveEntityRelativeWorldCoordinates setDeltaX(int pDeltaX){
-    deltaX = (short) pDeltaX;
     return this;
 }
 /** Getter for {@link LiveEntityRelativeWorldCoordinates#deltaX}
   * @return value of interest */
-public short getDeltaX()
+public int getDeltaX()
 {
     return deltaX; 
 }
 
 /** Setter for {@link LiveEntityRelativeWorldCoordinates#deltaY}
-  * @param pDeltaY new value of interest
+  * @param pDeltaY new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LiveEntityRelativeWorldCoordinates setDeltaY(short pDeltaY)
+public synchronized LiveEntityRelativeWorldCoordinates setDeltaY(int pDeltaY)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pDeltaY >= 0 && pDeltaY <= 65535, "Value outside valid value space");
     deltaY = pDeltaY;
-    return this;
-}
-/** Utility setter for {@link LiveEntityRelativeWorldCoordinates#deltaY}
-  * @param pDeltaY new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveEntityRelativeWorldCoordinates setDeltaY(int pDeltaY){
-    deltaY = (short) pDeltaY;
     return this;
 }
 /** Getter for {@link LiveEntityRelativeWorldCoordinates#deltaY}
   * @return value of interest */
-public short getDeltaY()
+public int getDeltaY()
 {
     return deltaY; 
 }
 
 /** Setter for {@link LiveEntityRelativeWorldCoordinates#deltaZ}
-  * @param pDeltaZ new value of interest
+  * @param pDeltaZ new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LiveEntityRelativeWorldCoordinates setDeltaZ(short pDeltaZ)
+public synchronized LiveEntityRelativeWorldCoordinates setDeltaZ(int pDeltaZ)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pDeltaZ >= 0 && pDeltaZ <= 65535, "Value outside valid value space");
     deltaZ = pDeltaZ;
-    return this;
-}
-/** Utility setter for {@link LiveEntityRelativeWorldCoordinates#deltaZ}
-  * @param pDeltaZ new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LiveEntityRelativeWorldCoordinates setDeltaZ(int pDeltaZ){
-    deltaZ = (short) pDeltaZ;
     return this;
 }
 /** Getter for {@link LiveEntityRelativeWorldCoordinates#deltaZ}
   * @return value of interest */
-public short getDeltaZ()
+public int getDeltaZ()
 {
     return deltaZ; 
 }
@@ -153,16 +139,12 @@ public short getDeltaZ()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(referencePoint);
-       dos.writeShort(deltaX);
-       dos.writeShort(deltaY);
-       dos.writeShort(deltaZ);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) referencePoint);
+       dos.writeShort((short) deltaX);
+       dos.writeShort((short) deltaY);
+       dos.writeShort((short) deltaZ);
     }
 }
 
@@ -178,20 +160,16 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        referencePoint = (short)dis.readUnsignedShort();
+        referencePoint = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        deltaX = (short)dis.readUnsignedShort();
+        deltaX = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        deltaY = (short)dis.readUnsignedShort();
+        deltaY = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        deltaZ = (short)dis.readUnsignedShort();
+        deltaZ = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -207,10 +185,10 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)referencePoint);
-   byteBuffer.putShort( (short)deltaX);
-   byteBuffer.putShort( (short)deltaY);
-   byteBuffer.putShort( (short)deltaZ);
+   byteBuffer.putShort((short) referencePoint);
+   byteBuffer.putShort((short) deltaX);
+   byteBuffer.putShort((short) deltaY);
+   byteBuffer.putShort((short) deltaZ);
 }
 
 /**
@@ -225,22 +203,68 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute referencePoint marked as not serialized
-        referencePoint = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute deltaX marked as not serialized
-        deltaX = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute deltaY marked as not serialized
-        deltaY = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute deltaZ marked as not serialized
-        deltaZ = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        referencePoint = Short.toUnsignedInt(byteBuffer.getShort());
+        deltaX = Short.toUnsignedInt(byteBuffer.getShort());
+        deltaY = Short.toUnsignedInt(byteBuffer.getShort());
+        deltaZ = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("referencePoint", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("deltaX", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("deltaY", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("deltaZ", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("referencePoint")).shortValue());
+    byteBuffer.putShort(((Number) map.get("deltaX")).shortValue());
+    byteBuffer.putShort(((Number) map.get("deltaY")).shortValue());
+    byteBuffer.putShort(((Number) map.get("deltaZ")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // referencePoint
+    marshalSize += 2;  // deltaX
+    marshalSize += 2;  // deltaY
+    marshalSize += 2;  // deltaZ
+
+    return marshalSize;
 }
 
  /*

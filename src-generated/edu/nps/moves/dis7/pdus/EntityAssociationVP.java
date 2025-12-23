@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Association or disassociation of two entities.  Section 6.2.94.4.3
@@ -43,8 +45,9 @@ public class EntityAssociationVP extends Object implements Serializable, Marshal
    /** Type of member the entity is within the group uid 321 */
    protected EntityAssociationGroupMemberType groupMemberType = EntityAssociationGroupMemberType.values()[0];
 
-   /** Group if any to which the entity belongs */
-   protected short groupNumber;
+   /** Group if any to which the entity belongs 
+   Value space: uint16 */
+   protected int groupNumber;
 
 
 /** Constructor creates and configures a new instance object */
@@ -206,23 +209,18 @@ public EntityAssociationGroupMemberType getGroupMemberType()
 }
 
 /** Setter for {@link EntityAssociationVP#groupNumber}
-  * @param pGroupNumber new value of interest
+  * @param pGroupNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized EntityAssociationVP setGroupNumber(short pGroupNumber)
+public synchronized EntityAssociationVP setGroupNumber(int pGroupNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pGroupNumber >= 0 && pGroupNumber <= 65535, "Value outside valid value space");
     groupNumber = pGroupNumber;
-    return this;
-}
-/** Utility setter for {@link EntityAssociationVP#groupNumber}
-  * @param pGroupNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EntityAssociationVP setGroupNumber(int pGroupNumber){
-    groupNumber = (short) pGroupNumber;
     return this;
 }
 /** Getter for {@link EntityAssociationVP#groupNumber}
   * @return value of interest */
-public short getGroupNumber()
+public int getGroupNumber()
 {
     return groupNumber; 
 }
@@ -236,7 +234,7 @@ public short getGroupNumber()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        recordType.marshal(dos);
        changeIndicator.marshal(dos);
@@ -246,11 +244,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        ownStationLocation.marshal(dos);
        physicalConnectionType.marshal(dos);
        groupMemberType.marshal(dos);
-       dos.writeShort(groupNumber);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) groupNumber);
     }
 }
 
@@ -266,7 +260,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         recordType = VariableParameterRecordType.unmarshalEnum(dis);
         uPosition += recordType.getMarshalledSize();
@@ -283,12 +277,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += physicalConnectionType.getMarshalledSize();
         groupMemberType = EntityAssociationGroupMemberType.unmarshalEnum(dis);
         uPosition += groupMemberType.getMarshalledSize();
-        groupNumber = (short)dis.readUnsignedShort();
+        groupNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -312,7 +302,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    ownStationLocation.marshal(byteBuffer);
    physicalConnectionType.marshal(byteBuffer);
    groupMemberType.marshal(byteBuffer);
-   byteBuffer.putShort( (short)groupNumber);
+   byteBuffer.putShort((short) groupNumber);
 }
 
 /**
@@ -327,32 +317,88 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute recordType marked as not serialized
         recordType = VariableParameterRecordType.unmarshalEnum(byteBuffer);
-        // attribute changeIndicator marked as not serialized
         changeIndicator = EntityVPRecordChangeIndicator.unmarshalEnum(byteBuffer);
-        // attribute associationStatus marked as not serialized
         associationStatus = EntityAssociationAssociationType.unmarshalEnum(byteBuffer);
-        // attribute associationType marked as not serialized
         associationType = EntityAssociationPhysicalAssociationType.unmarshalEnum(byteBuffer);
-        // attribute entityID marked as not serialized
         entityID.unmarshal(byteBuffer);
-        // attribute ownStationLocation marked as not serialized
         ownStationLocation = IsPartOfStationName.unmarshalEnum(byteBuffer);
-        // attribute physicalConnectionType marked as not serialized
         physicalConnectionType = EntityAssociationPhysicalConnectionType.unmarshalEnum(byteBuffer);
-        // attribute groupMemberType marked as not serialized
         groupMemberType = EntityAssociationGroupMemberType.unmarshalEnum(byteBuffer);
-        // attribute groupNumber marked as not serialized
-        groupNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        groupNumber = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("recordType", VariableParameterRecordType.unmarshalEnum(byteBuffer).getValue());
+    map.put("changeIndicator", EntityVPRecordChangeIndicator.unmarshalEnum(byteBuffer).getValue());
+    map.put("associationStatus", EntityAssociationAssociationType.unmarshalEnum(byteBuffer).getValue());
+    map.put("associationType", EntityAssociationPhysicalAssociationType.unmarshalEnum(byteBuffer).getValue());
+    map.put("entityID", EntityID.fromBufferToMap(byteBuffer));
+    map.put("ownStationLocation", IsPartOfStationName.unmarshalEnum(byteBuffer).getValue());
+    map.put("physicalConnectionType", EntityAssociationPhysicalConnectionType.unmarshalEnum(byteBuffer).getValue());
+    map.put("groupMemberType", EntityAssociationGroupMemberType.unmarshalEnum(byteBuffer).getValue());
+    map.put("groupNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    VariableParameterRecordType.getEnumForValue(((Number) map.get("recordType")).intValue()).marshal(byteBuffer);
+    EntityVPRecordChangeIndicator.getEnumForValue(((Number) map.get("changeIndicator")).intValue()).marshal(byteBuffer);
+    EntityAssociationAssociationType.getEnumForValue(((Number) map.get("associationStatus")).intValue()).marshal(byteBuffer);
+    EntityAssociationPhysicalAssociationType.getEnumForValue(((Number) map.get("associationType")).intValue()).marshal(byteBuffer);
+    EntityID.fromMapToBuffer((PduMap) map.get("entityID"), byteBuffer);
+    IsPartOfStationName.getEnumForValue(((Number) map.get("ownStationLocation")).intValue()).marshal(byteBuffer);
+    EntityAssociationPhysicalConnectionType.getEnumForValue(((Number) map.get("physicalConnectionType")).intValue()).marshal(byteBuffer);
+    EntityAssociationGroupMemberType.getEnumForValue(((Number) map.get("groupMemberType")).intValue()).marshal(byteBuffer);
+    byteBuffer.putShort(((Number) map.get("groupNumber")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += VariableParameterRecordType.getEnumForValue(((Number) map.get("recordType")).intValue()).getMarshalledSize();
+    marshalSize += EntityVPRecordChangeIndicator.getEnumForValue(((Number) map.get("changeIndicator")).intValue()).getMarshalledSize();
+    marshalSize += EntityAssociationAssociationType.getEnumForValue(((Number) map.get("associationStatus")).intValue()).getMarshalledSize();
+    marshalSize += EntityAssociationPhysicalAssociationType.getEnumForValue(((Number) map.get("associationType")).intValue()).getMarshalledSize();
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("entityID"));
+    marshalSize += IsPartOfStationName.getEnumForValue(((Number) map.get("ownStationLocation")).intValue()).getMarshalledSize();
+    marshalSize += EntityAssociationPhysicalConnectionType.getEnumForValue(((Number) map.get("physicalConnectionType")).intValue()).getMarshalledSize();
+    marshalSize += EntityAssociationGroupMemberType.getEnumForValue(((Number) map.get("groupMemberType")).intValue()).getMarshalledSize();
+    marshalSize += 2;  // groupNumber
+
+    return marshalSize;
 }
 
  /*

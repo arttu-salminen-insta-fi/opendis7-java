@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * This field shall specify information about a particular emitter system. Section 6.2.23.
@@ -25,8 +27,9 @@ public class EmitterSystem extends Object implements Serializable, Marshaller
    /** function of the emitter, 8-bit enumeration uid 76 */
    protected EmitterSystemFunction emitterFunction = EmitterSystemFunction.values()[0];
 
-   /** emitter ID, 8-bit enumeration */
-   protected byte emitterIDNumber;
+   /** emitter ID, 8-bit enumeration 
+   Value space: uint8 */
+   protected int emitterIDNumber;
 
 
 /** Constructor creates and configures a new instance object */
@@ -85,23 +88,18 @@ public EmitterSystemFunction getEmitterFunction()
 }
 
 /** Setter for {@link EmitterSystem#emitterIDNumber}
-  * @param pEmitterIDNumber new value of interest
+  * @param pEmitterIDNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized EmitterSystem setEmitterIDNumber(byte pEmitterIDNumber)
+public synchronized EmitterSystem setEmitterIDNumber(int pEmitterIDNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pEmitterIDNumber >= 0 && pEmitterIDNumber <= 255, "Value outside valid value space");
     emitterIDNumber = pEmitterIDNumber;
-    return this;
-}
-/** Utility setter for {@link EmitterSystem#emitterIDNumber}
-  * @param pEmitterIDNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EmitterSystem setEmitterIDNumber(int pEmitterIDNumber){
-    emitterIDNumber = (byte) pEmitterIDNumber;
     return this;
 }
 /** Getter for {@link EmitterSystem#emitterIDNumber}
   * @return value of interest */
-public byte getEmitterIDNumber()
+public int getEmitterIDNumber()
 {
     return emitterIDNumber; 
 }
@@ -115,15 +113,11 @@ public byte getEmitterIDNumber()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        emitterName.marshal(dos);
        emitterFunction.marshal(dos);
-       dos.writeByte(emitterIDNumber);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) emitterIDNumber);
     }
 }
 
@@ -139,18 +133,14 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         emitterName = EmitterName.unmarshalEnum(dis);
         uPosition += emitterName.getMarshalledSize();
         emitterFunction = EmitterSystemFunction.unmarshalEnum(dis);
         uPosition += emitterFunction.getMarshalledSize();
-        emitterIDNumber = (byte)dis.readUnsignedByte();
+        emitterIDNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -168,7 +158,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    emitterName.marshal(byteBuffer);
    emitterFunction.marshal(byteBuffer);
-   byteBuffer.put( (byte)emitterIDNumber);
+   byteBuffer.put((byte) emitterIDNumber);
 }
 
 /**
@@ -183,20 +173,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute emitterName marked as not serialized
         emitterName = EmitterName.unmarshalEnum(byteBuffer);
-        // attribute emitterFunction marked as not serialized
         emitterFunction = EmitterSystemFunction.unmarshalEnum(byteBuffer);
-        // attribute emitterIDNumber marked as not serialized
-        emitterIDNumber = (byte)(byteBuffer.get() & 0xFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        emitterIDNumber = Byte.toUnsignedInt(byteBuffer.get());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("emitterName", EmitterName.unmarshalEnum(byteBuffer).getValue());
+    map.put("emitterFunction", EmitterSystemFunction.unmarshalEnum(byteBuffer).getValue());
+    map.put("emitterIDNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EmitterName.getEnumForValue(((Number) map.get("emitterName")).intValue()).marshal(byteBuffer);
+    EmitterSystemFunction.getEnumForValue(((Number) map.get("emitterFunction")).intValue()).marshal(byteBuffer);
+    byteBuffer.put(((Number) map.get("emitterIDNumber")).byteValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EmitterName.getEnumForValue(((Number) map.get("emitterName")).intValue()).getMarshalledSize();
+    marshalSize += EmitterSystemFunction.getEnumForValue(((Number) map.get("emitterFunction")).intValue()).getMarshalledSize();
+    marshalSize += 1;  // emitterIDNumber
+
+    return marshalSize;
 }
 
  /*

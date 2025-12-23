@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * The unique designation of a simulation when using the 48-bit identifier format shall be specified by the Sim- ulation Identifier record. The reason that the 48-bit format is required in addition to the 32-bit simulation address format that actually identifies a specific simulation is because some 48-bit identifier fields in PDUs may contain either an Object Identifier, such as an Entity ID, or a Simulation Identifier. Section 6.2.80
@@ -22,8 +24,9 @@ public class SimulationIdentifier extends Object implements Serializable, Marsha
    /** Simulation address  */
    protected SimulationAddress  simulationAddress = new SimulationAddress(); 
 
-   /** This field shall be set to zero as there is no reference number associated with a Simulation Identifier. */
-   protected short referenceNumber = (short)0;
+   /** This field shall be set to zero as there is no reference number associated with a Simulation Identifier. 
+   Value space: uint16 */
+   protected int referenceNumber = (int) 0;
 
 
 /** Constructor creates and configures a new instance object */
@@ -66,23 +69,18 @@ public SimulationAddress getSimulationAddress()
 
 
 /** Setter for {@link SimulationIdentifier#referenceNumber}
-  * @param pReferenceNumber new value of interest
+  * @param pReferenceNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized SimulationIdentifier setReferenceNumber(short pReferenceNumber)
+public synchronized SimulationIdentifier setReferenceNumber(int pReferenceNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pReferenceNumber >= 0 && pReferenceNumber <= 65535, "Value outside valid value space");
     referenceNumber = pReferenceNumber;
-    return this;
-}
-/** Utility setter for {@link SimulationIdentifier#referenceNumber}
-  * @param pReferenceNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized SimulationIdentifier setReferenceNumber(int pReferenceNumber){
-    referenceNumber = (short) pReferenceNumber;
     return this;
 }
 /** Getter for {@link SimulationIdentifier#referenceNumber}
   * @return value of interest */
-public short getReferenceNumber()
+public int getReferenceNumber()
 {
     return referenceNumber; 
 }
@@ -96,14 +94,10 @@ public short getReferenceNumber()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        simulationAddress.marshal(dos);
-       dos.writeShort(referenceNumber);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeShort((short) referenceNumber);
     }
 }
 
@@ -119,15 +113,11 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         uPosition += simulationAddress.unmarshal(dis);
-        referenceNumber = (short)dis.readUnsignedShort();
+        referenceNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -144,7 +134,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    simulationAddress.marshal(byteBuffer);
-   byteBuffer.putShort( (short)referenceNumber);
+   byteBuffer.putShort((short) referenceNumber);
 }
 
 /**
@@ -159,18 +149,60 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute simulationAddress marked as not serialized
         simulationAddress.unmarshal(byteBuffer);
-        // attribute referenceNumber marked as not serialized
-        referenceNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        referenceNumber = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("simulationAddress", SimulationAddress.fromBufferToMap(byteBuffer));
+    map.put("referenceNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    SimulationAddress.fromMapToBuffer((PduMap) map.get("simulationAddress"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("referenceNumber")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += SimulationAddress.getMarshalledSize((PduMap) map.get("simulationAddress"));
+    marshalSize += 2;  // referenceNumber
+
+    return marshalSize;
 }
 
  /*

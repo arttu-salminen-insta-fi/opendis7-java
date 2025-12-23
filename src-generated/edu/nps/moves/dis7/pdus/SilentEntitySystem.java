@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * information abou an enitity not producing espdus. Section 6.2.79
@@ -19,11 +21,13 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class SilentEntitySystem extends Object implements Serializable, Marshaller
 {
-   /** number of the type specified by the entity type field */
-   protected short numberOfEntities;
+   /** number of the type specified by the entity type field 
+   Value space: uint16 */
+   protected int numberOfEntities;
 
-   /** number of entity appearance records that follow */
-   protected short numberOfAppearanceRecords;
+   /** number of entity appearance records that follow 
+   Value space: uint16 */
+   protected int numberOfAppearanceRecords;
 
    /** Entity type */
    protected EntityType  entityType = new EntityType(); 
@@ -59,23 +63,18 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link SilentEntitySystem#numberOfEntities}
-  * @param pNumberOfEntities new value of interest
+  * @param pNumberOfEntities new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized SilentEntitySystem setNumberOfEntities(short pNumberOfEntities)
+public synchronized SilentEntitySystem setNumberOfEntities(int pNumberOfEntities)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pNumberOfEntities >= 0 && pNumberOfEntities <= 65535, "Value outside valid value space");
     numberOfEntities = pNumberOfEntities;
-    return this;
-}
-/** Utility setter for {@link SilentEntitySystem#numberOfEntities}
-  * @param pNumberOfEntities new value of interest
-  * @return same object to permit progressive setters */
-public synchronized SilentEntitySystem setNumberOfEntities(int pNumberOfEntities){
-    numberOfEntities = (short) pNumberOfEntities;
     return this;
 }
 /** Getter for {@link SilentEntitySystem#numberOfEntities}
   * @return value of interest */
-public short getNumberOfEntities()
+public int getNumberOfEntities()
 {
     return numberOfEntities; 
 }
@@ -120,19 +119,16 @@ public int[] getAppearanceRecordList()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeShort(numberOfEntities);
+       dos.writeShort((short) numberOfEntities);
+       // Count in primitive instances
        dos.writeShort(appearanceRecordList.length);
        entityType.marshal(dos);
 
        for (int idx = 0; idx < appearanceRecordList.length; idx++)
            dos.writeInt(appearanceRecordList[idx]);
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -148,20 +144,17 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        numberOfEntities = (short)dis.readUnsignedShort();
+        numberOfEntities = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        numberOfAppearanceRecords = (short)dis.readUnsignedShort();
+        numberOfAppearanceRecords = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
         uPosition += entityType.unmarshal(dis);
-        for (int idx = 0; idx < appearanceRecordList.length; idx++)
+        appearanceRecordList = new int[((Number) numberOfAppearanceRecords).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfAppearanceRecords).intValue(); idx++)
             appearanceRecordList[idx] = dis.readInt();
         uPosition += (appearanceRecordList.length * 4);
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -177,8 +170,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort( (short)numberOfEntities);
-   byteBuffer.putShort( (short)appearanceRecordList.length);
+   byteBuffer.putShort((short) numberOfEntities);
+   // Count in primitive instances
+   byteBuffer.putShort((short) appearanceRecordList.length);
    entityType.marshal(byteBuffer);
 
    for (int idx = 0; idx < appearanceRecordList.length; idx++)
@@ -198,23 +192,80 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute numberOfEntities marked as not serialized
-        numberOfEntities = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute numberOfAppearanceRecords marked as not serialized
-        numberOfAppearanceRecords = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute entityType marked as not serialized
+        numberOfEntities = Short.toUnsignedInt(byteBuffer.getShort());
+        numberOfAppearanceRecords = Short.toUnsignedInt(byteBuffer.getShort());
         entityType.unmarshal(byteBuffer);
-        // attribute appearanceRecordList marked as not serialized
-        for (int idx = 0; idx < appearanceRecordList.length; idx++)
+        appearanceRecordList = new int[((Number) numberOfAppearanceRecords).intValue()];
+        for (int idx = 0; idx < ((Number) numberOfAppearanceRecords).intValue(); idx++)
             appearanceRecordList[idx] = byteBuffer.getInt();
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("numberOfEntities", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("numberOfAppearanceRecords", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("entityType", EntityType.fromBufferToMap(byteBuffer));
+    // Valid primitive list varying length
+    int[] appearanceRecordList = new int[((Number) map.get("numberOfAppearanceRecords")).intValue()];
+    for (int idx = 0; idx < ((Number) map.get("numberOfAppearanceRecords")).intValue(); idx++)
+        appearanceRecordList[idx] = byteBuffer.getInt();
+    map.put("appearanceRecordList", appearanceRecordList);
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putShort(((Number) map.get("numberOfEntities")).shortValue());
+    byteBuffer.putShort(((Number) map.get("numberOfAppearanceRecords")).shortValue());
+    EntityType.fromMapToBuffer((PduMap) map.get("entityType"), byteBuffer);
+
+    int[] appearanceRecordList = (int[]) map.get("appearanceRecordList");
+    for (int idx = 0; idx < appearanceRecordList.length; idx++)
+        byteBuffer.putInt(appearanceRecordList[idx]);
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 2;  // numberOfEntities
+    marshalSize += 2;  // numberOfAppearanceRecords
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("entityType"));
+    int[] appearanceRecordList = (int[]) map.get("appearanceRecordList");
+    for (int idx = 0; idx < appearanceRecordList.length; idx++)
+        marshalSize += 4;
+
+    return marshalSize;
 }
 
  /*

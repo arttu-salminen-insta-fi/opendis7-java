@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * List of fixed and variable datum records. Section 6.2.18 
@@ -19,11 +21,13 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class DatumSpecification extends Object implements Serializable, Marshaller
 {
-   /** Number of fixed datums */
-   protected int numberOfFixedDatums;
+   /** Number of fixed datums 
+   Value space: uint32 */
+   protected UnsignedInteger numberOfFixedDatums = UnsignedInteger.ZERO;
 
-   /** Number of variable datums */
-   protected int numberOfVariableDatums;
+   /** Number of variable datums 
+   Value space: uint32 */
+   protected UnsignedInteger numberOfVariableDatums = UnsignedInteger.ZERO;
 
    /** variable length list fixed datums */
    protected List< FixedDatum > fixedDatumIDList = new ArrayList<>();
@@ -105,7 +109,7 @@ public List<VariableDatum> getVariableDatumIDList()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        dos.writeInt(fixedDatumIDList.size());
        dos.writeInt(variableDatumIDList.size());
@@ -124,10 +128,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
        }
 
     }
-    catch(Exception e)
-    {
-      System.err.println(e);
-    }
 }
 
 /**
@@ -142,30 +142,26 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        numberOfFixedDatums = dis.readInt();
+        numberOfFixedDatums = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        numberOfVariableDatums = dis.readInt();
+        numberOfVariableDatums = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
-        for (int idx = 0; idx < numberOfFixedDatums; idx++)
+        for (int idx = 0; idx < ((Number) numberOfFixedDatums).intValue(); idx++)
         {
             FixedDatum anX = new FixedDatum();
             uPosition += anX.unmarshal(dis);
             fixedDatumIDList.add(anX);
         }
 
-        for (int idx = 0; idx < numberOfVariableDatums; idx++)
+        for (int idx = 0; idx < ((Number) numberOfVariableDatums).intValue(); idx++)
         {
             VariableDatum anX = new VariableDatum();
             uPosition += anX.unmarshal(dis);
             variableDatumIDList.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -211,34 +207,108 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute numberOfFixedDatums marked as not serialized
-        numberOfFixedDatums = byteBuffer.getInt();
-        // attribute numberOfVariableDatums marked as not serialized
-        numberOfVariableDatums = byteBuffer.getInt();
-        // attribute fixedDatumIDList marked as not serialized
-        for (int idx = 0; idx < numberOfFixedDatums; idx++)
+        numberOfFixedDatums = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        numberOfVariableDatums = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        for (int idx = 0; idx < ((Number) numberOfFixedDatums).intValue(); idx++)
         {
-        FixedDatum anX = new FixedDatum();
-        anX.unmarshal(byteBuffer);
-        fixedDatumIDList.add(anX);
+            FixedDatum anX = new FixedDatum();
+            anX.unmarshal(byteBuffer);
+            fixedDatumIDList.add(anX);
         }
 
-        // attribute variableDatumIDList marked as not serialized
-        for (int idx = 0; idx < numberOfVariableDatums; idx++)
+        for (int idx = 0; idx < ((Number) numberOfVariableDatums).intValue(); idx++)
         {
-        VariableDatum anX = new VariableDatum();
-        anX.unmarshal(byteBuffer);
-        variableDatumIDList.add(anX);
+            VariableDatum anX = new VariableDatum();
+            anX.unmarshal(byteBuffer);
+            variableDatumIDList.add(anX);
         }
 
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("numberOfFixedDatums", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("numberOfVariableDatums", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    List fixedDatumIDList = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfFixedDatums")).intValue(); idx++)
+    {
+        fixedDatumIDList.add(FixedDatum.fromBufferToMap(byteBuffer));
+    }
+    map.put("fixedDatumIDList", fixedDatumIDList);
+
+    List variableDatumIDList = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableDatums")).intValue(); idx++)
+    {
+        variableDatumIDList.add(VariableDatum.fromBufferToMap(byteBuffer));
+    }
+    map.put("variableDatumIDList", variableDatumIDList);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.putInt(((Number) map.get("numberOfFixedDatums")).intValue());
+    byteBuffer.putInt(((Number) map.get("numberOfVariableDatums")).intValue());
+
+    List fixedDatumIDList = (List) map.get("fixedDatumIDList");
+    for (int idx = 0; idx < ((Number) map.get("numberOfFixedDatums")).intValue(); idx++)
+    {
+        FixedDatum.fromMapToBuffer((PduMap) fixedDatumIDList.get(idx), byteBuffer);
+    }
+
+
+    List variableDatumIDList = (List) map.get("variableDatumIDList");
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableDatums")).intValue(); idx++)
+    {
+        VariableDatum.fromMapToBuffer((PduMap) variableDatumIDList.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 4;  // numberOfFixedDatums
+    marshalSize += 4;  // numberOfVariableDatums
+    List fixedDatumIDList = (List) map.get("fixedDatumIDList");
+    for (int idx = 0; idx < ((Number) map.get("numberOfFixedDatums")).intValue(); idx++)
+        marshalSize += FixedDatum.getMarshalledSize((PduMap) fixedDatumIDList.get(idx));
+    List variableDatumIDList = (List) map.get("variableDatumIDList");
+    for (int idx = 0; idx < ((Number) map.get("numberOfVariableDatums")).intValue(); idx++)
+        marshalSize += VariableDatum.getMarshalledSize((PduMap) variableDatumIDList.get(idx));
+
+    return marshalSize;
 }
 
  /*

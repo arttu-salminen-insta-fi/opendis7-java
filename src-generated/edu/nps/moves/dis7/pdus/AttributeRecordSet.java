@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * Each Attribute Record Set shall contain the following information: the Entity or Object ID to which all Attribute records in the set apply, plus one or more Attribute records
@@ -22,8 +24,9 @@ public class AttributeRecordSet extends Object implements Serializable, Marshall
    /** entityId is an undescribed parameter... */
    protected EntityID  entityId = new EntityID(); 
 
-   /** numberOfAttributeRecords is an undescribed parameter... */
-   protected short numberOfAttributeRecords;
+   /** numberOfAttributeRecords is an undescribed parameter...
+   Value space: uint16 */
+   protected int numberOfAttributeRecords;
 
    /** attributeRecords is an undescribed parameter... */
    protected List< Attribute > attributeRecords = new ArrayList<>();
@@ -98,7 +101,7 @@ public List<Attribute> getAttributeRecords()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
        entityId.marshal(dos);
        dos.writeShort(attributeRecords.size());
@@ -109,10 +112,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aAttribute.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -128,22 +127,18 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
         uPosition += entityId.unmarshal(dis);
-        numberOfAttributeRecords = (short)dis.readUnsignedShort();
+        numberOfAttributeRecords = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < numberOfAttributeRecords; idx++)
+        for (int idx = 0; idx < ((Number) numberOfAttributeRecords).intValue(); idx++)
         {
             Attribute anX = new Attribute();
             uPosition += anX.unmarshal(dis);
             attributeRecords.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -182,26 +177,84 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute entityId marked as not serialized
         entityId.unmarshal(byteBuffer);
-        // attribute numberOfAttributeRecords marked as not serialized
-        numberOfAttributeRecords = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute attributeRecords marked as not serialized
-        for (int idx = 0; idx < numberOfAttributeRecords; idx++)
+        numberOfAttributeRecords = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) numberOfAttributeRecords).intValue(); idx++)
         {
-        Attribute anX = new Attribute();
-        anX.unmarshal(byteBuffer);
-        attributeRecords.add(anX);
+            Attribute anX = new Attribute();
+            anX.unmarshal(byteBuffer);
+            attributeRecords.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("entityId", EntityID.fromBufferToMap(byteBuffer));
+    map.put("numberOfAttributeRecords", Short.toUnsignedInt(byteBuffer.getShort()));
+    List attributeRecords = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfAttributeRecords")).intValue(); idx++)
+    {
+        attributeRecords.add(Attribute.fromBufferToMap(byteBuffer));
+    }
+    map.put("attributeRecords", attributeRecords);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    EntityID.fromMapToBuffer((PduMap) map.get("entityId"), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("numberOfAttributeRecords")).shortValue());
+
+    List attributeRecords = (List) map.get("attributeRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfAttributeRecords")).intValue(); idx++)
+    {
+        Attribute.fromMapToBuffer((PduMap) attributeRecords.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += EntityID.getMarshalledSize((PduMap) map.get("entityId"));
+    marshalSize += 2;  // numberOfAttributeRecords
+    List attributeRecords = (List) map.get("attributeRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfAttributeRecords")).intValue(); idx++)
+        marshalSize += Attribute.getMarshalledSize((PduMap) attributeRecords.get(idx));
+
+    return marshalSize;
 }
 
  /*

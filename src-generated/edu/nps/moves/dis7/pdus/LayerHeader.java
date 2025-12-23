@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 
 /**
  * The identification of the additional information layer number, layer-specific information, and the length of the layer. Section 6.2.51
@@ -19,14 +21,17 @@ import edu.nps.moves.dis7.enumerations.*;
  */
 public class LayerHeader extends Object implements Serializable, Marshaller
 {
-   /** layerNumber is an undescribed parameter... */
-   protected byte layerNumber;
+   /** layerNumber is an undescribed parameter...
+   Value space: uint8 */
+   protected int layerNumber;
 
-   /** field shall specify layer-specific information that varies by System Type (see 6.2.86) and Layer Number. */
-   protected byte layerSpecificInformation;
+   /** field shall specify layer-specific information that varies by System Type (see 6.2.86) and Layer Number. 
+   Value space: uint8 */
+   protected int layerSpecificInformation;
 
-   /** This field shall specify the length in octets of the layer, including the Layer Header record */
-   protected short length;
+   /** This field shall specify the length in octets of the layer, including the Layer Header record 
+   Value space: uint16 */
+   protected int length;
 
 
 /** Constructor creates and configures a new instance object */
@@ -53,67 +58,52 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link LayerHeader#layerNumber}
-  * @param pLayerNumber new value of interest
+  * @param pLayerNumber new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized LayerHeader setLayerNumber(byte pLayerNumber)
+public synchronized LayerHeader setLayerNumber(int pLayerNumber)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pLayerNumber >= 0 && pLayerNumber <= 255, "Value outside valid value space");
     layerNumber = pLayerNumber;
-    return this;
-}
-/** Utility setter for {@link LayerHeader#layerNumber}
-  * @param pLayerNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LayerHeader setLayerNumber(int pLayerNumber){
-    layerNumber = (byte) pLayerNumber;
     return this;
 }
 /** Getter for {@link LayerHeader#layerNumber}
   * @return value of interest */
-public byte getLayerNumber()
+public int getLayerNumber()
 {
     return layerNumber; 
 }
 
 /** Setter for {@link LayerHeader#layerSpecificInformation}
-  * @param pLayerSpecificInformation new value of interest
+  * @param pLayerSpecificInformation new value of interest. Value space uint8
   * @return same object to permit progressive setters */
-public synchronized LayerHeader setLayerSpecificInformation(byte pLayerSpecificInformation)
+public synchronized LayerHeader setLayerSpecificInformation(int pLayerSpecificInformation)
 {
+    // Checking value is in value space uint8
+    Preconditions.checkArgument(pLayerSpecificInformation >= 0 && pLayerSpecificInformation <= 255, "Value outside valid value space");
     layerSpecificInformation = pLayerSpecificInformation;
-    return this;
-}
-/** Utility setter for {@link LayerHeader#layerSpecificInformation}
-  * @param pLayerSpecificInformation new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LayerHeader setLayerSpecificInformation(int pLayerSpecificInformation){
-    layerSpecificInformation = (byte) pLayerSpecificInformation;
     return this;
 }
 /** Getter for {@link LayerHeader#layerSpecificInformation}
   * @return value of interest */
-public byte getLayerSpecificInformation()
+public int getLayerSpecificInformation()
 {
     return layerSpecificInformation; 
 }
 
 /** Setter for {@link LayerHeader#length}
-  * @param pLength new value of interest
+  * @param pLength new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized LayerHeader setLength(short pLength)
+public synchronized LayerHeader setLength(int pLength)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pLength >= 0 && pLength <= 65535, "Value outside valid value space");
     length = pLength;
-    return this;
-}
-/** Utility setter for {@link LayerHeader#length}
-  * @param pLength new value of interest
-  * @return same object to permit progressive setters */
-public synchronized LayerHeader setLength(int pLength){
-    length = (short) pLength;
     return this;
 }
 /** Getter for {@link LayerHeader#length}
   * @return value of interest */
-public short getLength()
+public int getLength()
 {
     return length; 
 }
@@ -127,15 +117,11 @@ public short getLength()
 @Override
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
-    try 
+
     {
-       dos.writeByte(layerNumber);
-       dos.writeByte(layerSpecificInformation);
-       dos.writeShort(length);
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
+       dos.writeByte((byte) layerNumber);
+       dos.writeByte((byte) layerSpecificInformation);
+       dos.writeShort((short) length);
     }
 }
 
@@ -151,18 +137,14 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 public synchronized int unmarshal(DataInputStream dis) throws Exception
 {
     int uPosition = 0;
-    try 
+
     {
-        layerNumber = (byte)dis.readUnsignedByte();
+        layerNumber = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        layerSpecificInformation = (byte)dis.readUnsignedByte();
+        layerSpecificInformation = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        length = (short)dis.readUnsignedShort();
+        length = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -178,9 +160,9 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.put( (byte)layerNumber);
-   byteBuffer.put( (byte)layerSpecificInformation);
-   byteBuffer.putShort( (short)length);
+   byteBuffer.put((byte) layerNumber);
+   byteBuffer.put((byte) layerSpecificInformation);
+   byteBuffer.putShort((short) length);
 }
 
 /**
@@ -195,20 +177,64 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 @Override
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    try
     {
-        // attribute layerNumber marked as not serialized
-        layerNumber = (byte)(byteBuffer.get() & 0xFF);
-        // attribute layerSpecificInformation marked as not serialized
-        layerSpecificInformation = (byte)(byteBuffer.get() & 0xFF);
-        // attribute length marked as not serialized
-        length = (short)(byteBuffer.getShort() & 0xFFFF);
-    }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
+        layerNumber = Byte.toUnsignedInt(byteBuffer.get());
+        layerSpecificInformation = Byte.toUnsignedInt(byteBuffer.get());
+        length = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = new PduMap();
+
+    map.put("layerNumber", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("layerSpecificInformation", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("length", Short.toUnsignedInt(byteBuffer.getShort()));
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    byteBuffer.put(((Number) map.get("layerNumber")).byteValue());
+    byteBuffer.put(((Number) map.get("layerSpecificInformation")).byteValue());
+    byteBuffer.putShort(((Number) map.get("length")).shortValue());
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += 1;  // layerNumber
+    marshalSize += 1;  // layerSpecificInformation
+    marshalSize += 2;  // length
+
+    return marshalSize;
 }
 
  /*

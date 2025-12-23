@@ -12,6 +12,8 @@ package edu.nps.moves.dis7.pdus;
 import java.util.*;
 import java.io.*;
 import edu.nps.moves.dis7.enumerations.*;
+import com.google.common.primitives.*;
+import com.google.common.base.Preconditions;
 import java.nio.ByteBuffer;
 
 /**
@@ -36,11 +38,13 @@ public class EnvironmentalProcessPdu extends SyntheticEnvironmentFamilyPdu imple
    /** Environment status uid 249 */
    protected EnvironmentalProcessEnvironmentStatus environmentStatus = new EnvironmentalProcessEnvironmentStatus();
 
-   /** number of environment records  */
-   protected short numberOfEnvironmentRecords;
+   /** number of environment records  
+   Value space: uint16 */
+   protected int numberOfEnvironmentRecords;
 
-   /** PDU sequence number for the environmental process if pdu sequencing required */
-   protected short sequenceNumber;
+   /** PDU sequence number for the environmental process if pdu sequencing required 
+   Value space: uint16 */
+   protected int sequenceNumber;
 
    /** environmemt records */
    protected List< Environment > environmentRecords = new ArrayList<>();
@@ -209,23 +213,18 @@ public EnvironmentalProcessEnvironmentStatus getEnvironmentStatus()
 }
 
 /** Setter for {@link EnvironmentalProcessPdu#sequenceNumber}
-  * @param pSequenceNumber new value of interest
+  * @param pSequenceNumber new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized EnvironmentalProcessPdu setSequenceNumber(short pSequenceNumber)
+public synchronized EnvironmentalProcessPdu setSequenceNumber(int pSequenceNumber)
 {
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pSequenceNumber >= 0 && pSequenceNumber <= 65535, "Value outside valid value space");
     sequenceNumber = pSequenceNumber;
-    return this;
-}
-/** Utility setter for {@link EnvironmentalProcessPdu#sequenceNumber}
-  * @param pSequenceNumber new value of interest
-  * @return same object to permit progressive setters */
-public synchronized EnvironmentalProcessPdu setSequenceNumber(int pSequenceNumber){
-    sequenceNumber = (short) pSequenceNumber;
     return this;
 }
 /** Getter for {@link EnvironmentalProcessPdu#sequenceNumber}
   * @return value of interest */
-public short getSequenceNumber()
+public int getSequenceNumber()
 {
     return sequenceNumber; 
 }
@@ -255,14 +254,14 @@ public List<Environment> getEnvironmentRecords()
 public synchronized void marshal(DataOutputStream dos) throws Exception
 {
     super.marshal(dos);
-    try 
+
     {
        environementalProcessID.marshal(dos);
        environmentType.marshal(dos);
        modelType.marshal(dos);
        environmentStatus.marshal(dos);
        dos.writeShort(environmentRecords.size());
-       dos.writeShort(sequenceNumber);
+       dos.writeShort((short) sequenceNumber);
 
        for (int idx = 0; idx < environmentRecords.size(); idx++)
        {
@@ -270,10 +269,6 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
             aEnvironment.marshal(dos);
        }
 
-    }
-    catch(Exception e)
-    {
-      System.err.println(e);
     }
 }
 
@@ -291,28 +286,24 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
     uPosition += super.unmarshal(dis);
 
-    try 
+
     {
         uPosition += environementalProcessID.unmarshal(dis);
         uPosition += environmentType.unmarshal(dis);
         modelType = EnvironmentalProcessModelType.unmarshalEnum(dis);
         uPosition += modelType.getMarshalledSize();
         uPosition += environmentStatus.unmarshal(dis);
-        numberOfEnvironmentRecords = (short)dis.readUnsignedShort();
+        numberOfEnvironmentRecords = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        sequenceNumber = (short)dis.readUnsignedShort();
+        sequenceNumber = Short.toUnsignedInt(dis.readShort());
         uPosition += 2;
-        for (int idx = 0; idx < numberOfEnvironmentRecords; idx++)
+        for (int idx = 0; idx < ((Number) numberOfEnvironmentRecords).intValue(); idx++)
         {
             Environment anX = new Environment();
             uPosition += anX.unmarshal(dis);
             environmentRecords.add(anX);
         }
 
-    }
-    catch(Exception e)
-    { 
-      System.err.println(e); 
     }
     return getMarshalledSize();
 }
@@ -334,7 +325,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
    modelType.marshal(byteBuffer);
    environmentStatus.marshal(byteBuffer);
    byteBuffer.putShort( (short)environmentRecords.size());
-   byteBuffer.putShort( (short)sequenceNumber);
+   byteBuffer.putShort((short) sequenceNumber);
 
    for (int idx = 0; idx < environmentRecords.size(); idx++)
    {
@@ -358,34 +349,102 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     super.unmarshal(byteBuffer);
 
-    try
     {
-        // attribute environementalProcessID marked as not serialized
         environementalProcessID.unmarshal(byteBuffer);
-        // attribute environmentType marked as not serialized
         environmentType.unmarshal(byteBuffer);
-        // attribute modelType marked as not serialized
         modelType = EnvironmentalProcessModelType.unmarshalEnum(byteBuffer);
-        // attribute environmentStatus marked as not serialized
         environmentStatus.unmarshal(byteBuffer);
-        // attribute numberOfEnvironmentRecords marked as not serialized
-        numberOfEnvironmentRecords = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute sequenceNumber marked as not serialized
-        sequenceNumber = (short)(byteBuffer.getShort() & 0xFFFF);
-        // attribute environmentRecords marked as not serialized
-        for (int idx = 0; idx < numberOfEnvironmentRecords; idx++)
+        numberOfEnvironmentRecords = Short.toUnsignedInt(byteBuffer.getShort());
+        sequenceNumber = Short.toUnsignedInt(byteBuffer.getShort());
+        for (int idx = 0; idx < ((Number) numberOfEnvironmentRecords).intValue(); idx++)
         {
-        Environment anX = new Environment();
-        anX.unmarshal(byteBuffer);
-        environmentRecords.add(anX);
+            Environment anX = new Environment();
+            anX.unmarshal(byteBuffer);
+            environmentRecords.add(anX);
         }
 
     }
-    catch (java.nio.BufferUnderflowException bue)
-    {
-        System.err.println("*** buffer underflow error while unmarshalling " + this.getClass().getName());
-    }
     return getMarshalledSize();
+}
+
+
+/**
+ * Unpacks a Pdu into a PduMap from the underlying data.
+ * @throws java.nio.BufferUnderflowException if byteBuffer is too small
+ * @see java.nio.ByteBuffer
+ * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+ * @param byteBuffer The ByteBuffer at the position to begin reading
+ * @return marshalled serialized size in bytes
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    PduMap map;
+    map = SyntheticEnvironmentFamilyPdu.fromBufferToMap(byteBuffer);
+
+    map.put("environementalProcessID", ObjectIdentifier.fromBufferToMap(byteBuffer));
+    map.put("environmentType", EntityType.fromBufferToMap(byteBuffer));
+    map.put("modelType", EnvironmentalProcessModelType.unmarshalEnum(byteBuffer).getValue());
+    map.put("environmentStatus", EnvironmentalProcessEnvironmentStatus.unmarshallRawValue(byteBuffer));
+    map.put("numberOfEnvironmentRecords", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("sequenceNumber", Short.toUnsignedInt(byteBuffer.getShort()));
+    List environmentRecords = new ArrayList<>();
+    for (int idx = 0; idx < ((Number) map.get("numberOfEnvironmentRecords")).intValue(); idx++)
+    {
+        environmentRecords.add(Environment.fromBufferToMap(byteBuffer));
+    }
+    map.put("environmentRecords", environmentRecords);
+
+    return map;
+}
+
+/**
+ * Packs a Pdu represented in map into the ByteBuffer.
+ * @throws java.nio.BufferOverflowException if byteBuffer is too small
+ * @throws java.nio.ReadOnlyBufferException if byteBuffer is read only
+ * @see java.nio.ByteBuffer
+ * @param byteBuffer The ByteBuffer at the position to begin writing
+ * @throws Exception ByteBuffer-generated exception
+ */
+public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
+{
+    SyntheticEnvironmentFamilyPdu.fromMapToBuffer(map, byteBuffer);
+    ObjectIdentifier.fromMapToBuffer((PduMap) map.get("environementalProcessID"), byteBuffer);
+    EntityType.fromMapToBuffer((PduMap) map.get("environmentType"), byteBuffer);
+    EnvironmentalProcessModelType.getEnumForValue(((Number) map.get("modelType")).intValue()).marshal(byteBuffer);
+    EnvironmentalProcessEnvironmentStatus.marshallRawValue(((Number) map.get("environmentStatus")).intValue(), byteBuffer);
+    byteBuffer.putShort(((Number) map.get("numberOfEnvironmentRecords")).shortValue());
+    byteBuffer.putShort(((Number) map.get("sequenceNumber")).shortValue());
+
+    List environmentRecords = (List) map.get("environmentRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfEnvironmentRecords")).intValue(); idx++)
+    {
+        Environment.fromMapToBuffer((PduMap) environmentRecords.get(idx), byteBuffer);
+    }
+
+}
+
+  /**
+   * Returns size of this serialized (marshalled) object in bytes
+   * @see <a href="https://en.wikipedia.org/wiki/Marshalling_(computer_science)" target="_blank">https://en.wikipedia.org/wiki/Marshalling_(computer_science)</a>
+   * @return serialized size in bytes
+   * @throws Exception   */
+public static int getMarshalledSize(PduMap map) throws Exception
+{
+    int marshalSize = 0; 
+
+    marshalSize += SyntheticEnvironmentFamilyPdu.getMarshalledSize(map);
+    marshalSize += ObjectIdentifier.getMarshalledSize((PduMap) map.get("environementalProcessID"));
+    marshalSize += EntityType.getMarshalledSize((PduMap) map.get("environmentType"));
+    marshalSize += EnvironmentalProcessModelType.getEnumForValue(((Number) map.get("modelType")).intValue()).getMarshalledSize();
+    marshalSize += EnvironmentalProcessEnvironmentStatus.getByteLength();
+    marshalSize += 2;  // numberOfEnvironmentRecords
+    marshalSize += 2;  // sequenceNumber
+    List environmentRecords = (List) map.get("environmentRecords");
+    for (int idx = 0; idx < ((Number) map.get("numberOfEnvironmentRecords")).intValue(); idx++)
+        marshalSize += Environment.getMarshalledSize((PduMap) environmentRecords.get(idx));
+
+    return marshalSize;
 }
 
  /*
@@ -425,7 +484,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
  {
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
-    sb.append(getClass().getSimpleName());
+    sb.append(super.toString());
     sb.append(" environementalProcessID:").append(environementalProcessID); // writeOneToString
     sb.append(" environmentType:").append(environmentType); // writeOneToString
     sb.append(" modelType:").append(modelType); // writeOneToString
