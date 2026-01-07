@@ -22,8 +22,8 @@ import com.google.common.base.Preconditions;
 public class ClockTime extends Object implements Serializable, Marshaller
 {
    /** Hours in UTC 
-   Value space: uint32 */
-   protected UnsignedInteger hour = UnsignedInteger.ZERO;
+   Value space: int32 */
+   protected int hour;
 
    /** Time past the hour 
    Value space: uint32 */
@@ -53,16 +53,16 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link ClockTime#hour}
-  * @param pHour new value of interest. Value space uint32
+  * @param pHour new value of interest. Value space int32
   * @return same object to permit progressive setters */
-public synchronized ClockTime setHour(UnsignedInteger pHour)
+public synchronized ClockTime setHour(int pHour)
 {
     hour = pHour;
     return this;
 }
 /** Getter for {@link ClockTime#hour}
   * @return value of interest */
-public UnsignedInteger getHour()
+public int getHour()
 {
     return hour; 
 }
@@ -93,7 +93,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 {
 
     {
-       dos.writeInt(hour.intValue());
+       dos.writeInt(hour);
        dos.writeInt(timePastHour.intValue());
     }
 }
@@ -112,7 +112,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
 
     {
-        hour = UnsignedInteger.fromIntBits(dis.readInt());
+        hour = (int) dis.readInt();
         uPosition += 4;
         timePastHour = UnsignedInteger.fromIntBits(dis.readInt());
         uPosition += 4;
@@ -131,7 +131,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putInt(hour.intValue());
+   byteBuffer.putInt(hour);
    byteBuffer.putInt(timePastHour.intValue());
 }
 
@@ -148,7 +148,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
     {
-        hour = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        hour = (int) byteBuffer.getInt();
         timePastHour = UnsignedInteger.fromIntBits(byteBuffer.getInt());
     }
     return getMarshalledSize();
@@ -169,7 +169,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     PduMap map;
     map = new PduMap();
 
-    map.put("hour", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("hour", (int) byteBuffer.getInt());
     map.put("timePastHour", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
     return map;
 }

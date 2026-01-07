@@ -26,15 +26,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class FixedAndVariableDatumRoundTripTest {
 
     private static final FixedDatum fixedDatum1 = new FixedDatum();
-    private static final UnsignedInteger FIXED_DATUM_VALUE = UnsignedInteger.fromIntBits(0x111111FF);
+    private static final int FIXED_DATUM_VALUE = 0x111111FF;
     private static final VariableRecordType FIXED_DATUM_1_VAR_RECORD_TYPE = VariableRecordType.ACTIVATE_OWNSHIP;
 
     private static final FixedDatum fixedDatum2 = new FixedDatum();
-    private static final UnsignedInteger FIXED_DATUM2_VALUE = UnsignedInteger.fromIntBits(0x222222FF);
+    private static final int FIXED_DATUM2_VALUE = 0x222222FF;
     private static final VariableRecordType FIXED_DATUM_2_VAR_RECORD_TYPE = VariableRecordType.HUMIDITY;
 
     private static final FixedDatum fixedDatum3 = new FixedDatum();
-    private static final UnsignedInteger FIXED_DATUM_3_VALUE = UnsignedInteger.fromIntBits(0x333333FF);
+    private static final int FIXED_DATUM_3_VALUE = 0x333333FF;
     private static final VariableRecordType FIXED_DATUM_3_VAR_RECORD_TYPE = VariableRecordType.SKE_FREQUENCY;
 
     private static final VariableDatum variableDatum1 = new VariableDatum();

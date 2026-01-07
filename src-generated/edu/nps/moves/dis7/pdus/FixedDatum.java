@@ -25,8 +25,8 @@ public class FixedDatum extends Object implements Serializable, Marshaller
    protected VariableRecordType fixedDatumID = VariableRecordType.values()[0];
 
    /** Value for the fixed datum 
-   Value space: uint32 */
-   protected UnsignedInteger fixedDatumValue = UnsignedInteger.ZERO;
+   Value space: int32 */
+   protected int fixedDatumValue;
 
 
 /** Constructor creates and configures a new instance object */
@@ -68,16 +68,16 @@ public VariableRecordType getFixedDatumID()
 }
 
 /** Setter for {@link FixedDatum#fixedDatumValue}
-  * @param pFixedDatumValue new value of interest. Value space uint32
+  * @param pFixedDatumValue new value of interest. Value space int32
   * @return same object to permit progressive setters */
-public synchronized FixedDatum setFixedDatumValue(UnsignedInteger pFixedDatumValue)
+public synchronized FixedDatum setFixedDatumValue(int pFixedDatumValue)
 {
     fixedDatumValue = pFixedDatumValue;
     return this;
 }
 /** Getter for {@link FixedDatum#fixedDatumValue}
   * @return value of interest */
-public UnsignedInteger getFixedDatumValue()
+public int getFixedDatumValue()
 {
     return fixedDatumValue; 
 }
@@ -94,7 +94,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 
     {
        fixedDatumID.marshal(dos);
-       dos.writeInt(fixedDatumValue.intValue());
+       dos.writeInt(fixedDatumValue);
     }
 }
 
@@ -114,7 +114,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     {
         fixedDatumID = VariableRecordType.unmarshalEnum(dis);
         uPosition += fixedDatumID.getMarshalledSize();
-        fixedDatumValue = UnsignedInteger.fromIntBits(dis.readInt());
+        fixedDatumValue = (int) dis.readInt();
         uPosition += 4;
     }
     return getMarshalledSize();
@@ -132,7 +132,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
    fixedDatumID.marshal(byteBuffer);
-   byteBuffer.putInt(fixedDatumValue.intValue());
+   byteBuffer.putInt(fixedDatumValue);
 }
 
 /**
@@ -149,7 +149,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
 {
     {
         fixedDatumID = VariableRecordType.unmarshalEnum(byteBuffer);
-        fixedDatumValue = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        fixedDatumValue = (int) byteBuffer.getInt();
     }
     return getMarshalledSize();
 }
@@ -170,7 +170,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     map = new PduMap();
 
     map.put("fixedDatumID", VariableRecordType.unmarshalEnum(byteBuffer).getValue());
-    map.put("fixedDatumValue", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("fixedDatumValue", (int) byteBuffer.getInt());
     return map;
 }
 

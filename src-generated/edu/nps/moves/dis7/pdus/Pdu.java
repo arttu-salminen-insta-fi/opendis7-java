@@ -809,9 +809,9 @@ public synchronized Pdu setTimestampSeconds(double newTimestampSeconds, boolean 
         throw new IllegalArgumentException("Illegal timestamp seconds value: " + newTimestampSeconds);
     }
     double fractionOfHour = newTimestampSeconds / (double) 3600.0;
-    int timestampBits = (int) (fractionOfHour * Integer.MAX_VALUE);
+    int timestampBits = ((int) (fractionOfHour * Integer.MAX_VALUE)) << 1;
     if (absoluteTime) {
-        timestampBits |= (1 << 31);
+        timestampBits |= 1;
     }
     timestamp = UnsignedInteger.fromIntBits(timestampBits);
     return this;
@@ -823,8 +823,7 @@ public synchronized Pdu setTimestampSeconds(double newTimestampSeconds, boolean 
   * @return fractional timestamp past hour */
 public double getTimestampSeconds()
 {
-    int timestampBits = timestamp.intValue();
-    timestampBits &= Integer.MAX_VALUE;
+    int timestampBits = timestamp.intValue() >>> 1;
     double frac = (double) timestampBits / Integer.MAX_VALUE;
     return frac * 3600.0;
 }
@@ -832,7 +831,7 @@ public double getTimestampSeconds()
  * Utility check if timestamp is absolute
  */
     public boolean isAbsoluteTimestamp() {
-        return timestamp.intValue() < 0;
+        return (timestamp.intValue() & 1) != 0;
     }
 
 
