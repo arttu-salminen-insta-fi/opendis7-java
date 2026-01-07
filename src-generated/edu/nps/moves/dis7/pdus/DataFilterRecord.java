@@ -225,7 +225,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final DataFilterRecord rhs = (DataFilterRecord)obj;
 
-     if( ! (bitFlags == rhs.bitFlags)) return false;
+     if( ! Objects.equals(bitFlags, rhs.bitFlags) ) return false;
     return true;
  }
 

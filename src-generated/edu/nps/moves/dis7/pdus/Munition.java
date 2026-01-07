@@ -320,7 +320,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      final Munition rhs = (Munition)obj;
 
      if( ! Objects.equals(munitionType, rhs.munitionType) ) return false;
-     if( ! (station == rhs.station)) return false;
+     if( ! Objects.equals(station, rhs.station) ) return false;
      if( ! (quantity == rhs.quantity)) return false;
      if( ! (munitionStatus == rhs.munitionStatus)) return false;
      if( ! (padding == rhs.padding)) return false;

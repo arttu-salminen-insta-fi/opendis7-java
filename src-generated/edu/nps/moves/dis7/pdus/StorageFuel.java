@@ -317,7 +317,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final StorageFuel rhs = (StorageFuel)obj;
 
-     if( ! (fuelQuantity == rhs.fuelQuantity)) return false;
+     if( ! Objects.equals(fuelQuantity, rhs.fuelQuantity) ) return false;
      if( ! (fuelMeasurementUnits == rhs.fuelMeasurementUnits)) return false;
      if( ! (fuelType == rhs.fuelType)) return false;
      if( ! (fuelLocation == rhs.fuelLocation)) return false;

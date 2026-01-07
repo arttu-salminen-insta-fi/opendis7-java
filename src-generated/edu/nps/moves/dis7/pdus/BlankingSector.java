@@ -549,7 +549,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final BlankingSector rhs = (BlankingSector)obj;
 
-     if( ! (recordType == rhs.recordType)) return false;
+     if( ! Objects.equals(recordType, rhs.recordType) ) return false;
      if( ! (recordLength == rhs.recordLength)) return false;
      if( ! (padding == rhs.padding)) return false;
      if( ! (emitterNumber == rhs.emitterNumber)) return false;
@@ -561,7 +561,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! (lowerElevation == rhs.lowerElevation)) return false;
      if( ! (upperElevation == rhs.upperElevation)) return false;
      if( ! (residualPower == rhs.residualPower)) return false;
-     if( ! (padding3 == rhs.padding3)) return false;
+     if( ! Objects.equals(padding3, rhs.padding3) ) return false;
     return true;
  }
 

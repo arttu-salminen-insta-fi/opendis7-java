@@ -486,14 +486,14 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! (segmentNumber == rhs.segmentNumber)) return false;
      if( ! Objects.equals(segmentModification, rhs.segmentModification) ) return false;
      if( ! Objects.equals(generalSegmentAppearance, rhs.generalSegmentAppearance) ) return false;
-     if( ! (specificSegmentAppearance == rhs.specificSegmentAppearance)) return false;
+     if( ! Objects.equals(specificSegmentAppearance, rhs.specificSegmentAppearance) ) return false;
      if( ! Objects.equals(segmentLocation, rhs.segmentLocation) ) return false;
      if( ! Objects.equals(segmentOrientation, rhs.segmentOrientation) ) return false;
      if( ! (segmentLength == rhs.segmentLength)) return false;
      if( ! (segmentWidth == rhs.segmentWidth)) return false;
      if( ! (segmentHeight == rhs.segmentHeight)) return false;
      if( ! (segmentDepth == rhs.segmentDepth)) return false;
-     if( ! (padding == rhs.padding)) return false;
+     if( ! Objects.equals(padding, rhs.padding) ) return false;
     return true;
  }
 

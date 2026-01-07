@@ -492,7 +492,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! Objects.equals(header, rhs.header) ) return false;
      if( ! (encodingScheme == rhs.encodingScheme)) return false;
      if( ! (tdlType == rhs.tdlType)) return false;
-     if( ! (sampleRate == rhs.sampleRate)) return false;
+     if( ! Objects.equals(sampleRate, rhs.sampleRate) ) return false;
      if( ! (dataLength == rhs.dataLength)) return false;
      if( ! (samples == rhs.samples)) return false;
 

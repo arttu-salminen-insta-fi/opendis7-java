@@ -284,7 +284,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final Attribute rhs = (Attribute)obj;
 
-     if( ! (recordType == rhs.recordType)) return false;
+     if( ! Objects.equals(recordType, rhs.recordType) ) return false;
 
      for (int idx = 0; idx < 0; idx++)
      {

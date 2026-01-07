@@ -609,7 +609,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final FalseTargetsAttribute rhs = (FalseTargetsAttribute)obj;
 
-     if( ! (recordType == rhs.recordType)) return false;
+     if( ! Objects.equals(recordType, rhs.recordType) ) return false;
      if( ! (recordLength == rhs.recordLength)) return false;
      if( ! (padding == rhs.padding)) return false;
      if( ! (emitterNumber == rhs.emitterNumber)) return false;

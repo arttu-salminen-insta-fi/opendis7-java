@@ -468,7 +468,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      final EventReportRPdu rhs = (EventReportRPdu)obj;
 
      if( ! (eventType == rhs.eventType)) return false;
-     if( ! (padding1 == rhs.padding1)) return false;
+     if( ! Objects.equals(padding1, rhs.padding1) ) return false;
      if( ! Objects.equals(fixedDatumRecords, rhs.fixedDatumRecords) ) return false;
      if( ! Objects.equals(variableDatumRecords, rhs.variableDatumRecords) ) return false;
     return super.equalsImpl(rhs);

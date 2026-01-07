@@ -471,7 +471,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
 
      if( ! Objects.equals(groupEntityID, rhs.groupEntityID) ) return false;
      if( ! (groupedEntityCategory == rhs.groupedEntityCategory)) return false;
-     if( ! (padding == rhs.padding)) return false;
+     if( ! Objects.equals(padding, rhs.padding) ) return false;
      if( ! (latitude == rhs.latitude)) return false;
      if( ! (longitude == rhs.longitude)) return false;
      if( ! Objects.equals(groupedEntityDescriptions, rhs.groupedEntityDescriptions) ) return false;

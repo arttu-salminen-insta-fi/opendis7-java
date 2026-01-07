@@ -350,9 +350,9 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! (recordType == rhs.recordType)) return false;
      if( ! (changeIndicator == rhs.changeIndicator)) return false;
      if( ! (partAttachedTo == rhs.partAttachedTo)) return false;
-     if( ! (parameterType == rhs.parameterType)) return false;
+     if( ! Objects.equals(parameterType, rhs.parameterType) ) return false;
      if( ! (parameterValue == rhs.parameterValue)) return false;
-     if( ! (padding == rhs.padding)) return false;
+     if( ! Objects.equals(padding, rhs.padding) ) return false;
     return true;
  }
 

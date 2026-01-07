@@ -354,7 +354,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! (mode5InterrogatorStatus == rhs.mode5InterrogatorStatus)) return false;
      if( ! (padding == rhs.padding)) return false;
      if( ! (padding2 == rhs.padding2)) return false;
-     if( ! (mode5MessageFormatsPresent == rhs.mode5MessageFormatsPresent)) return false;
+     if( ! Objects.equals(mode5MessageFormatsPresent, rhs.mode5MessageFormatsPresent) ) return false;
      if( ! Objects.equals(entityID, rhs.entityID) ) return false;
      if( ! (padding3 == rhs.padding3)) return false;
     return true;

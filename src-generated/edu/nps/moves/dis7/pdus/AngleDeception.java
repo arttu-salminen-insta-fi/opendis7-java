@@ -633,7 +633,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final AngleDeception rhs = (AngleDeception)obj;
 
-     if( ! (recordType == rhs.recordType)) return false;
+     if( ! Objects.equals(recordType, rhs.recordType) ) return false;
      if( ! (recordLength == rhs.recordLength)) return false;
      if( ! (padding == rhs.padding)) return false;
      if( ! (emitterNumber == rhs.emitterNumber)) return false;
@@ -648,7 +648,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! (elevationWidth == rhs.elevationWidth)) return false;
      if( ! (elevationPullRate == rhs.elevationPullRate)) return false;
      if( ! (elevationPullAcceleration == rhs.elevationPullAcceleration)) return false;
-     if( ! (padding3 == rhs.padding3)) return false;
+     if( ! Objects.equals(padding3, rhs.padding3) ) return false;
     return true;
  }
 

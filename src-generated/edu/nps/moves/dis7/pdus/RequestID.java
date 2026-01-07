@@ -203,7 +203,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final RequestID rhs = (RequestID)obj;
 
-     if( ! (requestID == rhs.requestID)) return false;
+     if( ! Objects.equals(requestID, rhs.requestID) ) return false;
     return true;
  }
 

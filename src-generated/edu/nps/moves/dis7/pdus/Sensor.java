@@ -352,7 +352,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! (sensorTypeSource == rhs.sensorTypeSource)) return false;
      if( ! (sensorOnOffStatus == rhs.sensorOnOffStatus)) return false;
      if( ! (sensorType == rhs.sensorType)) return false;
-     if( ! (station == rhs.station)) return false;
+     if( ! Objects.equals(station, rhs.station) ) return false;
      if( ! (quantity == rhs.quantity)) return false;
      if( ! (padding == rhs.padding)) return false;
     return true;

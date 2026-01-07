@@ -401,10 +401,10 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final StorageFuelReload rhs = (StorageFuelReload)obj;
 
-     if( ! (standardQuantity == rhs.standardQuantity)) return false;
-     if( ! (maximumQuantity == rhs.maximumQuantity)) return false;
-     if( ! (standardQuantityReloadTime == rhs.standardQuantityReloadTime)) return false;
-     if( ! (maximumQuantityReloadTime == rhs.maximumQuantityReloadTime)) return false;
+     if( ! Objects.equals(standardQuantity, rhs.standardQuantity) ) return false;
+     if( ! Objects.equals(maximumQuantity, rhs.maximumQuantity) ) return false;
+     if( ! Objects.equals(standardQuantityReloadTime, rhs.standardQuantityReloadTime) ) return false;
+     if( ! Objects.equals(maximumQuantityReloadTime, rhs.maximumQuantityReloadTime) ) return false;
      if( ! (fuelMeasurementUnits == rhs.fuelMeasurementUnits)) return false;
      if( ! (fuelType == rhs.fuelType)) return false;
      if( ! (fuelLocation == rhs.fuelLocation)) return false;

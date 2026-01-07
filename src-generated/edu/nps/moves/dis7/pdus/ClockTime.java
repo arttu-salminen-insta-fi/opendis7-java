@@ -232,7 +232,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      final ClockTime rhs = (ClockTime)obj;
 
      if( ! (hour == rhs.hour)) return false;
-     if( ! (timePastHour == rhs.timePastHour)) return false;
+     if( ! Objects.equals(timePastHour, rhs.timePastHour) ) return false;
     return true;
  }
 

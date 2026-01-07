@@ -762,7 +762,7 @@ public synchronized java.nio.ByteBuffer marshal() throws Exception
      if( ! (exerciseID == rhs.exerciseID)) return false;
      if( ! (pduType == rhs.pduType)) return false;
      if( ! (protocolFamily == rhs.protocolFamily)) return false;
-     if( ! (timestamp == rhs.timestamp)) return false;
+     if( ! Objects.equals(timestamp, rhs.timestamp) ) return false;
      if( ! (length == rhs.length)) return false;
     return true;
  }

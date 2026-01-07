@@ -498,8 +498,8 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! (modeSTransponderStatus == rhs.modeSTransponderStatus)) return false;
      if( ! (modeSLevelsPresent == rhs.modeSLevelsPresent)) return false;
      if( ! (aircraftPresentDomain == rhs.aircraftPresentDomain)) return false;
-     if( ! (aircraftIdentification == rhs.aircraftIdentification)) return false;
-     if( ! (aircraftAddress == rhs.aircraftAddress)) return false;
+     if( ! Objects.equals(aircraftIdentification, rhs.aircraftIdentification) ) return false;
+     if( ! Objects.equals(aircraftAddress, rhs.aircraftAddress) ) return false;
      if( ! (aircraftIdentificationType == rhs.aircraftIdentificationType)) return false;
      if( ! (dapSource == rhs.dapSource)) return false;
      if( ! (modeSAltitude == rhs.modeSAltitude)) return false;

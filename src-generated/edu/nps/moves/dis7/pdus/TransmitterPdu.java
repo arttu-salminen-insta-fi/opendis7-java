@@ -889,7 +889,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! Objects.equals(antennaLocation, rhs.antennaLocation) ) return false;
      if( ! Objects.equals(relativeAntennaLocation, rhs.relativeAntennaLocation) ) return false;
      if( ! (antennaPatternType == rhs.antennaPatternType)) return false;
-     if( ! (frequency == rhs.frequency)) return false;
+     if( ! Objects.equals(frequency, rhs.frequency) ) return false;
      if( ! (transmitFrequencyBandwidth == rhs.transmitFrequencyBandwidth)) return false;
      if( ! (power == rhs.power)) return false;
      if( ! Objects.equals(modulationType, rhs.modulationType) ) return false;

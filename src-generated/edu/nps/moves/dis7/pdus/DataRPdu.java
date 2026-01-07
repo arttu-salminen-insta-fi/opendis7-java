@@ -527,7 +527,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final DataRPdu rhs = (DataRPdu)obj;
 
-     if( ! (requestID == rhs.requestID)) return false;
+     if( ! Objects.equals(requestID, rhs.requestID) ) return false;
      if( ! (requiredReliabilityService == rhs.requiredReliabilityService)) return false;
      if( ! (padding1 == rhs.padding1)) return false;
      if( ! (padding2 == rhs.padding2)) return false;

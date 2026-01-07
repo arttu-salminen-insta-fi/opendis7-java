@@ -300,7 +300,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      final VariableDatum rhs = (VariableDatum)obj;
 
      if( ! (variableDatumID == rhs.variableDatumID)) return false;
-     if( ! (variableDatumLength == rhs.variableDatumLength)) return false;
+     if( ! Objects.equals(variableDatumLength, rhs.variableDatumLength) ) return false;
 
      for (int idx = 0; idx < 0; idx++)
      {

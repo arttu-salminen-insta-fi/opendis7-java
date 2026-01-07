@@ -734,13 +734,13 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! Objects.equals(apertureEmitterLocation, rhs.apertureEmitterLocation) ) return false;
      if( ! (apertureDiameter == rhs.apertureDiameter)) return false;
      if( ! (wavelength == rhs.wavelength)) return false;
-     if( ! (padding1 == rhs.padding1)) return false;
+     if( ! Objects.equals(padding1, rhs.padding1) ) return false;
      if( ! (pulseRepititionFrequency == rhs.pulseRepititionFrequency)) return false;
      if( ! (pulseWidth == rhs.pulseWidth)) return false;
      if( ! Objects.equals(flags, rhs.flags) ) return false;
      if( ! (pulseShape == rhs.pulseShape)) return false;
      if( ! (padding2 == rhs.padding2)) return false;
-     if( ! (padding3 == rhs.padding3)) return false;
+     if( ! Objects.equals(padding3, rhs.padding3) ) return false;
      if( ! (padding4 == rhs.padding4)) return false;
      if( ! Objects.equals(dERecords, rhs.dERecords) ) return false;
     return super.equalsImpl(rhs);

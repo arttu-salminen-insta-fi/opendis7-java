@@ -393,7 +393,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! (frequency == rhs.frequency)) return false;
      if( ! (pgrf == rhs.pgrf)) return false;
      if( ! (pulseWidth == rhs.pulseWidth)) return false;
-     if( ! (burstLength == rhs.burstLength)) return false;
+     if( ! Objects.equals(burstLength, rhs.burstLength) ) return false;
      if( ! (applicableModes == rhs.applicableModes)) return false;
 
      for (int idx = 0; idx < 3; idx++)

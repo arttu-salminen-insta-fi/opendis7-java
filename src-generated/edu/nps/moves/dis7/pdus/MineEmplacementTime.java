@@ -231,8 +231,8 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final MineEmplacementTime rhs = (MineEmplacementTime)obj;
 
-     if( ! (hour == rhs.hour)) return false;
-     if( ! (timePastTheHour == rhs.timePastTheHour)) return false;
+     if( ! Objects.equals(hour, rhs.hour) ) return false;
+     if( ! Objects.equals(timePastTheHour, rhs.timePastTheHour) ) return false;
     return true;
  }
 

@@ -783,7 +783,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! Objects.equals(environmentType, rhs.environmentType) ) return false;
      if( ! Objects.equals(orientation, rhs.orientation) ) return false;
      if( ! Objects.equals(sampleTime, rhs.sampleTime) ) return false;
-     if( ! (totalValues == rhs.totalValues)) return false;
+     if( ! Objects.equals(totalValues, rhs.totalValues) ) return false;
      if( ! (vectorDimension == rhs.vectorDimension)) return false;
      if( ! (padding1 == rhs.padding1)) return false;
      if( ! (padding2 == rhs.padding2)) return false;

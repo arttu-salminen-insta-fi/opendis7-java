@@ -618,7 +618,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! (forceID == rhs.forceID)) return false;
      if( ! Objects.equals(modifications, rhs.modifications) ) return false;
      if( ! Objects.equals(objectType, rhs.objectType) ) return false;
-     if( ! (specificObjectAppearance == rhs.specificObjectAppearance)) return false;
+     if( ! Objects.equals(specificObjectAppearance, rhs.specificObjectAppearance) ) return false;
      if( ! (generalObjectAppearance == rhs.generalObjectAppearance)) return false;
      if( ! Objects.equals(requesterID, rhs.requesterID) ) return false;
      if( ! Objects.equals(receivingID, rhs.receivingID) ) return false;

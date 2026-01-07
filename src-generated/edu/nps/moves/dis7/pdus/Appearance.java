@@ -287,10 +287,10 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final Appearance rhs = (Appearance)obj;
 
-     if( ! (visual == rhs.visual)) return false;
-     if( ! (ir == rhs.ir)) return false;
-     if( ! (em == rhs.em)) return false;
-     if( ! (audio == rhs.audio)) return false;
+     if( ! Objects.equals(visual, rhs.visual) ) return false;
+     if( ! Objects.equals(ir, rhs.ir) ) return false;
+     if( ! Objects.equals(em, rhs.em) ) return false;
+     if( ! Objects.equals(audio, rhs.audio) ) return false;
     return true;
  }
 

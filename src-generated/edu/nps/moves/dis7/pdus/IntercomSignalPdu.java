@@ -506,7 +506,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! (intercomNumber == rhs.intercomNumber)) return false;
      if( ! (encodingScheme == rhs.encodingScheme)) return false;
      if( ! (tdlType == rhs.tdlType)) return false;
-     if( ! (sampleRate == rhs.sampleRate)) return false;
+     if( ! Objects.equals(sampleRate, rhs.sampleRate) ) return false;
      if( ! (samples == rhs.samples)) return false;
 
      for (int idx = 0; idx < 0; idx++)

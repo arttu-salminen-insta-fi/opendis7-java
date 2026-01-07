@@ -348,11 +348,11 @@ public static int getMarshalledSize(PduMap map) throws Exception
      final MunitionReload rhs = (MunitionReload)obj;
 
      if( ! Objects.equals(munitionType, rhs.munitionType) ) return false;
-     if( ! (station == rhs.station)) return false;
+     if( ! Objects.equals(station, rhs.station) ) return false;
      if( ! (standardQuantity == rhs.standardQuantity)) return false;
      if( ! (maximumQuantity == rhs.maximumQuantity)) return false;
-     if( ! (standardQuantityReloadTime == rhs.standardQuantityReloadTime)) return false;
-     if( ! (maximumQuantityReloadTime == rhs.maximumQuantityReloadTime)) return false;
+     if( ! Objects.equals(standardQuantityReloadTime, rhs.standardQuantityReloadTime) ) return false;
+     if( ! Objects.equals(maximumQuantityReloadTime, rhs.maximumQuantityReloadTime) ) return false;
     return true;
  }
 

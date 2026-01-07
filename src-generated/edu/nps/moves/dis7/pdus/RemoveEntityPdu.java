@@ -275,7 +275,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final RemoveEntityPdu rhs = (RemoveEntityPdu)obj;
 
-     if( ! (requestID == rhs.requestID)) return false;
+     if( ! Objects.equals(requestID, rhs.requestID) ) return false;
     return super.equalsImpl(rhs);
  }
 

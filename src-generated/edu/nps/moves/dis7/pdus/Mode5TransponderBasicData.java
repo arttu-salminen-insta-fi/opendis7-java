@@ -443,7 +443,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
 
      if( ! (mode5Status == rhs.mode5Status)) return false;
      if( ! (personalIdentificationNumber == rhs.personalIdentificationNumber)) return false;
-     if( ! (mode5MessageFormatsPresent == rhs.mode5MessageFormatsPresent)) return false;
+     if( ! Objects.equals(mode5MessageFormatsPresent, rhs.mode5MessageFormatsPresent) ) return false;
      if( ! (enhancedMode1 == rhs.enhancedMode1)) return false;
      if( ! (nationalOrigin == rhs.nationalOrigin)) return false;
      if( ! (supplementalData == rhs.supplementalData)) return false;

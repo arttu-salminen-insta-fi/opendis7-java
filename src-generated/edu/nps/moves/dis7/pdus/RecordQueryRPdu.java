@@ -471,11 +471,11 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final RecordQueryRPdu rhs = (RecordQueryRPdu)obj;
 
-     if( ! (requestID == rhs.requestID)) return false;
+     if( ! Objects.equals(requestID, rhs.requestID) ) return false;
      if( ! (requiredReliabilityService == rhs.requiredReliabilityService)) return false;
      if( ! (padding1 == rhs.padding1)) return false;
      if( ! (eventType == rhs.eventType)) return false;
-     if( ! (time == rhs.time)) return false;
+     if( ! Objects.equals(time, rhs.time) ) return false;
      if( ! Objects.equals(recordIDs, rhs.recordIDs) ) return false;
     return super.equalsImpl(rhs);
  }

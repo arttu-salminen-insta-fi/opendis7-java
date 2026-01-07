@@ -503,7 +503,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! Objects.equals(targetEntityID, rhs.targetEntityID) ) return false;
      if( ! Objects.equals(munitionExpendibleID, rhs.munitionExpendibleID) ) return false;
      if( ! Objects.equals(eventID, rhs.eventID) ) return false;
-     if( ! (fireMissionIndex == rhs.fireMissionIndex)) return false;
+     if( ! Objects.equals(fireMissionIndex, rhs.fireMissionIndex) ) return false;
      if( ! Objects.equals(locationInWorldCoordinates, rhs.locationInWorldCoordinates) ) return false;
      if( ! Objects.equals(descriptor, rhs.descriptor) ) return false;
      if( ! Objects.equals(velocity, rhs.velocity) ) return false;

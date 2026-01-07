@@ -333,7 +333,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
 
      if( ! Objects.equals(realWorldTime, rhs.realWorldTime) ) return false;
      if( ! Objects.equals(simulationTime, rhs.simulationTime) ) return false;
-     if( ! (requestID == rhs.requestID)) return false;
+     if( ! Objects.equals(requestID, rhs.requestID) ) return false;
     return super.equalsImpl(rhs);
  }
 

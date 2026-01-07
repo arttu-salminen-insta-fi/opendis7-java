@@ -320,7 +320,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      final Expendable rhs = (Expendable)obj;
 
      if( ! Objects.equals(expendable, rhs.expendable) ) return false;
-     if( ! (station == rhs.station)) return false;
+     if( ! Objects.equals(station, rhs.station) ) return false;
      if( ! (quantity == rhs.quantity)) return false;
      if( ! (expendableStatus == rhs.expendableStatus)) return false;
      if( ! (padding == rhs.padding)) return false;

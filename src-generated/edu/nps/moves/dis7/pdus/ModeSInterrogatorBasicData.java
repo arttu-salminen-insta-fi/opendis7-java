@@ -439,11 +439,11 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! (padding == rhs.padding)) return false;
      if( ! (modeSLevelsPresent == rhs.modeSLevelsPresent)) return false;
      if( ! (padding2 == rhs.padding2)) return false;
-     if( ! (padding3 == rhs.padding3)) return false;
-     if( ! (padding4 == rhs.padding4)) return false;
-     if( ! (padding5 == rhs.padding5)) return false;
-     if( ! (padding6 == rhs.padding6)) return false;
-     if( ! (padding7 == rhs.padding7)) return false;
+     if( ! Objects.equals(padding3, rhs.padding3) ) return false;
+     if( ! Objects.equals(padding4, rhs.padding4) ) return false;
+     if( ! Objects.equals(padding5, rhs.padding5) ) return false;
+     if( ! Objects.equals(padding6, rhs.padding6) ) return false;
+     if( ! Objects.equals(padding7, rhs.padding7) ) return false;
     return true;
  }
 

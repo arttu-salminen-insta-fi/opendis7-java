@@ -467,7 +467,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final ActionRequestPdu rhs = (ActionRequestPdu)obj;
 
-     if( ! (requestID == rhs.requestID)) return false;
+     if( ! Objects.equals(requestID, rhs.requestID) ) return false;
      if( ! (actionID == rhs.actionID)) return false;
      if( ! Objects.equals(fixedDatums, rhs.fixedDatums) ) return false;
      if( ! Objects.equals(variableDatums, rhs.variableDatums) ) return false;

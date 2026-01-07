@@ -441,7 +441,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final DirectedEnergyAreaAimpoint rhs = (DirectedEnergyAreaAimpoint)obj;
 
-     if( ! (recordType == rhs.recordType)) return false;
+     if( ! Objects.equals(recordType, rhs.recordType) ) return false;
      if( ! (recordLength == rhs.recordLength)) return false;
      if( ! (padding == rhs.padding)) return false;
      if( ! Objects.equals(beamAntennaParameterList, rhs.beamAntennaParameterList) ) return false;

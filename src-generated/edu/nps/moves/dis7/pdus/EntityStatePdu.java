@@ -643,7 +643,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! Objects.equals(entityLinearVelocity, rhs.entityLinearVelocity) ) return false;
      if( ! Objects.equals(entityLocation, rhs.entityLocation) ) return false;
      if( ! Objects.equals(entityOrientation, rhs.entityOrientation) ) return false;
-     if( ! (entityAppearance == rhs.entityAppearance)) return false;
+     if( ! Objects.equals(entityAppearance, rhs.entityAppearance) ) return false;
      if( ! Objects.equals(deadReckoningParameters, rhs.deadReckoningParameters) ) return false;
      if( ! Objects.equals(marking, rhs.marking) ) return false;
      if( ! Objects.equals(capabilities, rhs.capabilities) ) return false;

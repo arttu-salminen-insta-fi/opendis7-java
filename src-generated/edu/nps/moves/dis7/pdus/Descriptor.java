@@ -232,7 +232,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      final Descriptor rhs = (Descriptor)obj;
 
      if( ! Objects.equals(entityType, rhs.entityType) ) return false;
-     if( ! (descriptorRecordFields == rhs.descriptorRecordFields)) return false;
+     if( ! Objects.equals(descriptorRecordFields, rhs.descriptorRecordFields) ) return false;
     return true;
  }
 

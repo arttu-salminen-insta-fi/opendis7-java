@@ -203,7 +203,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final UnsignedDISInteger rhs = (UnsignedDISInteger)obj;
 
-     if( ! (val == rhs.val)) return false;
+     if( ! Objects.equals(val, rhs.val) ) return false;
     return true;
  }
 

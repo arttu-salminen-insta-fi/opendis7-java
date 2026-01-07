@@ -601,7 +601,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final DirectedEnergyPrecisionAimpoint rhs = (DirectedEnergyPrecisionAimpoint)obj;
 
-     if( ! (recordType == rhs.recordType)) return false;
+     if( ! Objects.equals(recordType, rhs.recordType) ) return false;
      if( ! (recordLength == rhs.recordLength)) return false;
      if( ! (padding == rhs.padding)) return false;
      if( ! Objects.equals(targetSpotLocation, rhs.targetSpotLocation) ) return false;
@@ -615,7 +615,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
      if( ! (beamSpotCrossSectionSemiMinorAxis == rhs.beamSpotCrossSectionSemiMinorAxis)) return false;
      if( ! (beamSpotCrossSectionOrientationAngle == rhs.beamSpotCrossSectionOrientationAngle)) return false;
      if( ! (peakIrradiance == rhs.peakIrradiance)) return false;
-     if( ! (padding2 == rhs.padding2)) return false;
+     if( ! Objects.equals(padding2, rhs.padding2) ) return false;
     return true;
  }
 

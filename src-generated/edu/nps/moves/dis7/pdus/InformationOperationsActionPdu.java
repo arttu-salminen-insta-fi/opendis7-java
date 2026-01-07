@@ -612,12 +612,12 @@ public static int getMarshalledSize(PduMap map) throws Exception
      final InformationOperationsActionPdu rhs = (InformationOperationsActionPdu)obj;
 
      if( ! Objects.equals(receivingSimID, rhs.receivingSimID) ) return false;
-     if( ! (requestID == rhs.requestID)) return false;
+     if( ! Objects.equals(requestID, rhs.requestID) ) return false;
      if( ! (IOWarfareType == rhs.IOWarfareType)) return false;
      if( ! (IOSimulationSource == rhs.IOSimulationSource)) return false;
      if( ! (IOActionType == rhs.IOActionType)) return false;
      if( ! (IOActionPhase == rhs.IOActionPhase)) return false;
-     if( ! (padding1 == rhs.padding1)) return false;
+     if( ! Objects.equals(padding1, rhs.padding1) ) return false;
      if( ! Objects.equals(ioAttackerID, rhs.ioAttackerID) ) return false;
      if( ! Objects.equals(ioPrimaryTargetID, rhs.ioPrimaryTargetID) ) return false;
      if( ! (padding2 == rhs.padding2)) return false;

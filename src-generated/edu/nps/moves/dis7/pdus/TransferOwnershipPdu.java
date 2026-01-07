@@ -445,7 +445,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
 
      if( ! Objects.equals(originatingEntityID, rhs.originatingEntityID) ) return false;
      if( ! Objects.equals(receivingEntityID, rhs.receivingEntityID) ) return false;
-     if( ! (requestID == rhs.requestID)) return false;
+     if( ! Objects.equals(requestID, rhs.requestID) ) return false;
      if( ! (requiredReliabilityService == rhs.requiredReliabilityService)) return false;
      if( ! (transferType == rhs.transferType)) return false;
      if( ! Objects.equals(transferEntityID, rhs.transferEntityID) ) return false;

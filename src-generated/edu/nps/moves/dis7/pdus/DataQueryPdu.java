@@ -467,8 +467,8 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final DataQueryPdu rhs = (DataQueryPdu)obj;
 
-     if( ! (requestID == rhs.requestID)) return false;
-     if( ! (timeInterval == rhs.timeInterval)) return false;
+     if( ! Objects.equals(requestID, rhs.requestID) ) return false;
+     if( ! Objects.equals(timeInterval, rhs.timeInterval) ) return false;
      if( ! Objects.equals(fixedDatums, rhs.fixedDatums) ) return false;
      if( ! Objects.equals(variableDatums, rhs.variableDatums) ) return false;
     return super.equalsImpl(rhs);
