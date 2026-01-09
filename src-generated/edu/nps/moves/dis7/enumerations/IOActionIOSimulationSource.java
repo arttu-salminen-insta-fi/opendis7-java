@@ -147,8 +147,7 @@ public enum IOActionIOSimulationSource
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "IOActionIOSimulationSource " + getValue() + " " + name(); 
     }

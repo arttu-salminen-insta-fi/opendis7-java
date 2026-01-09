@@ -216,8 +216,7 @@ public enum TransmitterModulationTypeSystem
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "TransmitterModulationTypeSystem " + getValue() + " " + name(); 
     }

@@ -146,8 +146,7 @@ public enum GriddedDataSampleType
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "GriddedDataSampleType " + getValue() + " " + name(); 
     }

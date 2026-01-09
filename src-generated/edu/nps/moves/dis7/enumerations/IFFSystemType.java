@@ -216,8 +216,7 @@ public enum IFFSystemType
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "IFFSystemType " + getValue() + " " + name(); 
     }

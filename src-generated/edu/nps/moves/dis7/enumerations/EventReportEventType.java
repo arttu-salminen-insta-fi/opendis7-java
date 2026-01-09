@@ -231,8 +231,7 @@ public enum EventReportEventType
         return name();
     }
     
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "EventReportEventType: " + getValue() + " " + name();
     }

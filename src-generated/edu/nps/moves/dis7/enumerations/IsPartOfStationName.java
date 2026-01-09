@@ -256,8 +256,7 @@ public enum IsPartOfStationName
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "IsPartOfStationName " + getValue() + " " + name(); 
     }

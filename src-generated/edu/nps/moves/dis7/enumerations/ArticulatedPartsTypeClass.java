@@ -1451,8 +1451,7 @@ public enum ArticulatedPartsTypeClass
         return name();
     }
     
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "ArticulatedPartsTypeClass: " + getValue() + " " + name();
     }

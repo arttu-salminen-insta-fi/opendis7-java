@@ -191,8 +191,7 @@ public enum AttachedParts
         return name();
     }
     
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "AttachedParts: " + getValue() + " " + name();
     }

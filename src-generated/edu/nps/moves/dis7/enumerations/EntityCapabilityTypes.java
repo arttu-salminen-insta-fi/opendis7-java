@@ -188,8 +188,7 @@ public enum EntityCapabilityTypes
         return name();
     }
     
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "EntityCapabilityTypes: " + getValue() + " " + name();
     }

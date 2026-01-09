@@ -1536,8 +1536,7 @@ public enum Country
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "Country " + getValue() + " " + name(); 
     }

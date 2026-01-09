@@ -316,8 +316,7 @@ public enum SignalUserProtocolIdentificationNumber
         return name();
     }
     
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "SignalUserProtocolIdentificationNumber: " + getValue() + " " + name();
     }

@@ -206,8 +206,7 @@ public enum ActionResponseRequestStatus
         return name();
     }
     
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "ActionResponseRequestStatus: " + getValue() + " " + name();
     }

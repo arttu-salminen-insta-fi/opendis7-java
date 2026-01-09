@@ -156,8 +156,7 @@ public enum IntercomControlRecordType
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "IntercomControlRecordType " + getValue() + " " + name(); 
     }

@@ -231,8 +231,7 @@ public enum EnvironmentalProcessRecordType
         return name();
     }
     
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "EnvironmentalProcessRecordType: " + getValue() + " " + name();
     }

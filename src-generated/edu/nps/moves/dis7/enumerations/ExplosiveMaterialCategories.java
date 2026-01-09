@@ -366,8 +366,7 @@ public enum ExplosiveMaterialCategories
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "ExplosiveMaterialCategories " + getValue() + " " + name(); 
     }

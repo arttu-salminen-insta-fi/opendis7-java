@@ -146,8 +146,7 @@ public enum MinefieldSensorTypesMultispectral
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "MinefieldSensorTypesMultispectral " + getValue() + " " + name(); 
     }

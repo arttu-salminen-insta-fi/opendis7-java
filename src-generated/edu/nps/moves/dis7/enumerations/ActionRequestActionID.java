@@ -396,8 +396,7 @@ public enum ActionRequestActionID
         return name();
     }
     
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "ActionRequestActionID: " + getValue() + " " + name();
     }

@@ -676,8 +676,7 @@ public enum MunitionDescriptorFuse
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "MunitionDescriptorFuse " + getValue() + " " + name(); 
     }

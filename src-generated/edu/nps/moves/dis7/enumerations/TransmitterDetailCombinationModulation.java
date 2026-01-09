@@ -151,8 +151,7 @@ public enum TransmitterDetailCombinationModulation
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "TransmitterDetailCombinationModulation " + getValue() + " " + name(); 
     }

@@ -166,8 +166,7 @@ public enum AggregateStateFormation
         return name();
     }
     
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "AggregateStateFormation: " + getValue() + " " + name();
     }

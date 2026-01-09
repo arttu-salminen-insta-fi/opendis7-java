@@ -4236,8 +4236,7 @@ public enum EmitterName2 implements EmitterName
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "EmitterName2 " + getValue() + " " + name(); 
     }

@@ -6455,8 +6455,7 @@ public enum VariableRecordType
         return name();
     }
     
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "VariableRecordType: " + getValue() + " " + name();
     }

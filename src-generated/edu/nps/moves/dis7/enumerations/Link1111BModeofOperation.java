@@ -171,8 +171,7 @@ public enum Link1111BModeofOperation
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "Link1111BModeofOperation " + getValue() + " " + name(); 
     }

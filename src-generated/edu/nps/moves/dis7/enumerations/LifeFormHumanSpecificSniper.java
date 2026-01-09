@@ -413,8 +413,7 @@ public enum LifeFormHumanSpecificSniper
    * Provide simple identifier
    * @return class name, value and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         String padding = new String();
         if (this.getClass().getName().endsWith("DisPduType") && (getValue() < 10))

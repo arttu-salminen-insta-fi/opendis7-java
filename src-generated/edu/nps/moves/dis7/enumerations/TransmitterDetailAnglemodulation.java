@@ -166,8 +166,7 @@ public enum TransmitterDetailAnglemodulation
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "TransmitterDetailAnglemodulation " + getValue() + " " + name(); 
     }

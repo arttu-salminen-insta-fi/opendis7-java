@@ -161,8 +161,7 @@ public enum TransmitterDetailPulseModulation
    * Provide simple identifier
    * @return ID number and name
    */
-    @Override
-    public String toString()
+    public String toPrettyString()
     {
         return "TransmitterDetailPulseModulation " + getValue() + " " + name(); 
     }
