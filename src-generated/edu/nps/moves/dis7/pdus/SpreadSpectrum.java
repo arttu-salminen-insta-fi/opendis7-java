@@ -16,41 +16,25 @@ import com.google.common.primitives.*;
 import com.google.common.base.Preconditions;
 
 /**
- * identify which of the optional data fields are contained in the Minefield Data PDU or requested in the Minefield Query PDU. This is a 32-bit record. For each field, true denotes that the data is requested or present and false denotes that the data is neither requested nor present. Section 6.2.16
+ * Spread spectrom technique or combination of techniques. Section 6.2.59.a
  * @see <a href="https://ieeexplore.ieee.org/document/6387564" target="_blank">IEEE Std 1278.1-2012, IEEE Standard for Distributed Interactive Simulation - Application Protocols</a> 
  */
-public class DataFilterRecord extends Object implements Serializable, Marshaller
+public class SpreadSpectrum extends Object implements Serializable, Marshaller
 {
-   /** Bitflags field 
-   Value space: uint32 */
-   protected UnsignedInteger bitFlags = UnsignedInteger.ZERO;
+   /** Raw bitfield 
+   Value space: uint16 */
+   protected int bitfield;
 
  // Bit field element helpers
- public static final BitFieldElement GROUND_BURIAL_DEPTH_OFFSET_BIT = new BitFieldElement(0, 1);
+ public static final BitFieldElement FREQUENCY_HOPPING_BIT = new BitFieldElement(0, 1);
 
- public static final BitFieldElement WATER_BURIAL_DEPTH_OFFSET_BIT = new BitFieldElement(1, 1);
+ public static final BitFieldElement PSEUDO_NOISE_BIT = new BitFieldElement(1, 1);
 
- public static final BitFieldElement SNOW_BURIAL_DEPTH_OFFSET_BIT = new BitFieldElement(2, 1);
-
- public static final BitFieldElement MINE_ORIENTATION_BIT = new BitFieldElement(3, 1);
-
- public static final BitFieldElement THERMAL_CONTRAST_BIT = new BitFieldElement(4, 1);
-
- public static final BitFieldElement REFLECTANCE_BIT = new BitFieldElement(5, 1);
-
- public static final BitFieldElement MINE_EMPLACEMENT_TIME_BIT = new BitFieldElement(6, 1);
-
- public static final BitFieldElement TRIP_DETONATION_WIRE_BIT = new BitFieldElement(7, 1);
-
- public static final BitFieldElement FUSING_BIT = new BitFieldElement(8, 1);
-
- public static final BitFieldElement SCALAR_DETECTION_COEFFICIENT_BIT = new BitFieldElement(9, 1);
-
- public static final BitFieldElement PAINT_SCHEME_BIT = new BitFieldElement(10, 1);
+ public static final BitFieldElement TIME_HOPPING_BIT = new BitFieldElement(2, 1);
 
 
 /** Constructor creates and configures a new instance object */
- public DataFilterRecord()
+ public SpreadSpectrum()
  {
  }
 
@@ -64,25 +48,27 @@ public synchronized int getMarshalledSize()
 {
    int marshalSize = 0; 
 
-   marshalSize += 4;  // bitFlags
+   marshalSize += 2;  // bitfield
 
    return marshalSize;
 }
 
 
-/** Setter for {@link DataFilterRecord#bitFlags}
-  * @param pBitFlags new value of interest. Value space uint32
+/** Setter for {@link SpreadSpectrum#bitfield}
+  * @param pBitfield new value of interest. Value space uint16
   * @return same object to permit progressive setters */
-public synchronized DataFilterRecord setBitFlags(UnsignedInteger pBitFlags)
+public synchronized SpreadSpectrum setBitfield(int pBitfield)
 {
-    bitFlags = pBitFlags;
+    // Checking value is in value space uint16
+    Preconditions.checkArgument(pBitfield >= 0 && pBitfield <= 65535, "Value outside valid value space");
+    bitfield = pBitfield;
     return this;
 }
-/** Getter for {@link DataFilterRecord#bitFlags}
+/** Getter for {@link SpreadSpectrum#bitfield}
   * @return value of interest */
-public UnsignedInteger getBitFlags()
+public int getBitfield()
 {
-    return bitFlags; 
+    return bitfield; 
 }
 
 /**
@@ -96,7 +82,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 {
 
     {
-       dos.writeInt(bitFlags.intValue());
+       dos.writeShort((short) bitfield);
     }
 }
 
@@ -114,8 +100,8 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
 
     {
-        bitFlags = UnsignedInteger.fromIntBits(dis.readInt());
-        uPosition += 4;
+        bitfield = Short.toUnsignedInt(dis.readShort());
+        uPosition += 2;
     }
     return getMarshalledSize();
 }
@@ -131,7 +117,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putInt(bitFlags.intValue());
+   byteBuffer.putShort((short) bitfield);
 }
 
 /**
@@ -147,7 +133,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
     {
-        bitFlags = UnsignedInteger.fromIntBits(byteBuffer.getInt());
+        bitfield = Short.toUnsignedInt(byteBuffer.getShort());
     }
     return getMarshalledSize();
 }
@@ -167,7 +153,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     PduMap map;
     map = new PduMap();
 
-    map.put("bitFlags", UnsignedInteger.fromIntBits(byteBuffer.getInt()));
+    map.put("bitfield", Short.toUnsignedInt(byteBuffer.getShort()));
     return map;
 }
 
@@ -181,7 +167,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
  */
 public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    byteBuffer.putInt(((Number) map.get("bitFlags")).intValue());
+    byteBuffer.putShort(((Number) map.get("bitfield")).shortValue());
 }
 
   /**
@@ -193,7 +179,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
 {
     int marshalSize = 0; 
 
-    marshalSize += 4;  // bitFlags
+    marshalSize += 2;  // bitfield
 
     return marshalSize;
 }
@@ -224,9 +210,9 @@ public static int getMarshalledSize(PduMap map) throws Exception
   */
  public synchronized boolean equalsImpl(Object obj)
  {
-     final DataFilterRecord rhs = (DataFilterRecord)obj;
+     final SpreadSpectrum rhs = (SpreadSpectrum)obj;
 
-     if( ! Objects.equals(bitFlags, rhs.bitFlags) ) return false;
+     if( ! (bitfield == rhs.bitfield)) return false;
     return true;
  }
 
@@ -236,7 +222,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
     StringBuilder sb  = new StringBuilder();
     StringBuilder sb2 = new StringBuilder();
     sb.append(getClass().getSimpleName());
-    sb.append(" bitFlags:").append(bitFlags); // writeOneToString
+    sb.append(" bitfield:").append(bitfield); // writeOneToString
 
    return sb.toString();
  }
@@ -244,6 +230,6 @@ public static int getMarshalledSize(PduMap map) throws Exception
  @Override
  public int hashCode()
  {
-	 return Objects.hash(this.bitFlags);
+	 return Objects.hash(this.bitfield);
  }
-} // end of DataFilterRecord
+} // end of SpreadSpectrum

@@ -21,9 +21,8 @@ import com.google.common.base.Preconditions;
  */
 public class ModulationType extends Object implements Serializable, Marshaller
 {
-   /** This field shall indicate the spread spectrum technique or combination of spread spectrum techniques in use. Bit field. 0=freq hopping, 1=psuedo noise, time hopping=2, reamining bits unused 
-   Value space: uint16 */
-   protected int spreadSpectrum;
+   /** This field shall indicate the spread spectrum technique or combination of spread spectrum techniques in use. Bit field. 0=freq hopping, 1=psuedo noise, time hopping=2, reamining bits unused */
+   protected SpreadSpectrum  spreadSpectrum = new SpreadSpectrum(); 
 
    /** The major classification of the modulation type.  uid 155 */
    protected TransmitterMajorModulation majorModulation = TransmitterMajorModulation.values()[0];
@@ -51,7 +50,8 @@ public synchronized int getMarshalledSize()
 {
    int marshalSize = 0; 
 
-   marshalSize += 2;  // spreadSpectrum
+   if (spreadSpectrum != null)
+       marshalSize += spreadSpectrum.getMarshalledSize();
    if (majorModulation != null)
        marshalSize += majorModulation.getMarshalledSize();
    marshalSize += 2;  // detail
@@ -63,21 +63,20 @@ public synchronized int getMarshalledSize()
 
 
 /** Setter for {@link ModulationType#spreadSpectrum}
-  * @param pSpreadSpectrum new value of interest. Value space uint16
+  * @param pSpreadSpectrum new value of interest
   * @return same object to permit progressive setters */
-public synchronized ModulationType setSpreadSpectrum(int pSpreadSpectrum)
+public synchronized ModulationType setSpreadSpectrum(SpreadSpectrum pSpreadSpectrum)
 {
-    // Checking value is in value space uint16
-    Preconditions.checkArgument(pSpreadSpectrum >= 0 && pSpreadSpectrum <= 65535, "Value outside valid value space");
     spreadSpectrum = pSpreadSpectrum;
     return this;
 }
 /** Getter for {@link ModulationType#spreadSpectrum}
   * @return value of interest */
-public int getSpreadSpectrum()
+public SpreadSpectrum getSpreadSpectrum()
 {
-    return spreadSpectrum; 
+    return spreadSpectrum;
 }
+
 
 /** Setter for {@link ModulationType#majorModulation}
   * @param pMajorModulation new value of interest
@@ -137,7 +136,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
 {
 
     {
-       dos.writeShort((short) spreadSpectrum);
+       spreadSpectrum.marshal(dos);
        majorModulation.marshal(dos);
        dos.writeShort((short) detail);
        radioSystem.marshal(dos);
@@ -158,8 +157,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
     int uPosition = 0;
 
     {
-        spreadSpectrum = Short.toUnsignedInt(dis.readShort());
-        uPosition += 2;
+        uPosition += spreadSpectrum.unmarshal(dis);
         majorModulation = TransmitterMajorModulation.unmarshalEnum(dis);
         uPosition += majorModulation.getMarshalledSize();
         detail = Short.toUnsignedInt(dis.readShort());
@@ -181,7 +179,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
 @Override
 public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
-   byteBuffer.putShort((short) spreadSpectrum);
+   spreadSpectrum.marshal(byteBuffer);
    majorModulation.marshal(byteBuffer);
    byteBuffer.putShort((short) detail);
    radioSystem.marshal(byteBuffer);
@@ -200,7 +198,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Exception
 {
     {
-        spreadSpectrum = Short.toUnsignedInt(byteBuffer.getShort());
+        spreadSpectrum.unmarshal(byteBuffer);
         majorModulation = TransmitterMajorModulation.unmarshalEnum(byteBuffer);
         detail = Short.toUnsignedInt(byteBuffer.getShort());
         radioSystem = TransmitterModulationTypeSystem.unmarshalEnum(byteBuffer);
@@ -223,7 +221,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     PduMap map;
     map = new PduMap();
 
-    map.put("spreadSpectrum", Short.toUnsignedInt(byteBuffer.getShort()));
+    map.put("spreadSpectrum", SpreadSpectrum.fromBufferToMap(byteBuffer));
     map.put("majorModulation", TransmitterMajorModulation.unmarshalEnum(byteBuffer).getValue());
     map.put("detail", Short.toUnsignedInt(byteBuffer.getShort()));
     map.put("radioSystem", TransmitterModulationTypeSystem.unmarshalEnum(byteBuffer).getValue());
@@ -240,7 +238,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
  */
 public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) throws Exception
 {
-    byteBuffer.putShort(((Number) map.get("spreadSpectrum")).shortValue());
+    SpreadSpectrum.fromMapToBuffer((PduMap) map.get("spreadSpectrum"), byteBuffer);
     TransmitterMajorModulation.getEnumForValue(((Number) map.get("majorModulation")).intValue()).marshal(byteBuffer);
     byteBuffer.putShort(((Number) map.get("detail")).shortValue());
     TransmitterModulationTypeSystem.getEnumForValue(((Number) map.get("radioSystem")).intValue()).marshal(byteBuffer);
@@ -255,7 +253,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
 {
     int marshalSize = 0; 
 
-    marshalSize += 2;  // spreadSpectrum
+    marshalSize += SpreadSpectrum.getMarshalledSize((PduMap) map.get("spreadSpectrum"));
     marshalSize += TransmitterMajorModulation.getEnumForValue(((Number) map.get("majorModulation")).intValue()).getMarshalledSize();
     marshalSize += 2;  // detail
     marshalSize += TransmitterModulationTypeSystem.getEnumForValue(((Number) map.get("radioSystem")).intValue()).getMarshalledSize();
@@ -291,7 +289,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  {
      final ModulationType rhs = (ModulationType)obj;
 
-     if( ! (spreadSpectrum == rhs.spreadSpectrum)) return false;
+     if( ! Objects.equals(spreadSpectrum, rhs.spreadSpectrum) ) return false;
      if( ! (majorModulation == rhs.majorModulation)) return false;
      if( ! (detail == rhs.detail)) return false;
      if( ! (radioSystem == rhs.radioSystem)) return false;

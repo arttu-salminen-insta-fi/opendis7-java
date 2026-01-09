@@ -29,9 +29,8 @@ public class FundamentalOperationalData extends Object implements Serializable, 
    Value space: uint8 */
    protected int dataField1;
 
-   /** eight boolean fields 
-   Value space: uint8 */
-   protected int informationLayers;
+   /** Indicators for Layers 1-7. Indicates Presence (Layer 1) or Applicability (Layer 5) */
+   protected InformationLayersRecord  informationLayers = new InformationLayersRecord(); 
 
    /** enumeration 
    Value space: uint8 */
@@ -79,7 +78,8 @@ public synchronized int getMarshalledSize()
 
    marshalSize += 1;  // systemStatus
    marshalSize += 1;  // dataField1
-   marshalSize += 1;  // informationLayers
+   if (informationLayers != null)
+       marshalSize += informationLayers.getMarshalledSize();
    marshalSize += 1;  // dataField2
    marshalSize += 2;  // parameter1
    marshalSize += 2;  // parameter2
@@ -127,21 +127,20 @@ public int getDataField1()
 }
 
 /** Setter for {@link FundamentalOperationalData#informationLayers}
-  * @param pInformationLayers new value of interest. Value space uint8
+  * @param pInformationLayers new value of interest
   * @return same object to permit progressive setters */
-public synchronized FundamentalOperationalData setInformationLayers(int pInformationLayers)
+public synchronized FundamentalOperationalData setInformationLayers(InformationLayersRecord pInformationLayers)
 {
-    // Checking value is in value space uint8
-    Preconditions.checkArgument(pInformationLayers >= 0 && pInformationLayers <= 255, "Value outside valid value space");
     informationLayers = pInformationLayers;
     return this;
 }
 /** Getter for {@link FundamentalOperationalData#informationLayers}
   * @return value of interest */
-public int getInformationLayers()
+public InformationLayersRecord getInformationLayers()
 {
-    return informationLayers; 
+    return informationLayers;
 }
+
 
 /** Setter for {@link FundamentalOperationalData#dataField2}
   * @param pDataField2 new value of interest. Value space uint8
@@ -275,7 +274,7 @@ public synchronized void marshal(DataOutputStream dos) throws Exception
     {
        dos.writeByte((byte) systemStatus);
        dos.writeByte((byte) dataField1);
-       dos.writeByte((byte) informationLayers);
+       informationLayers.marshal(dos);
        dos.writeByte((byte) dataField2);
        dos.writeShort((short) parameter1);
        dos.writeShort((short) parameter2);
@@ -304,8 +303,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         uPosition += 1;
         dataField1 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
-        informationLayers = Byte.toUnsignedInt(dis.readByte());
-        uPosition += 1;
+        uPosition += informationLayers.unmarshal(dis);
         dataField2 = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         parameter1 = Short.toUnsignedInt(dis.readShort());
@@ -337,7 +335,7 @@ public synchronized void marshal(java.nio.ByteBuffer byteBuffer) throws Exceptio
 {
    byteBuffer.put((byte) systemStatus);
    byteBuffer.put((byte) dataField1);
-   byteBuffer.put((byte) informationLayers);
+   informationLayers.marshal(byteBuffer);
    byteBuffer.put((byte) dataField2);
    byteBuffer.putShort((short) parameter1);
    byteBuffer.putShort((short) parameter2);
@@ -362,7 +360,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
     {
         systemStatus = Byte.toUnsignedInt(byteBuffer.get());
         dataField1 = Byte.toUnsignedInt(byteBuffer.get());
-        informationLayers = Byte.toUnsignedInt(byteBuffer.get());
+        informationLayers.unmarshal(byteBuffer);
         dataField2 = Byte.toUnsignedInt(byteBuffer.get());
         parameter1 = Short.toUnsignedInt(byteBuffer.getShort());
         parameter2 = Short.toUnsignedInt(byteBuffer.getShort());
@@ -391,7 +389,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
 
     map.put("systemStatus", Byte.toUnsignedInt(byteBuffer.get()));
     map.put("dataField1", Byte.toUnsignedInt(byteBuffer.get()));
-    map.put("informationLayers", Byte.toUnsignedInt(byteBuffer.get()));
+    map.put("informationLayers", InformationLayersRecord.fromBufferToMap(byteBuffer));
     map.put("dataField2", Byte.toUnsignedInt(byteBuffer.get()));
     map.put("parameter1", Short.toUnsignedInt(byteBuffer.getShort()));
     map.put("parameter2", Short.toUnsignedInt(byteBuffer.getShort()));
@@ -414,7 +412,7 @@ public static void fromMapToBuffer(PduMap map, java.nio.ByteBuffer byteBuffer) t
 {
     byteBuffer.put(((Number) map.get("systemStatus")).byteValue());
     byteBuffer.put(((Number) map.get("dataField1")).byteValue());
-    byteBuffer.put(((Number) map.get("informationLayers")).byteValue());
+    InformationLayersRecord.fromMapToBuffer((PduMap) map.get("informationLayers"), byteBuffer);
     byteBuffer.put(((Number) map.get("dataField2")).byteValue());
     byteBuffer.putShort(((Number) map.get("parameter1")).shortValue());
     byteBuffer.putShort(((Number) map.get("parameter2")).shortValue());
@@ -435,7 +433,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
 
     marshalSize += 1;  // systemStatus
     marshalSize += 1;  // dataField1
-    marshalSize += 1;  // informationLayers
+    marshalSize += InformationLayersRecord.getMarshalledSize((PduMap) map.get("informationLayers"));
     marshalSize += 1;  // dataField2
     marshalSize += 2;  // parameter1
     marshalSize += 2;  // parameter2
@@ -477,7 +475,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
 
      if( ! (systemStatus == rhs.systemStatus)) return false;
      if( ! (dataField1 == rhs.dataField1)) return false;
-     if( ! (informationLayers == rhs.informationLayers)) return false;
+     if( ! Objects.equals(informationLayers, rhs.informationLayers) ) return false;
      if( ! (dataField2 == rhs.dataField2)) return false;
      if( ! (parameter1 == rhs.parameter1)) return false;
      if( ! (parameter2 == rhs.parameter2)) return false;

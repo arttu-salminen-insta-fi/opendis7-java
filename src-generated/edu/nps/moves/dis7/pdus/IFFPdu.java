@@ -454,7 +454,7 @@ public synchronized int unmarshal(DataInputStream dis) throws Exception
         systemSpecificData = Byte.toUnsignedInt(dis.readByte());
         uPosition += 1;
         uPosition += fundamentalParameters.unmarshal(dis);
-        if (fundamentalParameters.getInformationLayers() != 0)
+        if (fundamentalParameters.getInformationLayers().getBitfield() != 0)
         	checkWhichLayersNeedsUnmarshaling();
         if (iFFPduLayer2Data != null)
             uPosition += iFFPduLayer2Data.unmarshal(dis);
@@ -527,7 +527,7 @@ public synchronized int unmarshal(java.nio.ByteBuffer byteBuffer) throws Excepti
         systemDesignator = Byte.toUnsignedInt(byteBuffer.get());
         systemSpecificData = Byte.toUnsignedInt(byteBuffer.get());
         fundamentalParameters.unmarshal(byteBuffer);
-        if (fundamentalParameters.getInformationLayers() != 0)
+        if (fundamentalParameters.getInformationLayers().getBitfield() != 0)
         	checkWhichLayersNeedsUnmarshaling();
         if (iFFPduLayer2Data != null)
             iFFPduLayer2Data.unmarshal(byteBuffer);
@@ -567,7 +567,7 @@ public static PduMap fromBufferToMap(java.nio.ByteBuffer byteBuffer) throws Exce
     map.put("systemDesignator", Byte.toUnsignedInt(byteBuffer.get()));
     map.put("systemSpecificData", Byte.toUnsignedInt(byteBuffer.get()));
     map.put("fundamentalParameters", FundamentalOperationalData.fromBufferToMap(byteBuffer));
-    if (((Number) ((PduMap) map.get("fundamentalParameters")).get("informationLayers")).byteValue() != 0)
+    if (((Number) ((PduMap) ((PduMap) map.get("fundamentalParameters")).get("informationLayers")).get("bitfield")).byteValue() != 0)
         initLayerKeys(map);
     if (map.containsKey("iFFPduLayer2Data"))
         map.put("iFFPduLayer2Data", IFFPduLayer2Data.fromBufferToMap(byteBuffer));
@@ -731,7 +731,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
 
  /** Does not initialize iFFPduLayerFormatDatas if systemID.getSystemType contains both transponder and interrogator, you need to choose one.*/
  private void checkWhichLayersNeedsUnmarshaling() {
-	 int informationLayers = fundamentalParameters.getInformationLayers();
+	 int informationLayers = fundamentalParameters.getInformationLayers().getBitfield();
 
 	 if (((informationLayers & 1 << LAYER_DATA_2_BIT_INDEX) > 0)) {
 	 		iFFPduLayer2Data = new IFFPduLayer2Data();
@@ -758,7 +758,7 @@ public static int getMarshalledSize(PduMap map) throws Exception
  }
  /** Does not initialize iFFPduLayerFormatDatas if systemID.getSystemType contains both transponder and interrogator, you need to choose one.*/
  private static void initLayerKeys(PduMap map) {
-	 byte informationLayers = ((Number) ((PduMap) map.get("fundamentalParameters")).get("informationLayers")).byteValue();
+	 byte informationLayers = ((Number) ((PduMap) ((PduMap) map.get("fundamentalParameters")).get("informationLayers")).get("bitfield")).byteValue();
      IFFSystemType iffSystemType = IFFSystemType.getEnumForValue(((Number) ((PduMap) map.get("systemID")).get("systemType")).intValue());
 
 	 if (((informationLayers & 1 << LAYER_DATA_2_BIT_INDEX) > 0)) {
