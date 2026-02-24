@@ -7,3 +7,7 @@
 /pduLog/Pdusave.dislog
 .DS_Store
 /nbproject/genfiles.properties
+/bin/
+/classes/
+.idea/
+*.iml
