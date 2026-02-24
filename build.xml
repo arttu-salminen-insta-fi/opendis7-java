@@ -127,7 +127,7 @@ POSSIBILITY OF SUCH DAMAGE.
         <antcall target="test"/>
         <echo message="TODO: more test suite additions, meanwhile individual programs are runnable OK"/>
         <echo message="================"/>
-        <antcall target="javadoc.custom"/>
+        <!-- antcall target="javadoc.custom"/ -->
         <echo message="================"/>
         <antcall target="jar"/>
         <copy file="license.txt"  todir="${dist.dir}" force="true" verbose="true"/>
