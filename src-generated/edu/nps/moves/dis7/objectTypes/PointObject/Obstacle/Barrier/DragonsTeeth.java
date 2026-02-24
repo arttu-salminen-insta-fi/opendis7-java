@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class DragonsTeeth extends ObjectType
 {
     /** Default constructor */
-    public DragonsTeeth()
+    public DragonsTeeth() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(1)); // Obstacle

@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class BarrierFenceWood6foot extends ObjectType
 {
     /** Default constructor */
-    public BarrierFenceWood6foot()
+    public BarrierFenceWood6foot() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(1)); // Obstacle

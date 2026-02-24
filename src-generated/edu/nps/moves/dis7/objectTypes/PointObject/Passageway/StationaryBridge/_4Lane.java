@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class _4Lane extends ObjectType
 {
     /** Default constructor */
-    public _4Lane()
+    public _4Lane() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(4)); // Passageway

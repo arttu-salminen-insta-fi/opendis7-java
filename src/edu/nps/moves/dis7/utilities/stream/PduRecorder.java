@@ -278,7 +278,11 @@ public class PduRecorder // implements PduReceiver
             disThreadedNetworkInterface.setVerbose(verbose);
 
             disRawPduListener = (DisThreadedNetworkInterface.ByteArrayBufferAndLength bAndL) -> {
-                receivePdu(bAndL.bufferByteArray, bAndL.length);
+                try {
+                    receivePdu(bAndL.bufferByteArray, bAndL.length);
+                } catch (Exception e) {
+                    System.out.println("Exception occured while receiving a PDU: " + e);
+                }
             };
             disThreadedNetworkInterface.addRawListener(disRawPduListener);
             System.out.println("[" + (getClass().getSimpleName() + " " + getDescriptor()).trim() + "] listening to IP address " + getAddress() + " on port " + getPort());
@@ -335,8 +339,7 @@ public class PduRecorder // implements PduReceiver
      * @param newBuffer byte array for receiving data
      * @param newLength length of byte array
      */
-    public void receivePdu(byte[] newBuffer, int newLength)
-    {
+    public void receivePdu(byte[] newBuffer, int newLength) throws Exception {
       if (sessionStartTime == null)
           sessionStartTime = LocalDateTime.now();
       

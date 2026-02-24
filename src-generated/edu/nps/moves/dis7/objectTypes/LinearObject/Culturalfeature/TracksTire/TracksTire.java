@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class TracksTire extends ObjectType
 {
     /** Default constructor */
-    public TracksTire()
+    public TracksTire() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

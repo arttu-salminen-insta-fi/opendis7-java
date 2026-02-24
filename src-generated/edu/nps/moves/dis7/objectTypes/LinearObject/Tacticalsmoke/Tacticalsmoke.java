@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class Tacticalsmoke extends ObjectType
 {
     /** Default constructor */
-    public Tacticalsmoke()
+    public Tacticalsmoke() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(0));
         setObjectKind(ObjectKind.getEnumForValue(5)); // Tactical smoke

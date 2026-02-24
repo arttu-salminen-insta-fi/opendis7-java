@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class Grenade extends ObjectType
 {
     /** Default constructor */
-    public Grenade()
+    public Grenade() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(0));
         setObjectKind(ObjectKind.getEnumForValue(5)); // Tactical smoke

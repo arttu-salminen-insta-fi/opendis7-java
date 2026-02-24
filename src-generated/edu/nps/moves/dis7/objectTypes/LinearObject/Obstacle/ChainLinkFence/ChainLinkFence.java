@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class ChainLinkFence extends ObjectType
 {
     /** Default constructor */
-    public ChainLinkFence()
+    public ChainLinkFence() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(1)); // Obstacle

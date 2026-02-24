@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class TentArctic extends ObjectType
 {
     /** Default constructor */
-    public TentArctic()
+    public TentArctic() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

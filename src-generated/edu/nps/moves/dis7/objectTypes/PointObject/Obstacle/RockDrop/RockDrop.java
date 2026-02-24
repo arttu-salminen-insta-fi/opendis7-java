@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class RockDrop extends ObjectType
 {
     /** Default constructor */
-    public RockDrop()
+    public RockDrop() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(1)); // Obstacle

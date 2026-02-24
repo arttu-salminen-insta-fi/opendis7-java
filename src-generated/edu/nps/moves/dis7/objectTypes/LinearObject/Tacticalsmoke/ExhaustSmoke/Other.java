@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class Other extends ObjectType
 {
     /** Default constructor */
-    public Other()
+    public Other() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(0));
         setObjectKind(ObjectKind.getEnumForValue(5)); // Tactical smoke

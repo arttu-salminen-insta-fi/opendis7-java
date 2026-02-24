@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class IndustrialProcessingPlant extends ObjectType
 {
     /** Default constructor */
-    public IndustrialProcessingPlant()
+    public IndustrialProcessingPlant() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

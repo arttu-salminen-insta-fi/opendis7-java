@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class AVLB extends ObjectType
 {
     /** Default constructor */
-    public AVLB()
+    public AVLB() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(4)); // Passageway

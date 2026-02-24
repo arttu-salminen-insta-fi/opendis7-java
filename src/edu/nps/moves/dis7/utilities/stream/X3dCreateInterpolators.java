@@ -42,7 +42,7 @@ public class X3dCreateInterpolators {
 
     }
 
-    public void addPointsToMap(byte[] localBufferShort) {
+    public void addPointsToMap(byte[] localBufferShort) throws Exception {
 
         this.bufferShort = localBufferShort.clone();
 

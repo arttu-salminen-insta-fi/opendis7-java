@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class FloodMedium extends ObjectType
 {
     /** Default constructor */
-    public FloodMedium()
+    public FloodMedium() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(8)); // Environmental Object

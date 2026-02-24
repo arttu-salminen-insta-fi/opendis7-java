@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class MOUTBuildingGasStation extends ObjectType
 {
     /** Default constructor */
-    public MOUTBuildingGasStation()
+    public MOUTBuildingGasStation() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

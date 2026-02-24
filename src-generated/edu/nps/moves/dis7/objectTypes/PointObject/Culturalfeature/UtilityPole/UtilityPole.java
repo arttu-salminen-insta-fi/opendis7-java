@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class UtilityPole extends ObjectType
 {
     /** Default constructor */
-    public UtilityPole()
+    public UtilityPole() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

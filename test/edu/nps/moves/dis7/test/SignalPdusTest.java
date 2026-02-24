@@ -167,8 +167,13 @@ public class SignalPdusTest
         // Note: the player will playback all log files in the given path
         PduPlayer pduPlayer = new PduPlayer(DisThreadedNetworkInterface.DEFAULT_DIS_ADDRESS, DisThreadedNetworkInterface.DEFAULT_DIS_PORT, path, false);
         pduPlayer.addRawListener(ba -> {
-            if (ba != null)
-                assertNotNull(pduFactory.createPdu(ba), "PDU creation failure");
+            if (ba != null) {
+                try {
+                    assertNotNull(pduFactory.createPdu(ba), "PDU creation failure");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
             else {
                 pduPlayer.end();
             }   

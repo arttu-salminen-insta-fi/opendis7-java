@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class Hanger extends ObjectType
 {
     /** Default constructor */
-    public Hanger()
+    public Hanger() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

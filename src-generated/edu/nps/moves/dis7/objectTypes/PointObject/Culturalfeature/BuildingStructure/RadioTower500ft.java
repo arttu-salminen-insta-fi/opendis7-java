@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class RadioTower500ft extends ObjectType
 {
     /** Default constructor */
-    public RadioTower500ft()
+    public RadioTower500ft() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

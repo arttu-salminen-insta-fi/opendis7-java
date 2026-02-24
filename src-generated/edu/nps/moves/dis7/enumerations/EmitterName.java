@@ -55,19 +55,16 @@ public interface EmitterName
      * @param value integer value of interest
      * @return enumeration corresponding to numeric value
      */
-    static EmitterName getEnumForValue(int value) {
+    static EmitterName getEnumForValue(int value) throws EnumNotFoundException {
         int[] lastValues = {25930, 45307};
-        Function<Integer, EmitterName>[] enumGetters = new Function[] { i -> EmitterName1.getEnumForValue((Integer) i), i -> EmitterName2.getEnumForValue((Integer) i) };
+        EnumGetterFunction<Integer, EmitterName>[] enumGetters = new EnumGetterFunction[] { i -> EmitterName1.getEnumForValue((Integer) i), i -> EmitterName2.getEnumForValue((Integer) i) };
 
         for (int i = 0; i < lastValues.length; i++) {
             if (value <= lastValues[i]) {
                 return enumGetters[i].apply(value);
             }
         }
-        System.out.flush(); // ensure contiguous console outputs
-        System.err.println("No corresponding enumeration found for value " + value + " of enum EmitterName");
-        System.err.flush(); // ensure contiguous console outputs
-        return null;
+        throw new EnumNotFoundException("No corresponding enumeration found for value " + value + " of enum EmitterName");
     }
 
     /**

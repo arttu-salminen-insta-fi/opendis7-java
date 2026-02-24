@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class FOBGuardTower extends ObjectType
 {
     /** Default constructor */
-    public FOBGuardTower()
+    public FOBGuardTower() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

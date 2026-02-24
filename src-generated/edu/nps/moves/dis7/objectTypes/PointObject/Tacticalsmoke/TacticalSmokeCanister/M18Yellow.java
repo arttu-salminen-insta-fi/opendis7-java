@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class M18Yellow extends ObjectType
 {
     /** Default constructor */
-    public M18Yellow()
+    public M18Yellow() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(0));
         setObjectKind(ObjectKind.getEnumForValue(5)); // Tactical smoke

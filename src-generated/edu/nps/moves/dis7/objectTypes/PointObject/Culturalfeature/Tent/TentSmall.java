@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class TentSmall extends ObjectType
 {
     /** Default constructor */
-    public TentSmall()
+    public TentSmall() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

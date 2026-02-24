@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class _8Tree extends ObjectType
 {
     /** Default constructor */
-    public _8Tree()
+    public _8Tree() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(1)); // Obstacle

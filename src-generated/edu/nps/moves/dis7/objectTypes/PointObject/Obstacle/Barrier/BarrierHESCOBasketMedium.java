@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class BarrierHESCOBasketMedium extends ObjectType
 {
     /** Default constructor */
-    public BarrierHESCOBasketMedium()
+    public BarrierHESCOBasketMedium() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(1)); // Obstacle

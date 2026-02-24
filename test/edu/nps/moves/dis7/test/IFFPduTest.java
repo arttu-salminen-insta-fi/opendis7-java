@@ -2,20 +2,13 @@ package edu.nps.moves.dis7.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import edu.nps.moves.dis7.pdus.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import edu.nps.moves.dis7.enumerations.IFFSystemType;
 import edu.nps.moves.dis7.enumerations.Mode5Reply;
-import edu.nps.moves.dis7.pdus.FundamentalOperationalData;
-import edu.nps.moves.dis7.pdus.IFFPdu;
-import edu.nps.moves.dis7.pdus.IFFPduLayer3TransponderFormatData;
-import edu.nps.moves.dis7.pdus.IFFPduLayer4TransponderFormatData;
-import edu.nps.moves.dis7.pdus.LayerHeader;
-import edu.nps.moves.dis7.pdus.Mode5TransponderBasicData;
-import edu.nps.moves.dis7.pdus.Pdu;
-import edu.nps.moves.dis7.pdus.SystemIdentifier;
 import edu.nps.moves.dis7.utilities.data.IFFMode5StatusRecord;
 
 @DisplayName("IFFPduTest")
@@ -41,7 +34,7 @@ public class IFFPduTest extends PduTest{
 		systemID.setSystemType(IFFSystemType.MARK_X_XII_ATCRBS_TRANSPONDER);
 		iffPdu.setSystemID(systemID);
 		FundamentalOperationalData operationData = new FundamentalOperationalData();
-		operationData.setInformationLayers(25);
+		operationData.setInformationLayers(new InformationLayersRecord().setBitfield(25));
 		iffPdu.setFundamentalParameters(operationData);
 		
 		// Lets create layer 3 mode 5

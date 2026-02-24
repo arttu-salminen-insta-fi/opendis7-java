@@ -59,7 +59,7 @@ public class PduMapTest {
     public void IFFPdu() throws Exception {
         IFFPdu pdu = new IFFPdu();
         pdu.setIFFPduLayer3TransponderFormatData(new IFFPduLayer3TransponderFormatData());
-        pdu.getFundamentalParameters().setInformationLayers(1 << 3);
+        pdu.getFundamentalParameters().setInformationLayers(new InformationLayersRecord().setBitfield(1 << 3));
         pdu.getSystemID().setSystemType(IFFSystemType.MODE_5_TRANSPONDER);
         PduMap map = IFFPdu.fromBufferToMap(processToBuffer(pdu));
         recursivePrint(0, map);

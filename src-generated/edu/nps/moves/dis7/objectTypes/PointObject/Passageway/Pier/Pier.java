@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class Pier extends ObjectType
 {
     /** Default constructor */
-    public Pier()
+    public Pier() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(4)); // Passageway

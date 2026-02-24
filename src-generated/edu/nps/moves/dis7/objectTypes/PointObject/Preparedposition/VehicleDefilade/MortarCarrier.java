@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class MortarCarrier extends ObjectType
 {
     /** Default constructor */
-    public MortarCarrier()
+    public MortarCarrier() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(2)); // Prepared position

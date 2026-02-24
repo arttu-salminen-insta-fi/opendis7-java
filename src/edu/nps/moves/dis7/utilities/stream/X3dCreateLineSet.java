@@ -47,8 +47,7 @@ public class X3dCreateLineSet {
         coordinateNumberFormat.setMaximumFractionDigits(3);
     }
 
-    public void addPointsToMap(byte[] localBufferShort)
-    {
+    public void addPointsToMap(byte[] localBufferShort) throws Exception {
         this.bufferShort = localBufferShort.clone();
 
         if (bufferShort[2] == 1) {

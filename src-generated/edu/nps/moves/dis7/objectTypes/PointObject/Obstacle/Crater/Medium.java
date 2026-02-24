@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class Medium extends ObjectType
 {
     /** Default constructor */
-    public Medium()
+    public Medium() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(1)); // Obstacle

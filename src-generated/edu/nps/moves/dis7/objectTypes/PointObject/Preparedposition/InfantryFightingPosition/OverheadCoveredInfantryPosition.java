@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class OverheadCoveredInfantryPosition extends ObjectType
 {
     /** Default constructor */
-    public OverheadCoveredInfantryPosition()
+    public OverheadCoveredInfantryPosition() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(2)); // Prepared position

@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class LinearObject extends ObjectType
 {
     /** Default constructor */
-    public LinearObject()
+    public LinearObject() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
     }

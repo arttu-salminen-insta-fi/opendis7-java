@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class PointObject extends ObjectType
 {
     /** Default constructor */
-    public PointObject()
+    public PointObject() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
     }

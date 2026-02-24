@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class M60A1 extends ObjectType
 {
     /** Default constructor */
-    public M60A1()
+    public M60A1() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(4)); // Passageway

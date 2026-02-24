@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class Obstaclebreach extends ObjectType
 {
     /** Default constructor */
-    public Obstaclebreach()
+    public Obstaclebreach() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(7)); // Obstacle breach

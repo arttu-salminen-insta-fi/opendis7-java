@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class TentBedouin extends ObjectType
 {
     /** Default constructor */
-    public TentBedouin()
+    public TentBedouin() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

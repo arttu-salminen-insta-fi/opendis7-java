@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class Passageway extends ObjectType
 {
     /** Default constructor */
-    public Passageway()
+    public Passageway() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(4)); // Passageway

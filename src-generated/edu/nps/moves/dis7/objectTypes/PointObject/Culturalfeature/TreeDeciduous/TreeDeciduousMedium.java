@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class TreeDeciduousMedium extends ObjectType
 {
     /** Default constructor */
-    public TreeDeciduousMedium()
+    public TreeDeciduousMedium() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

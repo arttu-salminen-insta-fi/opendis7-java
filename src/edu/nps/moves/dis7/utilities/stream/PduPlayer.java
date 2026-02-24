@@ -6,6 +6,8 @@ package edu.nps.moves.dis7.utilities.stream;
 
 import com.google.common.primitives.Longs;
 import edu.nps.moves.dis7.enumerations.DisPduType;
+import edu.nps.moves.dis7.pdus.EnumNotFoundException;
+
 import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -434,7 +436,7 @@ public class PduPlayer {
             if (rawListener != null) {
                 rawListener.receiveBytes(null); // indicate the end
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             System.err.println("Exception reading/writing pdus: " + ex.getClass().getSimpleName() + ": " + ex.getLocalizedMessage());
             ex.printStackTrace();
             playerThread = null;

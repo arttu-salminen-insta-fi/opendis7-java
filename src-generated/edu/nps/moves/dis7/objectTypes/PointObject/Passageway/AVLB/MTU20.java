@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class MTU20 extends ObjectType
 {
     /** Default constructor */
-    public MTU20()
+    public MTU20() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(4)); // Passageway

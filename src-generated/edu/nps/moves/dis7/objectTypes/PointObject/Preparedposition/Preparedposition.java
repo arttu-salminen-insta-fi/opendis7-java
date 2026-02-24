@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class Preparedposition extends ObjectType
 {
     /** Default constructor */
-    public Preparedposition()
+    public Preparedposition() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(2)); // Prepared position

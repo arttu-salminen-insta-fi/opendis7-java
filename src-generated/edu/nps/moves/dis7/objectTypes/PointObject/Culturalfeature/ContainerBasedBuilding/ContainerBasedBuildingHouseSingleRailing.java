@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class ContainerBasedBuildingHouseSingleRailing extends ObjectType
 {
     /** Default constructor */
-    public ContainerBasedBuildingHouseSingleRailing()
+    public ContainerBasedBuildingHouseSingleRailing() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

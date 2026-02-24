@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class ArealObject extends ObjectType
 {
     /** Default constructor */
-    public ArealObject()
+    public ArealObject() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(0));
     }

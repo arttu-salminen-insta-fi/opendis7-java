@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class TentExpandableFrame extends ObjectType
 {
     /** Default constructor */
-    public TentExpandableFrame()
+    public TentExpandableFrame() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

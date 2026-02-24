@@ -244,8 +244,13 @@ public class AllPduRoundTripTest
     PduPlayer player = new PduPlayer(disNetworkInterface.getAddress(), disNetworkInterface.getPort(), path, false);
     player.addRawListener(ba -> {
       if (ba != null) {
-        Pdu pdu = pduFactory.createPdu(ba);
-        pdusRead.add(pdu);
+          Pdu pdu = null;
+          try {
+              pdu = pduFactory.createPdu(ba);
+          } catch (Exception e) {
+              throw new RuntimeException(e);
+          }
+          pdusRead.add(pdu);
       }
       else {
         player.end();

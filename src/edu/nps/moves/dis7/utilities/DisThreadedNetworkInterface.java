@@ -490,7 +490,7 @@ public class DisThreadedNetworkInterface
                 toListeners(nextPdu);
                 bBuffer.clear();
             }
-            catch (IOException ex)
+            catch (Exception ex)
             {
                 // read commonly times out while waiting for PDUs to arrive, and so this trace statement is for debugging
 //              System.err.println(TRACE_PREFIX + "Exception in DisThreadedNetworkInterface receiveThread: " + ex.getLocalizedMessage());

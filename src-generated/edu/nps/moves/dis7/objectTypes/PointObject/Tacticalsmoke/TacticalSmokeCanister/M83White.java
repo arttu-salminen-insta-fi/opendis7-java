@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class M83White extends ObjectType
 {
     /** Default constructor */
-    public M83White()
+    public M83White() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(0));
         setObjectKind(ObjectKind.getEnumForValue(5)); // Tactical smoke

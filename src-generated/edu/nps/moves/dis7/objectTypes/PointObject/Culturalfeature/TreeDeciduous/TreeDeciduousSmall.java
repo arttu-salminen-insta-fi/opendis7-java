@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class TreeDeciduousSmall extends ObjectType
 {
     /** Default constructor */
-    public TreeDeciduousSmall()
+    public TreeDeciduousSmall() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

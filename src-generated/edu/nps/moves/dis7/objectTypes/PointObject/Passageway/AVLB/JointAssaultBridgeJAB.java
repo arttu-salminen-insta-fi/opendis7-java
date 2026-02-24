@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class JointAssaultBridgeJAB extends ObjectType
 {
     /** Default constructor */
-    public JointAssaultBridgeJAB()
+    public JointAssaultBridgeJAB() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(4)); // Passageway

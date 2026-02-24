@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class MOUTBuildingWaterTower extends ObjectType
 {
     /** Default constructor */
-    public MOUTBuildingWaterTower()
+    public MOUTBuildingWaterTower() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

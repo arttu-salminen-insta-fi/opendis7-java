@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class Obstacle extends ObjectType
 {
     /** Default constructor */
-    public Obstacle()
+    public Obstacle() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(1)); // Obstacle

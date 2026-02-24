@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class LightweightMaintenanceEnclosureLMEM1 extends ObjectType
 {
     /** Default constructor */
-    public LightweightMaintenanceEnclosureLMEM1()
+    public LightweightMaintenanceEnclosureLMEM1() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(3)); // Cultural feature

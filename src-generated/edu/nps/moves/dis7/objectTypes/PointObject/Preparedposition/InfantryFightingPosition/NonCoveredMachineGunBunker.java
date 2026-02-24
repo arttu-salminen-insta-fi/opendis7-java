@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class NonCoveredMachineGunBunker extends ObjectType
 {
     /** Default constructor */
-    public NonCoveredMachineGunBunker()
+    public NonCoveredMachineGunBunker() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(2)); // Prepared position

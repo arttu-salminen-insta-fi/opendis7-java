@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class Triangular extends ObjectType
 {
     /** Default constructor */
-    public Triangular()
+    public Triangular() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(1)); // Obstacle

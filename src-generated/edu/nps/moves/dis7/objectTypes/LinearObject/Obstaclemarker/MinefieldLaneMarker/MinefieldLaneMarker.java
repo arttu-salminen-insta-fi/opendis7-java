@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class MinefieldLaneMarker extends ObjectType
 {
     /** Default constructor */
-    public MinefieldLaneMarker()
+    public MinefieldLaneMarker() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(6)); // Obstacle marker

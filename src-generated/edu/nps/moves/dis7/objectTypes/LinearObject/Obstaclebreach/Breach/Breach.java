@@ -20,7 +20,7 @@ import edu.nps.moves.dis7.enumerations.*;
 public class Breach extends ObjectType
 {
     /** Default constructor */
-    public Breach()
+    public Breach() throws EnumNotFoundException
     {
         setDomain(PlatformDomain.getEnumForValue(1));
         setObjectKind(ObjectKind.getEnumForValue(7)); // Obstacle breach
